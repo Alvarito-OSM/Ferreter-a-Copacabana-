@@ -1,7 +1,7 @@
 package com.ferreteria.copacabana.controller;
 
-import com.ferreteria.copacabana.model.empleado;
-import com.ferreteria.copacabana.service.empleadoService;
+import com.ferreteria.copacabana.model.Empleado;
+import com.ferreteria.copacabana.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,30 +10,30 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/empleados")
-public class empleadoController {
+public class EmpleadoController {
 
     @Autowired
-    private empleadoService empleadoService;
+    private EmpleadoService empleadoService;
 
     @GetMapping
-    public List<empleado> listar() {
+    public List<Empleado> listar() {
         return empleadoService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<empleado> buscar(@PathVariable Integer id) {
+    public ResponseEntity<Empleado> buscar(@PathVariable Integer id) {
         return empleadoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public empleado crear(@RequestBody empleado empleado) {
+    public Empleado crear(@RequestBody Empleado empleado) {
         return empleadoService.guardar(empleado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<empleado> actualizar(@PathVariable Integer id, @RequestBody empleado empleado) {
+    public ResponseEntity<Empleado> actualizar(@PathVariable Integer id, @RequestBody Empleado empleado) {
         return empleadoService.buscarPorId(id)
                 .map(e -> {
                     empleado.setIdEmpleado(id);

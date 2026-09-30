@@ -1,7 +1,7 @@
 package com.ferreteria.copacabana.service;
 
-import com.ferreteria.copacabana.model.cliente;
-import com.ferreteria.copacabana.repository.clienteRepository;
+import com.ferreteria.copacabana.model.Cliente;
+import com.ferreteria.copacabana.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,20 +9,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class clienteService {
+public class ClienteService {
 
     @Autowired
-    private clienteRepository clienteRepository;
+    private ClienteRepository clienteRepository;
 
-    public List<cliente> listarTodos() {
+    public List<Cliente> listarTodos() {
         return clienteRepository.findAll();
     }
 
-    public Optional<cliente> buscarPorId(Integer id) {
+    public Optional<Cliente> buscarPorId(Integer id) {
         return clienteRepository.findById(id);
     }
 
-    public cliente guardar(cliente cliente) {
+    public Cliente guardar(Cliente cliente) {
         return clienteRepository.save(cliente);
     }
 

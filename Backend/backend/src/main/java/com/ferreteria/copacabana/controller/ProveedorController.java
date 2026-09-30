@@ -1,7 +1,7 @@
 package com.ferreteria.copacabana.controller;
 
-import com.ferreteria.copacabana.model.proveedor;
-import com.ferreteria.copacabana.service.proveedorService;
+import com.ferreteria.copacabana.model.Proveedor;
+import com.ferreteria.copacabana.service.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,30 +10,30 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/proveedores")
-public class proveedorController {
+public class ProveedorController {
 
     @Autowired
-    private proveedorService proveedorService;
+    private ProveedorService proveedorService;
 
     @GetMapping
-    public List<proveedor> listar() {
+    public List<Proveedor> listar() {
         return proveedorService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<proveedor> buscar(@PathVariable Integer id) {
+    public ResponseEntity<Proveedor> buscar(@PathVariable Integer id) {
         return proveedorService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public proveedor crear(@RequestBody proveedor nuevoProveedor) {
+    public Proveedor crear(@RequestBody Proveedor nuevoProveedor) {
         return proveedorService.guardar(nuevoProveedor);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<proveedor> actualizar(@PathVariable Integer id, @RequestBody proveedor nuevoProveedor) {
+    public ResponseEntity<Proveedor> actualizar(@PathVariable Integer id, @RequestBody Proveedor nuevoProveedor) {
         return proveedorService.buscarPorId(id)
                 .map(p -> {
                     nuevoProveedor.setIdProveedor(id);

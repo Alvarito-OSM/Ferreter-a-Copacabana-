@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class inventario {
+public class Inventario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class inventario {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false, unique = true)
-    private producto producto;
+    private Producto producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_administrador", nullable = false)

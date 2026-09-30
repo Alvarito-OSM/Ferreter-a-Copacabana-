@@ -1,7 +1,7 @@
 package com.ferreteria.copacabana.controller;
 
-import com.ferreteria.copacabana.model.categoria;
-import com.ferreteria.copacabana.service.categoriaService;
+import com.ferreteria.copacabana.model.Categoria;
+import com.ferreteria.copacabana.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,30 +10,30 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categorias")
-public class categoriaController {
+public class CategoriaController {
 
     @Autowired
-    private categoriaService categoriaService;
+    private CategoriaService categoriaService;
 
     @GetMapping
-    public List<categoria> listar() {
+    public List<Categoria> listar() {
         return categoriaService.listarTodas();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<categoria> buscar(@PathVariable Integer id) {
+    public ResponseEntity<Categoria> buscar(@PathVariable Integer id) {
         return categoriaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public categoria crear(@RequestBody categoria categoria) {
+    public Categoria crear(@RequestBody Categoria categoria) {
         return categoriaService.guardar(categoria);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<categoria> actualizar(@PathVariable Integer id, @RequestBody categoria categoria) {
+    public ResponseEntity<Categoria> actualizar(@PathVariable Integer id, @RequestBody Categoria categoria) {
         return categoriaService.buscarPorId(id)
                 .map(c -> {
                     categoria.setIdCategoria(id);
