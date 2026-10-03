@@ -46,8 +46,18 @@ public class Empleado {
     private String contrasena;
 
     @Column(name = "fecha_ingreso", nullable = false)
-    private LocalDate fechaIngreso = LocalDate.now();
+    private LocalDate fechaIngreso;
 
     @Column(nullable = false)
-    private Boolean estado = true;
+    private Boolean estado;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.fechaIngreso == null) {
+            this.fechaIngreso = LocalDate.now();
+        }
+        if (this.estado == null) {
+            this.estado = true;
+        }
+    }
 }

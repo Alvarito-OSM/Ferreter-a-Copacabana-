@@ -35,8 +35,18 @@ public class Cliente {
     private String direccion;
 
     @Column(name = "fecha_registro", nullable = false, updatable = false)
-    private LocalDateTime fechaRegistro = LocalDateTime.now();
+    private LocalDateTime fechaRegistro;
 
     @Column(nullable = false)
-    private Boolean estado = true;
+    private Boolean estado;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.fechaRegistro == null) {
+            this.fechaRegistro = LocalDateTime.now();
+        }
+        if (this.estado == null) {
+            this.estado = true;
+        }
+    }
 }

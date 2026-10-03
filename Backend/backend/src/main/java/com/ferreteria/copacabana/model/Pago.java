@@ -27,4 +27,11 @@ public class Pago {
 
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.fecha == null) {
+            this.fecha = LocalDateTime.now();
+        }
+    }
 }
