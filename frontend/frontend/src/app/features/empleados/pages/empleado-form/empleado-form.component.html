@@ -1,0 +1,38 @@
+<div class="container mt-4">
+  <h2>{{ esEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}</h2>
+
+  <form [formGroup]="formEmpleado" (ngSubmit)="guardar()">
+    <div class="mb-3">
+      <label class="form-label">Nombres</label>
+      <input type="text" class="form-control" formControlName="nombres">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Apellidos</label>
+      <input type="text" class="form-control" formControlName="apellidos">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">CI (Carnet de Identidad)</label>
+      <input type="text" class="form-control" formControlName="ci">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Teléfono</label>
+      <input type="text" class="form-control" formControlName="telefono">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control" formControlName="email">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Cargo</label>
+      <input type="text" class="form-control" formControlName="cargo" placeholder="Ej. Vendedor, Cajero, Almacenero">
+    </div>
+
+    <button type="submit" class="btn btn-success me-2" [disabled]="formEmpleado.invalid">Guardar</button>
+    <button type="button" class="btn btn-secondary" routerLink="/empleados">Cancelar</button>
+  </form>
+</div>
