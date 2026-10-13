@@ -1,38 +1,65 @@
-<div class="container mt-4">
-  <h2>{{ esEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}</h2>
+<div class="page-container">
 
-  <form [formGroup]="formEmpleado" (ngSubmit)="guardar()">
-    <div class="mb-3">
-      <label class="form-label">Nombres</label>
-      <input type="text" class="form-control" formControlName="nombres">
+  <div class="page-header">
+    <div>
+      <h1>{{ esEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}</h1>
+      <p class="page-subtitle">
+        {{ esEdicion ? 'Modifica los datos del empleado' : 'Registra un nuevo empleado en el sistema' }}
+      </p>
     </div>
+  </div>
 
-    <div class="mb-3">
-      <label class="form-label">Apellidos</label>
-      <input type="text" class="form-control" formControlName="apellidos">
-    </div>
+  <div class="form-card">
+    <form [formGroup]="formEmpleado" (ngSubmit)="guardar()">
 
-    <div class="mb-3">
-      <label class="form-label">CI (Carnet de Identidad)</label>
-      <input type="text" class="form-control" formControlName="ci">
-    </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nombres">Nombres</label>
+          <input id="nombres" type="text" formControlName="nombres" placeholder="Ej: Juan Carlos">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Teléfono</label>
-      <input type="text" class="form-control" formControlName="telefono">
-    </div>
+        <div class="form-group">
+          <label for="apellidos">Apellidos</label>
+          <input id="apellidos" type="text" formControlName="apellidos" placeholder="Ej: Pérez Gómez">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" formControlName="email">
-    </div>
+        <div class="form-group">
+          <label for="ci">Cédula de Identidad</label>
+          <input id="ci" type="text" formControlName="ci" placeholder="Ej: 12345678">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Cargo</label>
-      <input type="text" class="form-control" formControlName="cargo" placeholder="Ej. Vendedor, Cajero, Almacenero">
-    </div>
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input id="telefono" type="text" formControlName="telefono" placeholder="Ej: 71234567">
+        </div>
 
-    <button type="submit" class="btn btn-success me-2" [disabled]="formEmpleado.invalid">Guardar</button>
-    <button type="button" class="btn btn-secondary" routerLink="/empleados">Cancelar</button>
-  </form>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" placeholder="Ej: empleado@ferreteria.bo">
+        </div>
+
+        <div class="form-group">
+          <label for="cargo">Cargo</label>
+          <input id="cargo" type="text" formControlName="cargo" placeholder="Ej: Vendedor">
+        </div>
+
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <select id="estado" formControlName="estado">
+            <option [value]="true">Activo</option>
+            <option [value]="false">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/empleados" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="formEmpleado.invalid">
+          {{ esEdicion ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
 </div>

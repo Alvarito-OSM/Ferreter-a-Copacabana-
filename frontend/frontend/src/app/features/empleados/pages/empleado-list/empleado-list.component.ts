@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { EmpleadoService } from '../../../../core/services/empleado.service';
 import { Empleado } from '../../../../core/models/empleado';
 
 @Component({
   selector: 'app-empleado-list',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './empleado-list.component.html',
-  styleUrls: ['./empleado-list.component.css']
+  styleUrls: ['./empleado-list.component.css'] 
 })
 export class EmpleadoListComponent implements OnInit {
   empleados: Empleado[] = [];

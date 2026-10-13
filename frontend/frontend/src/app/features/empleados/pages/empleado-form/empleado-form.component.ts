@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EmpleadoService } from '../../../../core/services/empleado.service';
 
 @Component({
   selector: 'app-empleado-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './empleado-form.component.html',
-  styleUrls: ['./empleado-form.component.css']
+  styleUrls: ['./empleado-form.component.css'] 
 })
 export class EmpleadoFormComponent implements OnInit {
   formEmpleado: FormGroup;
