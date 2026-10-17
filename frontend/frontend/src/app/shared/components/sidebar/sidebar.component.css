@@ -1,5 +1,6 @@
 .sidebar {
   width: 260px;
+  height: 100vh;
   background: #0f172a;
   color: #ffffff;
   display: flex;
@@ -38,11 +39,13 @@
 .brand-text strong {
   font-size: 15px;
   font-weight: 700;
+  color: #ffffff;
 }
 
 .brand-text small {
   font-size: 11px;
   color: #94a3b8;
+  font-weight: 500;
 }
 
 .sidebar-nav {
@@ -58,7 +61,9 @@
 }
 
 .nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 11px 16px;
   font-size: 14px;
   font-weight: 500;
@@ -68,6 +73,12 @@
   margin-bottom: 2px;
   cursor: pointer;
   text-decoration: none;
+}
+
+.nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
 }
 
 .nav-link:hover {

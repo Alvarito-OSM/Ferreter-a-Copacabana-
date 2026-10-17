@@ -1,0 +1,26 @@
+<aside class="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-icon">FC</div>
+    <div class="brand-text">
+      <strong>Ferretería</strong>
+      <small>Copacabana</small>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li *ngFor="let item of menuVisible">
+        <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <small>Sistema v1.0</small>
+  </div>
+
+</aside>

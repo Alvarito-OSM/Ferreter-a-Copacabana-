@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 interface MenuItem {
   label: string;
   path: string;
+  icon: string;
   soloAdmin?: boolean;
 }
 
@@ -19,17 +20,11 @@ interface MenuItem {
 export class SidebarComponent {
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Productos', path: '/productos' },
-    { label: 'Categorías', path: '/categorias' },
-    { label: 'Clientes', path: '/clientes' },
-    { label: 'Proveedores', path: '/proveedores' },
-    { label: 'Empleados', path: '/empleados', soloAdmin: true },
-    { label: 'Inventario', path: '/inventario' },
-    { label: 'Ventas', path: '/ventas' },
-    { label: 'Compras', path: '/compras' },
-    { label: 'Pagos', path: '/pagos' },
-    { label: 'Reportes', path: '/reportes', soloAdmin: true }
+    { label: 'Dashboard', path: '/dashboard', icon: '' },
+    { label: 'Productos', path: '/productos', icon: '' },
+    { label: 'Categorías', path: '/categorias', icon: '' },
+    { label: 'Clientes', path: '/clientes', icon: '' },
+    { label: 'Empleados', path: '/empleados', icon: '', soloAdmin: true }
   ];
 
   constructor(private authService: AuthService) {}
