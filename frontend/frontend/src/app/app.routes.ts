@@ -28,7 +28,25 @@ export const routes: Routes = [
         path: 'empleados/editar/:id',
         loadComponent: () => import('./features/empleados/pages/empleado-form/empleado-form.component').then(m => m.EmpleadoFormComponent)
       },
+      {
+        path: 'clientes',
+        loadComponent: () => import('./features/clientes/clientes.component').then(m => m.ClientesComponent)
+      },
+      {
+        path: 'categorias',
+        loadComponent: () => import('./features/categorias/categorias.component').then(m => m.CategoriasComponent)
+      },
+      
+      {
+        path: 'productos',
+        loadComponent: () =>
+          import('./features/productos/productos.component')
+            .then(m => m.ProductosComponent)
+      },
+
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+
     ]
   },
   { path: '**', redirectTo: 'login' }

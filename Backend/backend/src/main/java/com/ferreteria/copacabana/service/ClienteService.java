@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -28,5 +29,27 @@ public class ClienteService {
 
     public void eliminar(Integer id) {
         clienteRepository.deleteById(id);
+    }
+
+    public List<Cliente> buscar(String texto) {
+        List<Cliente> clientes = listarTodos();
+
+        if (texto == null || texto.isBlank()) {
+            return clientes;
+        }
+
+        String filtro = texto.trim().toLowerCase(Locale.ROOT);
+
+        return clientes.stream()
+                .filter(cliente ->
+                        contiene(cliente.getNombre(), filtro)
+                        || contiene(cliente.getApellido(), filtro)
+                        || contiene(cliente.getCedulaNit(), filtro))
+                .toList();
+    }
+
+    private boolean contiene(String valor, String filtro) {
+        return valor != null
+                && valor.toLowerCase(Locale.ROOT).contains(filtro);
     }
 }

@@ -57,4 +57,31 @@ public class ProductoController {
         productosService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PostMapping("/validado")
+    public ResponseEntity<Producto> crearValidado(
+            @RequestBody Producto producto
+    ) {
+        producto.setIdProducto(null);
+
+        return ResponseEntity
+                .status(201)
+                .body(productosService.guardarValidado(producto));
+    }
+
+    @PutMapping("/{id}/validado")
+    public ResponseEntity<Producto> actualizarValidado(
+            @PathVariable Integer id,
+            @RequestBody Producto producto
+    ) {
+        if (productosService.buscarPorId(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        producto.setIdProducto(id);
+
+        return ResponseEntity.ok(
+                productosService.guardarValidado(producto)
+        );
+    }
 }
