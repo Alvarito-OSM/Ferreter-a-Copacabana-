@@ -1,227 +1,122 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CategoriaService } from '../../core/services/categoria.service';
-import { Categoria } from '../../core/models/categoria'; 
+import { Categoria } from '../../core/models/categoria';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <section class="container py-4">
-      <h2 class="mb-4">Gestión de Categorías</h2>
-
-      <div *ngIf="mensaje"
-           class="alert"
-           [class.alert-success]="!error"
-           [class.alert-danger]="error">
-        {{ mensaje }}
-      </div>
-
-      <div class="card mb-4">
-        <div class="card-header">
-          {{ editando ? 'Editar categoría' : 'Nueva categoría' }}
-        </div>
-
-        <div class="card-body">
-          <form #formulario="ngForm" (ngSubmit)="guardar()">
-            <div class="mb-3">
-              <label class="form-label">Nombre</label>
-              <input
-                class="form-control"
-                name="nombre"
-                [(ngModel)]="categoria.nombre"
-                maxlength="80"
-                required
-              />
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Descripción</label>
-              <textarea
-                class="form-control"
-                name="descripcion"
-                [(ngModel)]="categoria.descripcion"
-                maxlength="255"
-              ></textarea>
-            </div>
-
-            <button
-              class="btn btn-primary me-2"
-              type="submit"
-              [disabled]="formulario.invalid || guardando">
-              {{ editando ? 'Actualizar' : 'Guardar' }}
-            </button>
-
-            <button
-              class="btn btn-secondary"
-              type="button"
-              (click)="limpiar()">
-              Cancelar
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">Lista de categorías</div>
-
-        <div class="card-body">
-          <input
-            class="form-control mb-3"
-            placeholder="Buscar categoría..."
-            [(ngModel)]="busqueda"
-          />
-
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr *ngFor="let c of categoriasFiltradas">
-                  <td>{{ c.idCategoria }}</td>
-                  <td>{{ c.nombre }}</td>
-                  <td>{{ c.descripcion }}</td>
-                  <td>
-                    <button
-                      class="btn btn-warning btn-sm me-2"
-                      (click)="editar(c)">
-                      Editar
-                    </button>
-
-                    <button
-                      class="btn btn-danger btn-sm"
-                      (click)="eliminar(c)">
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-
-                <tr *ngIf="categoriasFiltradas.length === 0">
-                  <td colspan="4" class="text-center">
-                    No hay categorías para mostrar.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-  `
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './categorias.component.html',
+  styleUrls: ['./categorias.component.css']
 })
 export class CategoriasComponent implements OnInit {
-
-  private service = inject(CategoriaService);
-
   categorias: Categoria[] = [];
-  categoria: Categoria = this.nuevaCategoria();
-
+  formCategoria: FormGroup;
+  esEdicion = false;
+  idEdicion?: number;
+  mostrarFormulario = false;
   busqueda = '';
-  mensaje = '';
-  error = false;
-  editando = false;
-  guardando = false;
+  mensajeExito = '';
 
-  ngOnInit(): void {
-    this.cargar();
-  }
-
-  nuevaCategoria(): Categoria {
-    return {
-      nombre: '',
-      descripcion: ''
-    };
-  }
-
-  cargar(): void {
-    this.service.listar().subscribe({
-      next: datos => this.categorias = datos,
-      error: () => {
-        this.error = true;
-        this.mensaje = 'No se pudieron cargar las categorías.';
-      }
+  constructor(
+    private categoriaService: CategoriaService,
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.formCategoria = this.fb.group({
+      nombre: ['', Validators.required],
+      descripcion: ['']
     });
   }
 
-  get categoriasFiltradas(): Categoria[] {
-    const texto = this.busqueda.trim().toLowerCase();
+  ngOnInit(): void {
+    this.cargarCategorias();
+  }
 
-    return this.categorias.filter(c =>
-      c.nombre.toLowerCase().includes(texto)
+  cargarCategorias(): void {
+    // Usamos obtenerCategorias() que es el que ya tenías
+    this.categoriaService.obtenerCategorias().subscribe({
+      next: (data: Categoria[]) => {
+        this.categorias = data;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => console.error('Error al cargar categorías', err)
+    });
+  }
+
+  buscar(): void {
+    if (!this.busqueda.trim()) {
+      this.cargarCategorias();
+      return;
+    }
+    const busquedaLower = this.busqueda.toLowerCase();
+    this.categorias = this.categorias.filter(c => 
+      c.nombre.toLowerCase().includes(busquedaLower)
     );
+    this.cdr.detectChanges();
+  }
+
+  abrirFormulario(categoria?: Categoria): void {
+    this.mostrarFormulario = true;
+    if (categoria) {
+      this.esEdicion = true;
+      this.idEdicion = categoria.idCategoria;
+      this.formCategoria.patchValue({
+        nombre: categoria.nombre,
+        descripcion: categoria.descripcion
+      });
+    } else {
+      this.esEdicion = false;
+      this.idEdicion = undefined;
+      this.formCategoria.reset();
+    }
+  }
+
+  cerrarFormulario(): void {
+    this.mostrarFormulario = false;
+    this.formCategoria.reset();
   }
 
   guardar(): void {
-    if (!this.categoria.nombre.trim() || this.guardando) return;
+    if (this.formCategoria.invalid) return;
 
-    this.guardando = true;
+    const valores = this.formCategoria.value;
 
-    const operacion = this.editando &&
-      this.categoria.idCategoria != null
-        ? this.service.actualizar(
-            this.categoria.idCategoria,
-            this.categoria
-          )
-        : this.service.crear(this.categoria);
-
-    operacion.subscribe({
-      next: () => {
-        this.guardando = false;
-        this.error = false;
-        this.mensaje = 'Categoría guardada correctamente.';
-        this.limpiar(false);
-        this.cargar();
-      },
-      error: err => {
-        this.guardando = false;
-        this.error = true;
-        this.mensaje =
-          err.error?.mensaje ||
-          err.error?.detail ||
-          'No se pudo guardar la categoría.';
-      }
-    });
+    if (this.esEdicion && this.idEdicion) {
+      // CAMBIO: Usamos actualizar() en lugar de actualizarCategoria()
+      this.categoriaService.actualizar(this.idEdicion, valores).subscribe({
+        next: () => this.finalizarGuardado('Categoría actualizada correctamente'),
+        error: (err: any) => alert('Error al actualizar: ' + (err.error?.message || 'Revisa la consola'))
+      });
+    } else {
+      // CAMBIO: Usamos crear() en lugar de crearCategoria()
+      this.categoriaService.crear(valores).subscribe({
+        next: () => this.finalizarGuardado('Categoría creada correctamente'),
+        error: (err: any) => alert('Error al crear: ' + (err.error?.message || 'Revisa la consola'))
+      });
+    }
   }
 
-  editar(c: Categoria): void {
-    this.categoria = { ...c };
-    this.editando = true;
-    this.mensaje = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  finalizarGuardado(mensaje: string): void {
+    this.mensajeExito = mensaje;
+    this.cerrarFormulario();
+    this.cargarCategorias();
+    setTimeout(() => this.mensajeExito = '', 3000);
   }
 
-  eliminar(c: Categoria): void {
-    if (c.idCategoria == null) return;
-
-    if (!confirm(`¿Eliminar la categoría ${c.nombre}?`)) return;
-
-    this.service.eliminar(c.idCategoria).subscribe({
-      next: () => {
-        this.error = false;
-        this.mensaje = 'Categoría eliminada.';
-        this.cargar();
-      },
-      error: () => {
-        this.error = true;
-        this.mensaje =
-          'No se pudo eliminar. Puede tener productos asociados.';
-      }
-    });
-  }
-
-  limpiar(borrarMensaje = true): void {
-    this.categoria = this.nuevaCategoria();
-    this.editando = false;
-
-    if (borrarMensaje) this.mensaje = '';
+  eliminar(id?: number): void {
+    if (id && confirm('¿Estás seguro de eliminar esta categoría?')) {
+      // CAMBIO: Usamos eliminar() en lugar de eliminarCategoria()
+      this.categoriaService.eliminar(id).subscribe({
+        next: () => {
+          this.mensajeExito = 'Categoría eliminada';
+          this.cargarCategorias();
+          setTimeout(() => this.mensajeExito = '', 3000);
+        },
+        error: (err: any) => alert('Error al eliminar: ' + (err.error?.message || 'Error del servidor'))
+      });
+    }
   }
 }

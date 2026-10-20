@@ -1,0 +1,96 @@
+<div class="page-container">
+
+  <div *ngIf="mensajeExito" class="alert-success">
+    {{ mensajeExito }}
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Categorías</h1>
+      <p class="page-subtitle">Administra las clasificaciones del catálogo</p>
+    </div>
+    <button (click)="abrirFormulario()" class="btn btn-primary">
+      + Nueva Categoría
+    </button>
+  </div>
+
+  <!-- Contenedor Principal -->
+  <div class="table-card">
+    
+    <!-- Barra de herramientas (Buscador) -->
+    <div class="table-toolbar">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Buscar categoría por nombre..." 
+          [(ngModel)]="busqueda" 
+          (keyup.enter)="buscar()"
+        >
+        <button (click)="buscar()" class="btn btn-search">Buscar</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="text-center">ID</th>
+          <th class="text-center">NOMBRE</th>
+          <th class="text-center">DESCRIPCIÓN</th>
+          <th class="text-center">ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="categorias.length === 0">
+          <td colspan="4" class="empty-row">No se encontraron categorías.</td>
+        </tr>
+        <tr *ngFor="let cat of categorias">
+          <td class="cell-code text-center">{{ cat.idCategoria }}</td>
+          <td class="text-center"><strong>{{ cat.nombre }}</strong></td>
+          <td class="text-center text-muted">{{ cat.descripcion || '—' }}</td>
+          <td class="cell-actions">
+            <button (click)="abrirFormulario(cat)" class="action-btn btn-edit" title="Editar">
+              ✎
+            </button>
+            <button (click)="eliminar(cat.idCategoria)" class="action-btn btn-delete" title="Eliminar">
+              🗑
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL PARA CREAR/EDITAR -->
+<div class="modal-overlay" *ngIf="mostrarFormulario">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ esEdicion ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+      <button (click)="cerrarFormulario()" class="close-btn">&times;</button>
+    </div>
+
+    <form [formGroup]="formCategoria" (ngSubmit)="guardar()">
+      <div class="form-grid">
+        
+        <div class="form-group full-width">
+          <label>Nombre de la Categoría *</label>
+          <input type="text" formControlName="nombre" placeholder="Ej: Plomería">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Descripción (Opcional)</label>
+          <textarea formControlName="descripcion" rows="3" placeholder="Detalles de la categoría..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="cerrarFormulario()" class="btn btn-secondary">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="formCategoria.invalid">
+          {{ esEdicion ? 'Guardar Cambios' : 'Crear Categoría' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
