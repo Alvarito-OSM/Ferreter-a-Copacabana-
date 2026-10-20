@@ -42,4 +42,9 @@ export class Login {
       }
     });
   }
+
+  // Función para el botón de Google (Visual por ahora)
+  loginConGoogle(): void {
+    alert('El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.');
+  }
 }
