@@ -1,11 +1,8 @@
-
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  Categoria,
-  CategoriaService
-} from '../../core/services/categoria.service';
+import { CategoriaService } from '../../core/services/categoria.service';
+import { Categoria } from '../../core/models/categoria'; 
 
 @Component({
   selector: 'app-categorias',

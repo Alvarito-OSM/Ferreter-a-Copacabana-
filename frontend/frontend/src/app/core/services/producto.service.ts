@@ -1,77 +1,33 @@
-
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface Producto {
-  idProducto?: number;
-  codigoBarras: string;
-  nombre: string;
-  descripcion: string;
-  unidadMedida: string;
-  precioCompra: number;
-  precioVenta: number;
-  estado: boolean;
-  categoria: {
-    idCategoria: number;
-    nombre?: string;
-  };
-  administrador?: {
-    idAdministrador: number;
-  };
-  fechaCreacion?: string;
-}
+import { Producto } from '../models/producto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
-
-  private http = inject(HttpClient);
   private apiUrl = '/api/productos';
 
-  listar(): Observable<Producto[]> {
+  constructor(private http: HttpClient) { }
+
+  obtenerProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(this.apiUrl);
   }
 
-  buscar(id: number): Observable<Producto> {
-    return this.http.get<Producto>(
-      `${this.apiUrl}/${id}`
-    );
-  }
-
   buscarPorNombre(nombre: string): Observable<Producto[]> {
-    const params = new HttpParams().set('nombre', nombre);
-
-    return this.http.get<Producto[]>(
-      `${this.apiUrl}/buscar`,
-      { params }
-    );
+    return this.http.get<Producto[]>(`${this.apiUrl}/buscar?nombre=${nombre}`);
   }
 
-  buscarPorCategoria(id: number): Observable<Producto[]> {
-    return this.http.get<Producto[]>(
-      `${this.apiUrl}/categoria/${id}`
-    );
+  crearProducto(producto: Producto): Observable<Producto> {
+    return this.http.post<Producto>(this.apiUrl, producto);
   }
 
-  crear(producto: Producto): Observable<Producto> {
-    return this.http.post<Producto>(
-      `${this.apiUrl}/validado`,
-      producto
-    );
+  actualizarProducto(id: number, producto: Producto): Observable<Producto> {
+    return this.http.put<Producto>(`${this.apiUrl}/${id}`, producto);
   }
 
-  actualizar(id: number, producto: Producto): Observable<Producto> {
-    return this.http.put<Producto>(
-      `${this.apiUrl}/${id}/validado`,
-      producto
-    );
-  }
-
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${id}`
-    );
+  eliminarProducto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

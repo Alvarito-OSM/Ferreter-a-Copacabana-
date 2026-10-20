@@ -49,6 +49,9 @@ public class Producto {
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
+    
+    @Column(name = "imagen_url", length = 500)
+    private String imagenUrl;
 
     @PrePersist
     protected void onCreate() {
