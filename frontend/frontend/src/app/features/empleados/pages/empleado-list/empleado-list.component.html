@@ -1,5 +1,9 @@
 <div class="page-container">
 
+  <div *ngIf="mensajeExito" class="alert-success">
+    {{ mensajeExito }}
+  </div>
+
   <div class="page-header">
     <div class="page-header-text">
       <h1>Gestión de Empleados</h1>
@@ -10,13 +14,6 @@
     </a>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Empleados</div>
-      <div class="stat-value">{{ empleados.length }}</div>
-    </div>
-  </div>
-
   <div class="table-card">
 
     <div class="table-card-header">
@@ -24,46 +21,46 @@
       <span class="table-count">{{ empleados.length }} registros</span>
     </div>
 
-    <div *ngIf="empleados.length === 0" class="empty-state">
-      <div class="empty-state-icon">👥</div>
-      <h3>No hay empleados registrados</h3>
-      <p>Comienza agregando tu primer empleado al sistema</p>
-      <a routerLink="/empleados/nuevo" class="btn btn-primary">
-        Crear primer empleado
-      </a>
-    </div>
-
-    <table *ngIf="empleados.length > 0" class="data-table">
+    <!-- La tabla ahora SIEMPRE se muestra, incluso si está vacía -->
+    <table class="data-table">
       <thead>
         <tr>
           <th>Empleado</th>
-          <th>CI</th>
+          <th>Cédula</th>
           <th>Teléfono</th>
           <th>Cargo</th>
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
       <tbody>
+        <!-- Si no hay empleados, mostramos una fila que ocupe toda la tabla -->
+        <tr *ngIf="empleados.length === 0">
+          <td colspan="5" class="empty-row">
+            No hay empleados registrados en este momento.
+          </td>
+        </tr>
+
+        <!-- Si hay empleados, los mostramos -->
         <tr *ngFor="let emp of empleados">
           <td>
             <div class="avatar-cell">
-              <div class="avatar">{{ emp.nombres?.charAt(0) }}{{ emp.apellidos?.charAt(0) }}</div>
+              <div class="avatar">{{ emp.nombre?.charAt(0) }}{{ emp.apellido?.charAt(0) }}</div>
               <div class="name-info">
-                <strong>{{ emp.nombres }} {{ emp.apellidos }}</strong>
+                <strong>{{ emp.nombre }} {{ emp.apellido }}</strong>
                 <small>{{ emp.email || 'Sin correo' }}</small>
               </div>
             </div>
           </td>
-          <td class="cell-ci">{{ emp.ci }}</td>
+          <td class="cell-ci">{{ emp.cedula }}</td>
           <td>{{ emp.telefono || '—' }}</td>
           <td>
             <span class="badge badge-primary">{{ emp.cargo }}</span>
           </td>
           <td class="cell-actions">
-            <a [routerLink]="['/empleados/editar', emp.id]" class="btn btn-outline">
+            <a [routerLink]="['/empleados/editar', emp.idEmpleado]" class="btn btn-outline">
               Editar
             </a>
-            <button (click)="eliminar(emp.id)" class="btn btn-danger">
+            <button (click)="eliminar(emp.idEmpleado)" class="btn btn-danger">
               Eliminar
             </button>
           </td>

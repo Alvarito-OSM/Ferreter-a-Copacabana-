@@ -9,7 +9,7 @@ import { EmpleadoService } from '../../../../core/services/empleado.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './empleado-form.component.html',
-  styleUrls: ['./empleado-form.component.css'] 
+  styleUrls: ['./empleado-form.component.css']
 })
 export class EmpleadoFormComponent implements OnInit {
   formEmpleado: FormGroup;
@@ -29,7 +29,9 @@ export class EmpleadoFormComponent implements OnInit {
       telefono: [''],
       email: ['', [Validators.email]],
       cargo: ['', Validators.required],
-      estado: [true]
+      estado: [true],
+      usuario: ['', Validators.required],
+      contrasena: ['', Validators.required]
     });
   }
 
@@ -39,7 +41,17 @@ export class EmpleadoFormComponent implements OnInit {
       this.idEmpleado = +idParam;
       this.esEdicion = true;
       this.empleadoService.obtenerEmpleadoPorId(this.idEmpleado).subscribe((emp) => {
-        this.formEmpleado.patchValue(emp);
+        this.formEmpleado.patchValue({
+          nombres: emp.nombre,
+          apellidos: emp.apellido,
+          ci: emp.cedula,
+          telefono: emp.telefono,
+          email: emp.email,
+          cargo: emp.cargo,
+          estado: emp.estado,
+          usuario: emp.usuario,
+          contrasena: emp.contrasena
+        });
       });
     }
   }
@@ -47,15 +59,34 @@ export class EmpleadoFormComponent implements OnInit {
   guardar(): void {
     if (this.formEmpleado.invalid) return;
 
-    const datos = this.formEmpleado.value;
+    const valores = this.formEmpleado.value;
+    
+    // Armamos el JSON con la estructura exacta que espera Java
+    const datos: any = {
+      nombre: valores.nombres,
+      apellido: valores.apellidos,
+      cedula: valores.ci,
+      telefono: valores.telefono,
+      email: valores.email,
+      cargo: valores.cargo,
+      estado: valores.estado,
+      usuario: valores.usuario,
+      contrasena: valores.contrasena,
+      fechaIngreso: new Date().toISOString().split('T')[0],
+      administrador: { 
+        idAdministrador: 1 
+      }
+    };
 
     if (this.esEdicion && this.idEmpleado) {
-      this.empleadoService.actualizarEmpleado(this.idEmpleado, datos).subscribe(() => {
-        this.router.navigate(['/empleados']);
+      this.empleadoService.actualizarEmpleado(this.idEmpleado, datos).subscribe({
+        next: () => this.router.navigate(['/empleados'], { state: { editado: true } }),
+        error: (err) => alert('Error al actualizar: ' + err.error.message)
       });
     } else {
-      this.empleadoService.crearEmpleado(datos).subscribe(() => {
-        this.router.navigate(['/empleados']);
+      this.empleadoService.crearEmpleado(datos).subscribe({
+        next: () => this.router.navigate(['/empleados'], { state: { creado: true } }),
+        error: (err) => alert('Error al crear: ' + (err.error?.message || 'Faltan datos obligatorios'))
       });
     }
   }

@@ -1,10 +1,16 @@
 export interface Empleado {
-  id?: number;
-  nombres: string;
-  apellidos: string;
-  ci: string;
-  telefono: string;
-  email: string;
+  idEmpleado?: number;
+  nombre: string;
+  apellido: string;
+  cedula: string;
+  telefono?: string;
+  email?: string;
   cargo: string;
+  usuario: string;
+  contrasena: string;
+  fechaIngreso?: string;
   estado: boolean;
+  administrador?: {
+    idAdministrador: number;
+  };
 }
