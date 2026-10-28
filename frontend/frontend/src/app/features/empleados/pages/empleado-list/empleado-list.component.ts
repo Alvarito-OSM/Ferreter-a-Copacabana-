@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { EmpleadoService } from '../../../../core/services/empleado.service';
@@ -17,37 +17,38 @@ export class EmpleadoListComponent implements OnInit {
 
   constructor(
     private empleadoService: EmpleadoService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef // <-- Agregamos esto para forzar la vista
   ) { }
 
   ngOnInit(): void {
     // Revisamos si venimos de crear o editar un empleado
     const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state) {
-      if (navigation.extras.state['creado']) {
-        this.mensajeExito = '¡Empleado añadido exitosamente!';
-      } else if (navigation.extras.state['editado']) {
-        this.mensajeExito = '¡Empleado actualizado exitosamente!';
-      }
-      
-      // Ocultar el mensaje después de 3 segundos
-      if (this.mensajeExito) {
-        setTimeout(() => this.mensajeExito = '', 3000);
-      }
+    const state = navigation?.extras.state || history.state;
+    
+    if (state['creado']) {
+      this.mensajeExito = '¡Empleado añadido exitosamente!';
+    } else if (state['editado']) {
+      this.mensajeExito = '¡Empleado actualizado exitosamente!';
+    }
+    
+    if (this.mensajeExito) {
+      setTimeout(() => this.mensajeExito = '', 3000);
     }
 
+    // Cargamos los empleados
     this.cargarEmpleados();
   }
 
   cargarEmpleados(): void {
     this.empleadoService.obtenerEmpleados().subscribe({
-      next: (data) => {
+      next: (data: Empleado[]) => {
         this.empleados = data;
-        console.log('Empleados cargados:', data); // Esto nos dirá en consola si llegan datos
+        this.cdr.detectChanges(); // <-- FORZAMOS A ANGULAR A ACTUALIZAR LA TABLA
+        console.log('Empleados cargados:', data);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar empleados', err);
-        alert('Error de seguridad o conexión al cargar empleados. Revisa la consola.');
       }
     });
   }
@@ -56,12 +57,11 @@ export class EmpleadoListComponent implements OnInit {
    if (id && confirm('¿Estás seguro de eliminar este empleado?')) {
       this.empleadoService.eliminarEmpleado(id).subscribe({
         next: () => {
-          // Volvemos a pedir la lista al backend para que se actualice en pantalla
           this.cargarEmpleados(); 
           this.mensajeExito = 'Empleado eliminado correctamente';
           setTimeout(() => this.mensajeExito = '', 3000);
         },
-        error: (err) => alert('Error al eliminar: ' + err.error.message)
+        error: (err: any) => alert('Error al eliminar: ' + (err.error?.message || 'Error del servidor'))
       });
     }
   }

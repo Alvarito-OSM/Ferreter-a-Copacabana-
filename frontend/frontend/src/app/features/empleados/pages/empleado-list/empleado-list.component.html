@@ -25,10 +25,10 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>Empleado</th>
-          <th>Cédula</th>
-          <th>Teléfono</th>
-          <th>Cargo</th>
+          <th class="text-center">Empleado</th>
+          <th class="text-center">Cédula</th>
+          <th class="text-center">Teléfono</th>
+          <th class="text-center">Cargo</th>
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
@@ -42,7 +42,7 @@
 
         <!-- Si hay empleados, los mostramos -->
         <tr *ngFor="let emp of empleados">
-          <td>
+          <td class="text-center">
             <div class="avatar-cell">
               <div class="avatar">{{ emp.nombre?.charAt(0) }}{{ emp.apellido?.charAt(0) }}</div>
               <div class="name-info">
@@ -51,9 +51,9 @@
               </div>
             </div>
           </td>
-          <td class="cell-ci">{{ emp.cedula }}</td>
-          <td>{{ emp.telefono || '—' }}</td>
-          <td>
+          <td class="cell-ci text-center">{{ emp.cedula }}</td>
+          <td class="text-center">{{ emp.telefono || '—' }}</td>
+          <td class="text-center">
             <span class="badge badge-primary">{{ emp.cargo }}</span>
           </td>
           <td class="cell-actions">
