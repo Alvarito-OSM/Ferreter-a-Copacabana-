@@ -1,8 +1,11 @@
+
 package com.ferreteria.copacabana.controller;
 
+import com.ferreteria.copacabana.dto.CompraRequest;
 import com.ferreteria.copacabana.model.Compra;
 import com.ferreteria.copacabana.model.DetalleCompra;
 import com.ferreteria.copacabana.service.CompraService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,13 @@ public class CompraController {
 
     public CompraController(CompraService compraService) {
         this.compraService = compraService;
+    }
+
+    // Registrar compra completa con inventario, lotes y Kardex
+    @PostMapping("/completa")
+    public Compra registrarCompraCompleta(
+            @RequestBody CompraRequest request) {
+        return compraService.registrarCompra(request);
     }
 
     @PostMapping
@@ -40,7 +50,8 @@ public class CompraController {
     }
 
     @PostMapping("/detalle")
-    public DetalleCompra guardarDetalle(@RequestBody DetalleCompra detalle) {
+    public DetalleCompra guardarDetalle(
+            @RequestBody DetalleCompra detalle) {
         return compraService.guardarDetalle(detalle);
     }
 

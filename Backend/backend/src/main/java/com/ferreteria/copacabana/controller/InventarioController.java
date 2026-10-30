@@ -1,19 +1,26 @@
+
 package com.ferreteria.copacabana.controller;
 
-import com.ferreteria.copacabana.model.Inventario;
+import com.ferreteria.copacabana.dto.AjusteInventarioRequest;
+import com.ferreteria.copacabana.model.*;
 import com.ferreteria.copacabana.service.InventarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventario")
+@CrossOrigin(origins = "*")
 public class InventarioController {
 
-    @Autowired
-    private InventarioService inventarioService;
+    private final InventarioService inventarioService;
+
+    public InventarioController(InventarioService inventarioService) {
+        this.inventarioService = inventarioService;
+    }
 
     @GetMapping
     public List<Inventario> listar() {
@@ -28,7 +35,8 @@ public class InventarioController {
     }
 
     @GetMapping("/producto/{idProducto}")
-    public ResponseEntity<Inventario> buscarPorProducto(@PathVariable Integer idProducto) {
+    public ResponseEntity<Inventario> buscarPorProducto(
+            @PathVariable Integer idProducto) {
         return inventarioService.buscarPorProducto(idProducto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -39,17 +47,32 @@ public class InventarioController {
         return inventarioService.listarStockBajo();
     }
 
+    @PostMapping("/ajustes")
+    public ResponseEntity<MovimientoInventario> ajustarStock(
+            @RequestBody AjusteInventarioRequest request,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                inventarioService.ajustarStock(
+                        request,
+                        authentication.getName()));
+    }
+
     @PostMapping
     public Inventario crear(@RequestBody Inventario inventario) {
         return inventarioService.guardar(inventario);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Inventario> actualizar(@PathVariable Integer id, @RequestBody Inventario inventario) {
+    public ResponseEntity<Inventario> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Inventario inventario) {
+
         return inventarioService.buscarPorId(id)
                 .map(i -> {
                     inventario.setIdInventario(id);
-                    return ResponseEntity.ok(inventarioService.guardar(inventario));
+                    return ResponseEntity.ok(
+                            inventarioService.guardar(inventario));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
