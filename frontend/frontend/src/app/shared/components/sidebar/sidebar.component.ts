@@ -24,6 +24,7 @@ export class SidebarComponent {
     { label: 'Productos', path: '/productos', icon: '' },
     { label: 'Categorías', path: '/categorias', icon: '' },
     { label: 'Clientes', path: '/clientes', icon: '' },
+    { label: 'Proveedores', path: '/proveedores', icon: '', soloAdmin: true },
     { label: 'Empleados', path: '/empleados', icon: '', soloAdmin: true }
   ];
 
