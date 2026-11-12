@@ -1,48 +1,694 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ==========================================================
+   FERRETERÍA COPACABANA
+   ESTILOS GLOBALES - MODO CLARO Y OSCURO
+   ========================================================== */
+
+/* 1. CONFIGURACIÓN GENERAL */
+
+:root {
+  color-scheme: light;
+
+  --fc-bg: #f1f5f9;
+  --fc-surface: #ffffff;
+  --fc-surface-alt: #f8fafc;
+  --fc-text: #111827;
+  --fc-muted: #64748b;
+  --fc-border: #e2e8f0;
+  --fc-input: #ffffff;
+  --fc-input-text: #111827;
+  --fc-placeholder: #64748b;
+
+  --fc-red: #b91c1c;
+  --fc-red-hover: #991b1b;
 }
 
-html, body {
-  height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
-  color: #1e293b;
-  background: #f1f5f9;
-  -webkit-font-smoothing: antialiased;
+html.dark-mode {
+  color-scheme: dark;
+
+  --fc-bg: #0b1120;
+  --fc-surface: #1e293b;
+  --fc-surface-alt: #162235;
+  --fc-text: #f8fafc;
+  --fc-muted: #cbd5e1;
+  --fc-border: #334155;
+  --fc-input: #111827;
+  --fc-input-text: #f8fafc;
+  --fc-placeholder: #94a3b8;
+}
+
+/* No se modifica font-family en ningún elemento */
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  max-width: 100%;
 }
 
 body {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  min-height: 100vh;
+  background-color: var(--fc-bg);
+  color: var(--fc-text);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+* {
+  box-sizing: border-box;
 }
 
-button {
-  font-family: inherit;
+/* 2. CONTENEDOR PRINCIPAL */
+
+.layout {
+  background-color: var(--fc-bg);
 }
 
-::-webkit-scrollbar {
+.layout-main {
+  min-width: 0;
+}
+
+.layout-content {
+  min-width: 0;
+  background-color: var(--fc-bg);
+}
+
+/* No alterar flex, ancho, posición ni padding
+   original del sidebar o del layout. */
+
+html.dark-mode .layout,
+html.dark-mode .layout-main,
+html.dark-mode .layout-content {
+  background-color: #0b1120;
+}
+
+/* 3. FONDOS DE LOS MÓDULOS */
+
+html.dark-mode app-dashboard,
+html.dark-mode app-productos,
+html.dark-mode app-categorias,
+html.dark-mode app-clientes,
+html.dark-mode app-empleados,
+html.dark-mode app-ventas,
+html.dark-mode app-compras,
+html.dark-mode app-reportes {
+  color: #f8fafc;
+}
+
+html.dark-mode app-dashboard .dashboard,
+html.dark-mode app-productos .productos-container,
+html.dark-mode app-categorias .categorias-container,
+html.dark-mode app-clientes .clientes-container,
+html.dark-mode app-empleados .empleados-container,
+html.dark-mode app-ventas .modulo-container,
+html.dark-mode app-compras .modulo-container,
+html.dark-mode app-reportes .reportes-container {
+  background-color: transparent;
+  color: #f8fafc;
+}
+
+/* 4. TÍTULOS PRINCIPALES */
+
+html.dark-mode app-dashboard h1,
+html.dark-mode app-productos h1,
+html.dark-mode app-categorias h1,
+html.dark-mode app-clientes h1,
+html.dark-mode app-empleados h1,
+html.dark-mode app-ventas .modulo-header h1,
+html.dark-mode app-compras .modulo-header h1,
+html.dark-mode app-reportes .page-header h1 {
+  color: #f8fafc !important;
+  opacity: 1;
+}
+
+html.dark-mode app-productos h2,
+html.dark-mode app-productos h3,
+html.dark-mode app-categorias h2,
+html.dark-mode app-categorias h3,
+html.dark-mode app-clientes h2,
+html.dark-mode app-clientes h3,
+html.dark-mode app-empleados h2,
+html.dark-mode app-empleados h3,
+html.dark-mode app-ventas h2,
+html.dark-mode app-ventas h3,
+html.dark-mode app-compras h2,
+html.dark-mode app-compras h3,
+html.dark-mode app-reportes h2,
+html.dark-mode app-reportes h3 {
+  color: #f8fafc !important;
+  opacity: 1;
+}
+
+/* Excepción: tarjeta de bienvenida con degradado */
+
+html.dark-mode .welcome-card,
+html.dark-mode .welcome-card h1,
+html.dark-mode .welcome-card h2,
+html.dark-mode .welcome-card p,
+html.dark-mode .welcome-card strong {
+  color: #ffffff !important;
+}
+
+/* 5. DESCRIPCIONES Y TEXTOS SECUNDARIOS */
+
+html.dark-mode app-productos .page-header p,
+html.dark-mode app-categorias .page-header p,
+html.dark-mode app-clientes .page-header p,
+html.dark-mode app-empleados .page-header p,
+html.dark-mode app-ventas .modulo-header p,
+html.dark-mode app-compras .modulo-header p,
+html.dark-mode app-reportes .page-header p,
+html.dark-mode app-reportes .section-description,
+html.dark-mode app-reportes .section-subtitle {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+/* 6. TARJETAS Y PANELES */
+
+html.dark-mode app-dashboard .stat-card,
+html.dark-mode app-ventas .panel,
+html.dark-mode app-compras .panel,
+html.dark-mode app-reportes .report-section,
+html.dark-mode app-reportes .stat-card,
+html.dark-mode app-reportes .highlight-card,
+html.dark-mode app-reportes .export-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-productos :is(
+  .card,
+  .card-body,
+  .panel,
+  .table-container,
+  .table-wrapper,
+  .table-responsive,
+  .search-container,
+  .search-section,
+  .content-card
+),
+html.dark-mode app-categorias :is(
+  .card,
+  .card-body,
+  .panel,
+  .table-container,
+  .table-wrapper,
+  .table-responsive,
+  .search-container,
+  .search-section,
+  .content-card
+),
+html.dark-mode app-empleados :is(
+  .card,
+  .card-body,
+  .panel,
+  .table-container,
+  .table-wrapper,
+  .table-responsive,
+  .list-container,
+  .list-card,
+  .empleados-card
+),
+html.dark-mode app-clientes :is(
+  .card,
+  .card-body,
+  .panel,
+  .table-container,
+  .table-wrapper,
+  .table-responsive
+) {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* 7. DASHBOARD */
+
+html.dark-mode app-dashboard .stat-label {
+  color: #cbd5e1 !important;
+}
+
+html.dark-mode app-dashboard .stat-value {
+  color: #ffffff !important;
+}
+
+html.dark-mode app-dashboard .stat-icon {
+  background-color: #3f2025;
+  color: #fca5a5;
+}
+
+/* 8. TEXTOS DENTRO DE TARJETAS */
+
+html.dark-mode app-ventas .panel :is(
+  h2,
+  h3,
+  label,
+  .total,
+  .campo,
+  .metodos
+),
+html.dark-mode app-compras .panel :is(
+  h2,
+  h3,
+  label,
+  .total,
+  .campo
+),
+html.dark-mode app-reportes .report-section :is(
+  h2,
+  h3,
+  label
+),
+html.dark-mode app-reportes .stat-card :is(
+  h2,
+  h3,
+  .stat-value
+),
+html.dark-mode app-reportes .highlight-card :is(
+  h2,
+  h3
+),
+html.dark-mode app-reportes .export-card :is(
+  h2,
+  h3
+) {
+  color: #f8fafc !important;
+  opacity: 1;
+}
+
+html.dark-mode app-reportes :is(
+  .stat-label,
+  .stat-description,
+  .chart-legend,
+  .chart-date,
+  .highlight-description,
+  .export-description
+) {
+  color: #cbd5e1 !important;
+}
+
+/* 9. FORMULARIOS */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras,
+  app-reportes
+) :is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea
+) {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras,
+  app-reportes
+) :is(input, textarea)::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras,
+  app-reportes
+) :is(input, select, textarea):focus {
+  border-color: #f87171 !important;
+  outline-color: #f87171;
+}
+
+html.dark-mode select option {
+  background-color: #111827;
+  color: #f8fafc;
+}
+
+/* 10. TABLAS */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table {
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table tbody {
+  background-color: #1e293b !important;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table tbody tr {
+  background-color: #1e293b !important;
+  border-color: #334155;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table tbody td {
+  color: #f8fafc !important;
+  border-color: #334155;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table tbody tr:hover {
+  background-color: #263449 !important;
+}
+
+/* Mantener encabezados rojos originales */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) table thead th {
+  color: #ffffff;
+}
+
+/* 11. MENSAJES DE LISTAS VACÍAS */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras
+) :is(
+  .empty-state,
+  .no-data,
+  .empty-message,
+  .sin-resultados
+) {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados
+) table tbody td:only-child {
+  color: #e2e8f0 !important;
+}
+
+/* 12. EMPLEADOS */
+
+html.dark-mode app-empleados :is(
+  .card-header,
+  .panel-header,
+  .list-header
+) {
+  background-color: #263449 !important;
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-empleados :is(
+  .card-header,
+  .panel-header,
+  .list-header
+) :is(h2, h3, span) {
+  color: #f8fafc !important;
+}
+
+/* 13. CLIENTES - ALERTAS */
+
+html.dark-mode app-clientes :is(
+  .alert-danger,
+  .error-message,
+  .mensaje-error
+) {
+  background-color: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+}
+
+html.dark-mode app-clientes :is(
+  .alert-danger,
+  .error-message,
+  .mensaje-error
+) * {
+  color: #fecaca !important;
+}
+
+/* 14. VENTAS Y COMPRAS */
+
+html.dark-mode app-ventas .modulo-header,
+html.dark-mode app-compras .modulo-header {
+  color: #f8fafc;
+}
+
+html.dark-mode app-ventas .modulo-header h1,
+html.dark-mode app-compras .modulo-header h1 {
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-ventas .modulo-header p,
+html.dark-mode app-compras .modulo-header p {
+  color: #cbd5e1 !important;
+}
+
+html.dark-mode app-ventas .panel h2,
+html.dark-mode app-compras .panel h2 {
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-ventas .campo label,
+html.dark-mode app-compras .campo label {
+  color: #e2e8f0 !important;
+}
+
+html.dark-mode app-ventas .total,
+html.dark-mode app-compras .total {
+  color: #ffffff !important;
+}
+
+/* 15. QR BANCARIO
+   Conservar fondo claro para que el QR sea legible */
+
+html.dark-mode app-ventas .pago-qr {
+  background-color: #f8fafc !important;
+  color: #111827 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.dark-mode app-ventas .pago-qr h2,
+html.dark-mode app-ventas .pago-qr h3,
+html.dark-mode app-ventas .pago-qr p,
+html.dark-mode app-ventas .pago-qr strong {
+  color: #111827 !important;
+}
+
+html.dark-mode app-ventas .pago-qr img {
+  background-color: #ffffff;
+}
+
+/* 16. REPORTES */
+
+html.dark-mode app-reportes .reportes-container {
+  color: #f8fafc;
+}
+
+html.dark-mode app-reportes .report-section h2,
+html.dark-mode app-reportes .highlight-card h3,
+html.dark-mode app-reportes .export-card h3 {
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-reportes .stat-card .stat-value,
+html.dark-mode app-reportes .stat-card .stat-number,
+html.dark-mode app-reportes .stat-card .stat-amount {
+  color: #ffffff !important;
+}
+
+html.dark-mode app-reportes .chart-scroll,
+html.dark-mode app-reportes .chart-content,
+html.dark-mode app-reportes .chart-plot {
+  background-color: #111827;
+  border-color: #334155;
+}
+
+html.dark-mode app-reportes .chart-legend,
+html.dark-mode app-reportes .chart-date {
+  color: #cbd5e1 !important;
+}
+
+html.dark-mode app-reportes .export-card {
+  background-color: #162235 !important;
+}
+
+html.dark-mode app-reportes .export-card p,
+html.dark-mode app-reportes .highlight-card p {
+  color: #cbd5e1 !important;
+}
+
+/* 17. CALENDARIO DE REPORTES */
+
+html.dark-mode app-reportes .date-trigger {
+  background-color: #111827 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-reportes .calendar-popup {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html.dark-mode app-reportes .calendar-body {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+html.dark-mode app-reportes .calendar-day {
+  color: #f8fafc;
+}
+
+html.dark-mode app-reportes .calendar-day:hover {
+  background-color: #334155;
+}
+
+html.dark-mode app-reportes .calendar-navigation {
+  color: #f8fafc;
+}
+
+/* 18. TEXTOS DE BOTONES */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados,
+  app-ventas,
+  app-compras,
+  app-reportes
+) :is(
+  .btn-principal,
+  .btn-actualizar,
+  .btn-eliminar
+) {
+  color: #ffffff;
+}
+
+/* 19. MODALES */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados
+) :is(
+  .modal-content,
+  .modal-header,
+  .modal-body,
+  .modal-footer
+) {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* 20. SUPERFICIES CLARAS AUXILIARES */
+
+html.dark-mode :is(
+  app-productos,
+  app-categorias,
+  app-clientes,
+  app-empleados
+) :is(
+  .bg-white,
+  .bg-light,
+  .background-white,
+  .white-card,
+  .surface,
+  .surface-card
+) {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* 21. BARRAS DE DESPLAZAMIENTO */
+
+html.dark-mode .layout-content {
+  scrollbar-color: #475569 #0b1120;
+}
+
+html.dark-mode .layout-content::-webkit-scrollbar {
   width: 10px;
-  height: 10px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+html.dark-mode .layout-content::-webkit-scrollbar-track {
+  background: #0b1120;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 5px;
+html.dark-mode .layout-content::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* 22. MODO CLARO
+   No se fuerzan colores sobre los componentes.
+   Se respetan sus CSS originales. */
+
+html:not(.dark-mode) .layout {
+  background-color: #f1f5f9;
+}
+
+html:not(.dark-mode) .layout-content {
+  background-color: #f1f5f9;
+}
+
+/* 23. RESPONSIVE SIN MOVER EL SIDEBAR */
+
+@media (max-width: 768px) {
+  .layout-main,
+  .layout-content {
+    min-width: 0;
+  }
 }

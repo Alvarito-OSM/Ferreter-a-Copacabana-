@@ -1,3 +1,8 @@
+
+/* ======================================
+   NAVBAR - FERRETERÍA COPACABANA
+   ====================================== */
+
 .navbar {
   height: 70px;
   background: #ffffff;
@@ -7,6 +12,7 @@
   justify-content: space-between;
   padding: 0 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: background 0.25s ease;
 }
 
 .navbar-left {
@@ -24,8 +30,33 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
+
+/* BOTÓN DE TEMA */
+
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #f8fafc;
+  color: #991b1b;
+  font-size: 19px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  transform: rotate(12deg);
+}
+
+/* INFORMACIÓN DEL USUARIO */
 
 .user-info {
   display: flex;
@@ -41,13 +72,18 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(
+    135deg,
+    #dc2626 0%,
+    #991b1b 100%
+  );
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
+  box-shadow: 0 3px 8px rgba(153, 27, 27, 0.25);
 }
 
 .user-details {
@@ -67,6 +103,8 @@
   color: #64748b;
 }
 
+/* CERRAR SESIÓN */
+
 .logout-btn {
   padding: 9px 18px;
   font-size: 13px;
@@ -83,4 +121,79 @@
 .logout-btn:hover {
   background: #fef2f2;
   border-color: #fca5a5;
+}
+
+/* ======================================
+   MODO OSCURO DEL NAVBAR
+   ====================================== */
+
+:host-context(.dark-mode) .navbar {
+  background: #111827;
+  border-bottom-color: #374151;
+  box-shadow: none;
+}
+
+:host-context(.dark-mode) .page-title {
+  color: #f9fafb;
+}
+
+:host-context(.dark-mode) .theme-toggle {
+  background: #1f2937;
+  border-color: #374151;
+  color: #fbbf24;
+}
+
+:host-context(.dark-mode) .theme-toggle:hover {
+  background: #374151;
+}
+
+:host-context(.dark-mode) .user-info {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+:host-context(.dark-mode) .user-details strong {
+  color: #f9fafb;
+}
+
+:host-context(.dark-mode) .user-details small {
+  color: #94a3b8;
+}
+
+:host-context(.dark-mode) .logout-btn {
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+:host-context(.dark-mode) .logout-btn:hover {
+  background: #450a0a;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 15px;
+  }
+
+  .navbar-right {
+    gap: 8px;
+  }
+
+  .page-title {
+    font-size: 14px;
+  }
+
+  .user-info {
+    padding: 5px;
+  }
+
+  .user-details {
+    display: none;
+  }
+
+  .logout-btn {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
 }

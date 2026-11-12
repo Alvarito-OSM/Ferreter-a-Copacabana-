@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -20,7 +21,9 @@ interface LoginResponse {
 })
 export class AuthService {
 
-  private readonly API = '/api/auth';
+  // Backend Spring Boot
+  private readonly API = 'http://localhost:8080/api/auth';
+
   private readonly TOKEN_KEY = 'ferreteria_token';
   private readonly USER_KEY = 'ferreteria_usuario';
   private readonly ROL_KEY = 'ferreteria_rol';
@@ -31,20 +34,23 @@ export class AuthService {
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API}/login`, credentials)
-      .pipe(
-        tap(response => {
-          localStorage.setItem(this.TOKEN_KEY, response.token);
-          localStorage.setItem(this.USER_KEY, response.usuario);
-          localStorage.setItem(this.ROL_KEY, response.rol);
-        })
-      );
+    return this.http.post<LoginResponse>(
+      `${this.API}/login`,
+      credentials
+    ).pipe(
+      tap(response => {
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.USER_KEY, response.usuario);
+        localStorage.setItem(this.ROL_KEY, response.rol);
+      })
+    );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ROL_KEY);
+
     this.router.navigate(['/login']);
   }
 

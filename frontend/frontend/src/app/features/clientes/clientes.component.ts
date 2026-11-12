@@ -1,4 +1,3 @@
-// Crear archivo: frontend/frontend/src/app/features/clientes/clientes.component.ts
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -13,6 +12,7 @@ import {
   selector: 'app-clientes',
   standalone: true,
   imports: [FormsModule],
+
   template: `
     <section class="clientes">
       <header>
@@ -108,6 +108,7 @@ import {
               <button type="submit" [disabled]="formulario.invalid || ocupado()">
                 {{ ocupado() ? 'Guardando...' : 'Guardar' }}
               </button>
+
               <button type="button" class="secundario" (click)="cancelar()">
                 Cancelar
               </button>
@@ -143,6 +144,7 @@ import {
                 <th>Acciones</th>
               </tr>
             </thead>
+
             <tbody>
               @for (item of clientes(); track item.idCliente) {
                 <tr>
@@ -161,6 +163,7 @@ import {
                       >
                         Editar
                       </button>
+
                       <button
                         type="button"
                         class="peligro"
@@ -183,33 +186,72 @@ import {
       }
     </section>
   `,
+
   styles: [`
     :host { display: block; }
-    .clientes { padding: 24px; color: #1e293b; }
+
+    .clientes {
+      padding: 24px;
+      color: #1e293b;
+    }
+
     header, .acciones, .busqueda {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }
-    header { justify-content: space-between; margin-bottom: 20px; }
-    h1 { margin: 0; font-size: 28px; }
-    h2 { margin-top: 0; font-size: 20px; }
+
+    header {
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
     .tarjeta, .tabla {
       background: white;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
     }
-    .tarjeta { padding: 20px; margin-bottom: 20px; }
-    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+
+    .tarjeta {
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    fieldset {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      min-width: 0;
+    }
+
     .campos {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
-    label { display: flex; flex-direction: column; gap: 6px; }
-    input, select, button { font: inherit; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
     input, select {
       padding: 10px;
       border: 1px solid #cbd5e1;
@@ -217,32 +259,80 @@ import {
       box-sizing: border-box;
       width: 100%;
     }
+
+    /* BOTONES PRINCIPALES: ROJO */
     button {
       padding: 10px 16px;
       border: 0;
       border-radius: 6px;
-      background: #2563eb;
+      background: #dc2626;
       color: white;
       cursor: pointer;
     }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    .secundario { background: #e2e8f0; color: #1e293b; }
-    .peligro { background: #b91c1c; }
-    .busqueda { margin-bottom: 20px; }
-    .busqueda input { flex: 1; min-width: 200px; }
-    .tabla { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    /* BOTONES SECUNDARIOS: NEGRO */
+    .secundario {
+      background: #262626;
+      color: #ffffff;
+    }
+
+    /* BOTÓN ELIMINAR: ROJO OSCURO */
+    .peligro {
+      background: #b91c1c;
+    }
+
+    .busqueda {
+      margin-bottom: 20px;
+    }
+
+    .busqueda input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .tabla {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
     th, td {
       padding: 14px;
       text-align: left;
       border-bottom: 1px solid #e2e8f0;
     }
-    th { background: #f8fafc; }
-    .error, .exito { padding: 12px; border-radius: 6px; }
-    .error { background: #fee2e2; color: #991b1b; }
-    .exito { background: #dcfce7; color: #166534; }
+
+    /* ENCABEZADO DE TABLA: ROJO */
+    th {
+      background: #b91c1c;
+      color: #ffffff;
+    }
+
+    .error, .exito {
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .exito {
+      background: #dcfce7;
+      color: #166534;
+    }
   `]
 })
+
 export class ClientesComponent implements OnInit {
   private readonly servicio = inject(ClienteService);
 
@@ -359,6 +449,7 @@ export class ClientesComponent implements OnInit {
           if (this.cliente.idCliente === cliente.idCliente) {
             this.cancelar();
           }
+
           this.mensaje.set('Cliente eliminado correctamente.');
           this.cargar();
         },
@@ -404,6 +495,7 @@ export class ClientesComponent implements OnInit {
       }
 
       const mensaje = error.error?.mensaje;
+
       if (typeof mensaje === 'string') {
         this.error.set(mensaje);
         return;

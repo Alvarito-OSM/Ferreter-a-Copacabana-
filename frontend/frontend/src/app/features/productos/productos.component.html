@@ -71,12 +71,25 @@
           <td class="text-center">Bs. {{ prod.precioCompra }}</td>
           <td class="text-center">Bs. {{ prod.precioVenta }}</td>
           <td class="cell-actions">
-            <button (click)="abrirFormulario(prod)" class="action-btn btn-edit" title="Editar">
-              ✎
-            </button>
-            <button (click)="eliminar(prod.idProducto)" class="action-btn btn-delete" title="Eliminar">
-              🗑
-            </button>
+           
+<button
+  type="button"
+  (click)="abrirFormulario(prod)"
+  class="action-btn btn-edit"
+  title="Editar producto"
+  aria-label="Editar producto">
+  <i class="bi bi-pencil-square"></i>
+</button>
+
+<button
+  type="button"
+  (click)="eliminar(prod.idProducto)"
+  class="action-btn btn-delete"
+  title="Eliminar producto"
+  aria-label="Eliminar producto">
+  <i class="bi bi-trash3"></i>
+</button>
+
           </td>
         </tr>
       </tbody>

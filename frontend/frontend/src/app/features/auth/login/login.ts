@@ -1,3 +1,4 @@
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ export class Login {
   contrasena = '';
   error = '';
   cargando = false;
+  mostrarContrasena = false;
 
   constructor(
     private authService: AuthService,
@@ -24,6 +26,8 @@ export class Login {
   ) {}
 
   onLogin(): void {
+    if (this.cargando) return;
+
     this.error = '';
     this.cargando = true;
 
@@ -31,8 +35,13 @@ export class Login {
       usuario: this.usuario,
       contrasena: this.contrasena
     }).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.cargando = false;
+
+        if (res && res.token) {
+          localStorage.setItem('token', res.token);
+        }
+
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
@@ -43,8 +52,13 @@ export class Login {
     });
   }
 
-  // Función para el botón de Google (Visual por ahora)
+  alternarContrasena(): void {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
+
   loginConGoogle(): void {
-    alert('El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.');
+    alert(
+      'El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.'
+    );
   }
 }
