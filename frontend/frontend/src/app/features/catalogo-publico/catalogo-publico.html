@@ -1,0 +1,190 @@
+<!-- NAVBAR PRINCIPAL -->
+<header class="main-header">
+  <div class="logo-area" (click)="volverACategorias()">
+    <div class="logo-icon-cruzado">
+      <span class="tool martillo">🔨</span>
+      <span class="tool serrucho">🪚</span>
+    </div>
+    <div class="logo-text">
+      <h1>FERRETERÍA</h1>
+      <h2>COPACABANA</h2>
+    </div>
+  </div>
+
+  <div class="search-area">
+    <input type="text" [(ngModel)]="busqueda" (input)="buscar()" placeholder="Buscar productos...">
+  </div>
+
+  <div class="header-actions-right">
+    <div class="cart-area" (click)="abrirLogin()">
+      <div class="cart-icon-wrapper">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-badge" *ngIf="carritoCount > 0">{{ carritoCount }}</span>
+      </div>
+      <div class="cart-text">
+        <span class="cart-title">Mi Carrito</span>
+        <span class="cart-total">Bs. {{ carritoTotal }}</span>
+      </div>
+    </div>
+    
+    <div class="auth-buttons">
+      <!-- 👇 AQUÍ ESTÁ LA MAGIA: routerLink redirige a la página azul 👇 -->
+      <a routerLink="/login" class="btn-login">Iniciar Sesión</a>
+      <a routerLink="/registro" class="btn-register">Registrarse</a>
+    </div>
+  </div>
+</header>
+
+<!-- MENÚ DE NAVEGACIÓN -->
+<nav class="main-nav">
+  <div class="nav-links">
+    <a (click)="volverACategorias()" class="active">Inicio</a>
+    
+    <div class="dropdown">
+      <a class="dropbtn" (click)="toggleMenu()">Categorías</a>
+      <div class="dropdown-content" [class.show]="menuAbierto">
+        @for (cat of categorias; track cat.idCategoria) {
+          <a (click)="abrirCategoria(cat)">{{ cat.nombre }}</a>
+        }
+      </div>
+    </div>
+
+    <a (click)="scrollTo('footer')">Nosotros</a>
+    <a (click)="scrollTo('footer')">Contacto</a>
+  </div>
+</nav>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-container" id="inicio">
+  
+  <!-- Banner Principal -->
+  <div class="hero-banner">
+    <div class="hero-text">
+      <span class="tag">TODO PARA TUS</span>
+      <h1>PROYECTOS</h1>
+      <p>Calidad, resistencia y el mejor precio</p>
+    </div>
+    <div class="hero-image"></div>
+  </div>
+
+  <!-- VISTA 1: INICIO (DESTACADOS + CATEGORÍAS) -->
+  @if (vistaActual === 'categorias') {
+    <div class="productos-destacados-section">
+      <h2 class="section-title">Productos Destacados</h2>
+      <div class="grid-productos-public">
+        @for (prod of obtenerProductosDestacados(); track prod.idProducto) {
+          <div class="card-public">
+            <div class="img-container">
+              <img [src]="obtenerImagen(prod)" [alt]="prod.nombre" class="producto-img">
+            </div>
+            <h4>{{ prod.nombre }}</h4>
+            <div class="stock-status">
+              @if (prod.inventario && prod.inventario.stockActual > 0) {
+                <span class="text-green">✓ Disponible</span>
+              } @else {
+                <span class="text-red">✗ Agotado</span>
+              }
+            </div>
+            <div class="precios">
+              <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
+            </div>
+            <button class="btn-add-carrito" (click)="agregarAlCarritoVisual(prod)">
+              🛒 Agregar al carrito
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="categorias-destacadas-section" id="categorias-destacadas">
+      <h2 class="section-title">Explora por Categorías</h2>
+      <div class="grid-categorias-destacadas">
+        @for (cat of categorias; track cat.idCategoria) {
+          <div class="card-categoria" (click)="abrirCategoria(cat)">
+            <img [src]="obtenerImagenCategoria(cat.nombre)" [alt]="cat.nombre" class="img-categoria">
+            <div class="overlay-categoria">
+              <h3>{{ cat.nombre }}</h3>
+              <span>Ver productos</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- VISTA 2: PRODUCTOS DE UNA CATEGORÍA -->
+  @if (vistaActual === 'productos') {
+    <div class="productos-vista-container" id="productos-area">
+      <div class="productos-header">
+        <div class="title-area">
+          <button class="btn-back" (click)="volverACategorias()">← Volver</button>
+          <h2>
+            {{ nombreCategoriaSeleccionada }} 
+            <span class="contador-productos">({{ contarProductosCategoria() }} productos)</span>
+          </h2>
+        </div>
+      </div>
+
+      @if (obtenerProductoMasCaro(); as topProducto) {
+        <div class="top-producto-banner">
+          <div class="top-info">
+            <span class="tag-top">★ Producto Estrella de la Categoría</span>
+            <h3>{{ topProducto.nombre }}</h3>
+            <p>El más cotizado de esta sección</p>
+            <div class="top-precio">Bs. {{ topProducto.precioVenta }}</div>
+          </div>
+        </div>
+      }
+
+      <div class="grid-productos-public">
+        @for (prod of obtenerProductosPaginados(); track prod.idProducto) {
+          <div class="card-public">
+            <div class="img-container">
+              <img [src]="obtenerImagen(prod)" [alt]="prod.nombre" class="producto-img">
+            </div>
+            <h4>{{ prod.nombre }}</h4>
+            <div class="stock-status">
+              @if (prod.inventario && prod.inventario.stockActual > 0) {
+                <span class="text-green">✓ Disponible en tienda</span>
+              } @else {
+                <span class="text-red">✗ Agotado temporalmente</span>
+              }
+            </div>
+            <div class="precios">
+              <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
+            </div>
+            <button class="btn-add-carrito" (click)="agregarAlCarritoVisual(prod)">
+              🛒 Agregar al carrito
+            </button>
+          </div>
+        } @empty {
+          <p style="padding: 20px;">No se encontraron productos en esta categoría.</p>
+        }
+      </div>
+
+      @if (obtenerTotalPaginas() > 1) {
+        <div class="paginacion">
+          <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1" class="btn-pag">« Anterior</button>
+          @for (pag of obtenerPaginasArray(); track pag) {
+            <button (click)="cambiarPagina(pag)" [class.active-pag]="paginaActual === pag" class="btn-pag-num">{{ pag }}</button>
+          }
+          <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === obtenerTotalPaginas()" class="btn-pag">Siguiente »</button>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- BOTÓN FLOTANTE DE WHATSAPP -->
+<a href="https://wa.me/78779202?text=Hola, estoy interesado en un producto del catálogo" target="_blank" class="whatsapp-float" title="Contactar por WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
+    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.8 14.04c-.24.67-1.39 1.28-1.9 1.33-.51.05-1.02.27-2.87-.6-1.85-.87-3.03-3-3.12-3.14-.09-.14-.75-1.01-.75-1.92 0-.91.48-1.36.65-1.55.17-.19.37-.24.5-.24.13 0 .26 0 .38.01.12.01.29-.05.45.34.17.39.57 1.39.62 1.49.05.1.08.22.02.35-.06.13-.13.21-.25.34-.12.13-.26.29-.37.39-.13.12-.27.25-.11.54.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.21 1.37.27.14.43.12.59-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.61-.12.25.1 1.58.74 1.85.88.27.14.45.21.51.33.07.11.07.67-.17 1.34z"/>
+  </svg>
+</a>
+
+<!-- FOOTER -->
+<footer class="public-footer" id="footer">
+  <div class="footer-item">Compra segura</div>
+  <div class="footer-item">Atención personalizada</div>
+  <div class="footer-item">Devoluciones fáciles</div>
+</footer>

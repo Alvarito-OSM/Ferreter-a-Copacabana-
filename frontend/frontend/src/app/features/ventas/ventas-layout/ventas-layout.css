@@ -1,0 +1,50 @@
+.ventas-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.tabs-header {
+  background: white;
+  padding: 1.5rem 2rem 0 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.tabs-header h2 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.tab-btn {
+  padding: 0.8rem 1.5rem;
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-btn:hover {
+  color: #3b82f6;
+  background: #f1f5f9;
+}
+
+/* Esta clase se activa automáticamente gracias a routerLinkActive */
+.tab-active {
+  color: #3b82f6;
+  border-bottom: 3px solid #3b82f6;
+  background: #eff6ff;
+}
+
+.tabs-content {
+  /* Aquí dentro se renderizará el POS o el Historial */
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}

@@ -1,0 +1,185 @@
+/* --- DISEÑO GENERAL DE LA PÁGINA --- */
+.page-container { padding: 2rem; background-color: #f8fafc; min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.header-title h2 { margin: 0; color: #1e293b; font-size: 1.8rem; font-weight: 700; }
+.header-title p { margin: 5px 0 0 0; color: #64748b; font-size: 0.95rem; }
+.btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+.btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+/* --- TARJETAS DE MÉTRICAS --- */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.metric-card { background: white; padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+.metric-card .icon { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; }
+.icon.orange { background: #ffedd5; color: #ea580c; } .icon.blue { background: #e0f2fe; color: #0284c7; } .icon.green { background: #dcfce7; color: #16a34a; }
+.metric-card .info h3 { margin: 0; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-card .info .value { margin: 5px 0 0 0; font-size: 1.6rem; font-weight: 700; color: #1e293b; }
+
+/* --- TABLA DE VENTAS --- */
+.table-responsive { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden; }
+.tabla-ventas { width: 100%; border-collapse: collapse; }
+.tabla-ventas thead { background-color: #17a2b8; color: white; }
+.tabla-ventas th { padding: 1rem 1.5rem; text-align: left; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.tabla-ventas td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.95rem; vertical-align: middle; }
+.tabla-ventas tbody tr:nth-child(even) { background-color: #f8fafc; }
+.tabla-ventas tbody tr:hover { background-color: #f1f5f9; }
+.monto { font-weight: 700; color: #2563eb; }
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.badge.completada { background: #dcfce7; color: #166534; } .badge.anulada { background: #fee2e2; color: #991b1b; }
+.btn-anular { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+.btn-anular:hover { background: #dc2626; transform: scale(1.05); }
+.no-action { color: #cbd5e1; }
+.text-center { text-align: center; color: #64748b; padding: 2rem !important; }
+
+/* ========================================== */
+/* ESTILOS DEL MODAL POS (NUEVO DISEÑO ERP)   */
+/* ========================================== */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+.modal-pos-content { background: #f8fafc; width: 95%; max-width: 1200px; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+.pos-header { padding: 1.5rem; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.pos-title h2 { margin: 0; color: #1e293b; font-size: 1.5rem; font-weight: 800; }
+.pos-title p { margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem; }
+.btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; }
+.pos-body { display: flex; flex: 1; overflow: hidden; }
+.pos-left { flex: 1.5; padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; border-right: 1px solid #e2e8f0; }
+.search-box h3, .cliente-section h3 { font-size: 1rem; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.input-search { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; margin-bottom: 1rem; }
+.input-search:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+.grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 1.5rem; }
+.card-producto { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.img-placeholder { font-size: 2rem; margin-bottom: 10px; }
+.card-producto h5 { margin: 0; font-size: 0.85rem; color: #334155; font-weight: 600; height: 35px; overflow: hidden; }
+.card-producto .precio { margin: 8px 0; color: #1e293b; font-weight: 700; }
+.btn-add { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 6px; width: 100%; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-add:hover { background: #1d4ed8; }
+.cliente-section { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: auto; }
+.cliente-row { display: flex; gap: 15px; align-items: flex-end; }
+.form-group { flex: 1; }
+.form-group label { display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px; font-weight: 600; }
+.btn-outline-orange { background: white; color: #2563eb; border: 1px solid #2563eb; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.btn-outline-orange:hover { background: #eff6ff; }
+.nuevo-cliente-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.nuevo-cliente-form input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.pos-right { flex: 1; padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; background: #f1f5f9; }
+.carrito-section { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+.carrito-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.carrito-header h3 { margin: 0; font-size: 1.1rem; color: #1e293b; }
+.btn-clear { background: none; border: none; color: #ef4444; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.tabla-carrito-nueva { width: 100%; border-collapse: collapse; flex-grow: 1; overflow-y: auto; }
+.tabla-carrito-nueva th { text-align: left; padding-bottom: 10px; font-size: 0.8rem; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+.tabla-carrito-nueva td { padding: 12px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155; }
+.prod-name { font-weight: 600; }
+.fw-bold { font-weight: 700; }
+.quantity-controls { display: inline-flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
+.quantity-controls button { background: #f8fafc; border: none; padding: 4px 10px; cursor: pointer; font-weight: bold; color: #475569; }
+.quantity-controls span { padding: 4px 10px; font-weight: 600; }
+.btn-del-item { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; }
+.totales-section { margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: 1rem; }
+.fila-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #475569; font-size: 0.95rem; }
+.total-final { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin-top: 15px; }
+.text-red { color: #ef4444; }
+.pago-section-erp { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.5rem; }
+.pago-section-erp h3 { margin-top: 0; font-size: 1.1rem; color: #1e293b; margin-bottom: 1rem; }
+.metodos-pago { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+.metodo-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; color: #64748b; font-weight: 600; }
+.metodo-card .icon { display: block; font-size: 1.5rem; margin-bottom: 5px; }
+.metodo-card.active { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+.cambio-box { margin-bottom: 1rem; }
+.cambio-box label { display: block; font-size: 0.85rem; color: #475569; font-weight: 600; margin-bottom: 5px; }
+.form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; }
+.btn-registrar-venta { background: #2563eb; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.btn-registrar-venta:hover:not(:disabled) { background: #1d4ed8; }
+.btn-registrar-venta:disabled { background: #94a3b8; cursor: not-allowed; }
+.btn-success { background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.btn-danger { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+
+/* 👇 NUEVOS ESTILOS PARA EL CUADRO DEL QR 👇 */
+.qr-box {
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  margin-bottom: 1rem;
+}
+.qr-box p {
+  margin: 0 0 10px 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+.img-qr {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 4px solid white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+}
+.monto-qr {
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+/* ... (tu CSS anterior se mantiene igual) ... */
+
+/* 👇 NUEVOS ESTILOS PARA LA SECCIÓN DE CLIENTE ARRIBA 👇 */
+.cliente-section-top {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.cliente-section-top h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.cliente-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cliente-row-1 {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.cliente-row-2 {
+  display: flex;
+  gap: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  background-color: white;
+}
+
+.form-control:read-only {
+  background-color: #f8fafc;
+  color: #64748b;
+}
+
+.btn-outline-orange {
+  background: white;
+  color: #ea580c;
+  border: 1px solid #ea580c;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-outline-orange:hover {
+  background: #fff7ed;
+}

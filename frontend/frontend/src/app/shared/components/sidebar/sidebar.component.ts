@@ -20,12 +20,14 @@ interface MenuItem {
 export class SidebarComponent {
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard', path: '/dashboard', icon: '' },
-    { label: 'Productos', path: '/productos', icon: '' },
-    { label: 'Categorías', path: '/categorias', icon: '' },
-    { label: 'Clientes', path: '/clientes', icon: '' },
-    { label: 'Proveedores', path: '/proveedores', icon: '', soloAdmin: true },
-    { label: 'Empleados', path: '/empleados', icon: '', soloAdmin: true }
+    // 👇 CAMBIO: Agregamos /admin a todas las rutas 👇
+    { label: 'Dashboard', path: '/admin/dashboard', icon: ' ' },
+    { label: 'Ventas', path: '/admin/ventas', icon: ' ' },       
+    { label: 'Productos', path: '/admin/productos', icon: ' ' },
+    { label: 'Categorías', path: '/admin/categorias', icon: ' ' },
+    { label: 'Clientes', path: '/admin/clientes', icon: ' ' },
+    { label: 'Proveedores', path: '/admin/proveedores', icon: ' ', soloAdmin: true },
+    { label: 'Empleados', path: '/admin/empleados', icon: ' ', soloAdmin: true }
   ];
 
   constructor(private authService: AuthService) {}

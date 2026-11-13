@@ -1,27 +1,59 @@
-<div class="dashboard">
-
-  <div class="welcome-card">
-    <h1>Bienvenido, {{ usuario }}</h1>
-    <p>Has iniciado sesión como <strong>{{ rol }}</strong></p>
+<div class="dashboard-container">
+  <div class="header">
+    <h1>Panel de Control</h1>
+    <!-- Aquí usamos los datos del AuthService que ya tenías -->
+    <p>Bienvenido de nuevo, <strong>{{ usuario }}</strong> ({{ rol }}). Aquí está el resumen de hoy.</p>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Productos</div>
-      <div class="stat-value">152</div>
+  <!-- Tarjetas de Métricas (RF-17) -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="icon blue">💰</div>
+      <div class="info">
+        <h3>Ventas de Hoy</h3>
+        <p class="value">Bs. {{ totalVentasHoy }}</p>
+        <span class="trend positive">↑ 12% vs ayer</span>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Categorías</div>
-      <div class="stat-value">12</div>
+
+    <div class="metric-card">
+      <div class="icon red">⚠️</div>
+      <div class="info">
+        <h3>Alertas de Stock (RF-06)</h3>
+        <p class="value text-red">{{ productosBajoStock }} Productos</p>
+        <span class="trend negative">Requieren reabastecimiento</span>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Clientes</div>
-      <div class="stat-value">0</div>
+
+    <div class="metric-card">
+      <div class="icon green">📈</div>
+      <div class="info">
+        <h3>Ganancias del Mes</h3>
+        <p class="value">Bs. {{ gananciasMes }}</p>
+        <span class="trend positive">↑ 8% vs mes anterior</span>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Ventas del mes</div>
-      <div class="stat-value">0</div>
+
+    <div class="metric-card">
+      <div class="icon purple">👥</div>
+      <div class="info">
+        <h3>Clientes Totales</h3>
+        <p class="value">{{ clientesRegistrados }}</p>
+        <span class="trend positive">↑ 5 nuevos esta semana</span>
+      </div>
     </div>
   </div>
 
+  <!-- Sección de Gráficos -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Fluctuación de Ventas (Últimos 7 días)</h3>
+      <canvas #ventasChart></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Estado del Inventario</h3>
+      <canvas #stockChart></canvas>
+    </div>
+  </div>
 </div>

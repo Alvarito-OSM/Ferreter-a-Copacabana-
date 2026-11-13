@@ -1,0 +1,75 @@
+<div class="pos-container">
+  
+  <!-- Lado Izquierdo: Productos -->
+  <div class="productos-panel">
+    <div class="header-search">
+      <h2>Punto de Venta</h2>
+      <input type="text" [(ngModel)]="busqueda" (input)="filtrarProductos()" placeholder="Buscar por nombre o código de barras...">
+    </div>
+    
+    <div class="productos-grid">
+      @for (prod of filtrarProductos(); track prod.idProducto) {
+        <div class="producto-card" (click)="agregarAlCarrito(prod)">
+          <h4>{{ prod.nombre }}</h4>
+          <p class="codigo">{{ prod.codigoBarras }}</p>
+          <p class="precio">Bs. {{ prod.precioVenta }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Lado Derecho: Carrito -->
+  <div class="carrito-panel">
+    <h3>Detalle de Venta</h3>
+    
+    <table class="tabla-carrito">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cant.</th>
+          <th>Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of carrito; track item.idProducto; let i = $index) {
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>Bs. {{ item.precioUnitario * item.cantidad }}</td>
+            <td><button class="btn-del" (click)="quitarDelCarrito(i)">X</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="totales">
+      <div class="fila"><span>Subtotal:</span> <span>Bs. {{ subtotal }}</span></div>
+      <!-- EL IVA HA SIDO ELIMINADO -->
+      <div class="fila total"><span>TOTAL:</span> <span>Bs. {{ total }}</span></div>
+    </div>
+
+    <div class="pago-section">
+      <label>Método de Pago:</label>
+      <select [(ngModel)]="metodoPago" (change)="calcularCambio()">
+        <option value="EFECTIVO">Efectivo</option>
+        <option value="TARJETA">Tarjeta</option>
+        <option value="TRANSFERENCIA">Transferencia</option>
+        <option value="MIXTO">Mixto</option>
+      </select>
+
+      @if (metodoPago === 'EFECTIVO') {
+        <label>Monto Recibido:</label>
+        <input type="number" [(ngModel)]="montoRecibido" (input)="calcularCambio()" placeholder="0.00">
+        
+        <div class="fila cambio" [class.negativo]="cambio < 0">
+          <span>CAMBIO:</span> <span>Bs. {{ cambio }}</span>
+        </div>
+      }
+    </div>
+
+    <button class="btn-cobrar" (click)="finalizarVenta()" [disabled]="carrito.length === 0">
+      COBRAR Bs. {{ total }}
+    </button>
+  </div>
+</div>

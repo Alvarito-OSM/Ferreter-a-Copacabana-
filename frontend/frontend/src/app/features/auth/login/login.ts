@@ -27,23 +27,25 @@ export class Login {
     this.error = '';
     this.cargando = true;
 
+    // 👇 CAMBIO IMPORTANTE: Spring Security espera 'username' y 'password' 👇
     this.authService.login({
-      usuario: this.usuario,
+      usuario: this.usuario,   // El AuthService se encargará de traducir esto
       contrasena: this.contrasena
     }).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('Login exitoso:', res);
         this.cargando = false;
-        this.router.navigate(['/dashboard']);
+        // Redirigimos al panel de administración
+        this.router.navigate(['/admin/dashboard']); 
       },
       error: (err) => {
         this.cargando = false;
         this.error = 'Usuario o contraseña incorrectos';
-        console.error(err);
+        console.error('Error del backend:', err);
       }
     });
   }
 
-  // Función para el botón de Google (Visual por ahora)
   loginConGoogle(): void {
     alert('El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.');
   }

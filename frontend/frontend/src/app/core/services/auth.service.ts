@@ -20,7 +20,8 @@ interface LoginResponse {
 })
 export class AuthService {
 
-  private readonly API = '/api/auth';
+  private readonly API = 'http://localhost:8080/api/auth';
+  
   private readonly TOKEN_KEY = 'ferreteria_token';
   private readonly USER_KEY = 'ferreteria_usuario';
   private readonly ROL_KEY = 'ferreteria_rol';
@@ -31,9 +32,17 @@ export class AuthService {
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API}/login`, credentials)
+    
+    // 👇 CORRECCIÓN: Traducimos los campos para que Spring Security los reconozca 👇
+    const payload = {
+      username: credentials.usuario,
+      password: credentials.contrasena
+    };
+
+    return this.http.post<LoginResponse>(`${this.API}/login`, payload)
       .pipe(
         tap(response => {
+          // Guardamos los datos en el localStorage con las llaves que configuraste
           localStorage.setItem(this.TOKEN_KEY, response.token);
           localStorage.setItem(this.USER_KEY, response.usuario);
           localStorage.setItem(this.ROL_KEY, response.rol);

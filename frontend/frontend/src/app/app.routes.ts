@@ -3,12 +3,23 @@ import { authGuard } from './core/guards/auth.guard';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const routes: Routes = [
+  // 👇 1. LA RAÍZ CARGA EL CATÁLOGO PÚBLICO 👇
+  {
+    path: '',
+    loadComponent: () => import('./features/catalogo-publico/catalogo-publico').then(m => m.CatalogoPublicoComponent)
+  },
+  {
+    path: 'catalogo',
+    loadComponent: () => import('./features/catalogo-publico/catalogo-publico').then(m => m.CatalogoPublicoComponent)
+  },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
   },
+
+  // 👇 2. EL PANEL PRIVADO AHORA VIVE EN /admin (o como quieras llamarlo) 👇
   {
-    path: '',
+    path: 'admin', 
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
@@ -30,29 +41,31 @@ export const routes: Routes = [
       },
       {
         path: 'clientes',
-        loadComponent: () => import('./features/clientes/clientes.component').then(m => m.ClientesComponent)
+        loadComponent: () => import('./features/clientes/clientes').then(m => m.ClientesComponent)
       },
       {
         path: 'categorias',
         loadComponent: () => import('./features/categorias/categorias.component').then(m => m.CategoriasComponent)
       },
-      
       {
         path: 'productos',
         loadComponent: () =>
           import('./features/productos/productos.component')
             .then(m => m.ProductosComponent)
       },
-
-
       {
         path: 'proveedores',
         loadComponent: () => import('./features/proveedores/proveedores.component').then(m => m.ProveedoresComponent)
       },
+      {
+        path: 'ventas',
+        loadComponent: () => import('./features/ventas/historial-ventas/historial-ventas').then(m => m.HistorialVentasComponent)
+      },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-
     ]
   },
-  { path: '**', redirectTo: 'login' }
+
+  // 👇 3. CUALQUIER OTRA RUTA VUELVE AL CATÁLOGO 👇
+  { path: '**', redirectTo: '' }
 ];

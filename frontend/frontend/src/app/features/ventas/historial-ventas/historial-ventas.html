@@ -1,0 +1,258 @@
+<div class="page-container">
+  
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="header-title">
+      <h2>Gestión de Ventas</h2>
+      <p>Resumen y análisis de las ventas de la ferretería</p>
+    </div>
+    <button class="btn-primary" (click)="abrirModal()">
+      <span>+</span> Nueva Venta
+    </button>
+  </div>
+
+  <!-- TARJETAS DE MÉTRICAS -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="icon orange">💰</div>
+      <div class="info">
+        <h3>Total de Ventas</h3>
+        <p class="value">Bs. {{ calcularTotalVentas() }}</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="icon blue">📋</div>
+      <div class="info">
+        <h3>Órdenes Realizadas</h3>
+        <p class="value">{{ ventasCompletadas() }}</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="icon green">📈</div>
+      <div class="info">
+        <h3>Ticket Promedio</h3>
+        <p class="value">Bs. {{ calcularTicketPromedio() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA CRUD -->
+  <div class="table-responsive">
+    <table class="tabla-ventas">
+      <thead>
+        <tr>
+          <th>ID Venta</th>
+          <th>Fecha y hora</th>
+          <th>Cliente</th>
+          <th>Total (Bs.)</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando) {
+          <tr>
+            <td colspan="6" class="text-center">Cargando ventas...</td>
+          </tr>
+        } @else if (ventas.length === 0) {
+          <tr>
+            <td colspan="6" class="text-center">No hay ventas registradas.</td>
+          </tr>
+        } @else {
+          @for (venta of ventas; track venta.idVenta) {
+            <tr>
+              <td><strong>#{{ venta.idVenta }}</strong></td>
+              <td>{{ venta.fecha | date:'short' }}</td>
+              <td>{{ obtenerNombreCliente(venta.idCliente) }}</td>
+              <td class="monto">Bs. {{ venta.total }}</td>
+              <td>
+                <span class="badge" [class.completada]="venta.estado === 'COMPLETADA'" [class.anulada]="venta.estado === 'ANULADA'">
+                  {{ venta.estado }}
+                </span>
+              </td>
+              <td>
+                @if (venta.estado === 'COMPLETADA' && esAdmin()) {
+                  <button class="btn-anular" (click)="anularVenta(venta.idVenta)">Anular</button>
+                } @else {
+                  <span class="no-action">-</span>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL POS -->
+@if (modalAbierto) {
+  <div class="modal-overlay">
+    <div class="modal-pos-content">
+      
+      <!-- HEADER DEL MODAL -->
+      <div class="pos-header">
+        <div class="pos-title">
+          <div>
+            <h2>Nueva Venta</h2>
+            <p>Registra una nueva venta de forma rápida y sencilla</p>
+          </div>
+        </div>
+        <button class="btn-close" (click)="cerrarModal()">✖</button>
+      </div>
+
+      <div class="pos-body">
+        
+        <!-- COLUMNA IZQUIERDA: CLIENTE Y PRODUCTOS -->
+        <div class="pos-left">
+          
+          <!-- 👇 NUEVA SECCIÓN DE CLIENTE ARRIBA 👇 -->
+          <div class="cliente-section-top">
+            <h3>👤 Datos del Cliente</h3>
+            
+            @if (!creandoCliente) {
+              <div class="cliente-form-grid">
+                <!-- Fila 1: Selector de Cliente y Botón -->
+                <div class="cliente-row-1">
+                  <div class="form-group" style="flex: 1;">
+                    <label>Cliente:</label>
+                    <select [(ngModel)]="idCliente" class="form-control">
+                      <option [ngValue]="null">-- Factura en Blanco --</option>
+                      @for (c of clientes; track c.idCliente) {
+                        <option [ngValue]="c.idCliente">{{ c.nombre }} {{ c.apellido }}</option>
+                      }
+                    </select>
+                  </div>
+                  <button class="btn-outline-orange" (click)="creandoCliente = true">+ Nuevo Cliente</button>
+                </div>
+                
+                <!-- Fila 2: Inputs de CI y Teléfono (Solo lectura visual) -->
+                <div class="cliente-row-2">
+                  <div class="form-group" style="flex: 1;">
+                    <label>CI / NIT:</label>
+                    <input type="text" class="form-control" placeholder="1234567" readonly>
+                  </div>
+                  <div class="form-group" style="flex: 1;">
+                    <label>Teléfono:</label>
+                    <input type="text" class="form-control" placeholder="76543210" readonly>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <!-- Formulario para crear nuevo cliente -->
+              <div class="nuevo-cliente-form">
+                <input type="text" [(ngModel)]="nuevoCliente.nombre" placeholder="Nombre">
+                <input type="text" [(ngModel)]="nuevoCliente.apellido" placeholder="Apellido">
+                <input type="text" [(ngModel)]="nuevoCliente.cedulaNit" placeholder="CI/NIT">
+                <div style="display: flex; gap: 5px; width: 100%;">
+                  <button class="btn-success" (click)="guardarNuevoCliente()">Guardar</button>
+                  <button class="btn-danger" (click)="creandoCliente = false">Cancelar</button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- BUSCADOR Y PRODUCTOS -->
+          <div class="search-box">
+            <h3>🔍 Buscar Producto</h3>
+            <input type="text" [(ngModel)]="busqueda" placeholder="Escribe el nombre del producto..." class="input-search">
+          </div>
+
+          <div class="grid-productos">
+            @for (prod of filtrarProductos(); track prod.idProducto) {
+              <div class="card-producto">
+                <div class="img-placeholder">📦</div>
+                <h5>{{ prod.nombre }}</h5>
+                <p class="precio">Bs. {{ prod.precioVenta }}</p>
+                <button class="btn-add" (click)="agregarAlCarrito(prod)">Agregar +</button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: CARRITO Y PAGO -->
+        <div class="pos-right">
+          
+          <div class="carrito-section">
+            <div class="carrito-header">
+              <h3>🛒 Carrito de Compras</h3>
+              <button class="btn-clear" (click)="limpiarPOS()">Limpiar carrito</button>
+            </div>
+            
+            <table class="tabla-carrito-nueva">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of carrito; track item.idProducto; let i = $index) {
+                  <tr>
+                    <td class="prod-name">{{ item.nombre }}</td>
+                    <td>
+                      <div class="quantity-controls">
+                        <button (click)="item.cantidad > 1 ? item.cantidad = item.cantidad - 1 : quitarDelCarrito(i); calcularTotales()">-</button>
+                        <span>{{ item.cantidad }}</span>
+                        <button (click)="item.cantidad = item.cantidad + 1; calcularTotales()">+</button>
+                      </div>
+                    </td>
+                    <td>Bs. {{ item.precioUnitario }}</td>
+                    <td class="fw-bold">Bs. {{ item.precioUnitario * item.cantidad }}</td>
+                    <td><button class="btn-del-item" (click)="quitarDelCarrito(i)">✖</button></td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="text-center text-gray">El carrito está vacío</td></tr>
+                }
+              </tbody>
+            </table>
+
+            <div class="totales-section">
+              <div class="fila-total"><span>Subtotal:</span> <span>Bs. {{ subtotal }}</span></div>
+              <div class="fila-total total-final"><span>Total:</span> <span>Bs. {{ total }}</span></div>
+            </div>
+          </div>
+
+          <!-- MÉTODO DE PAGO -->
+          <div class="pago-section-erp">
+            <h3>💳 Método de Pago</h3>
+            <div class="metodos-pago">
+              <div class="metodo-card" [class.active]="metodoPago === 'EFECTIVO'" (click)="metodoPago = 'EFECTIVO'; calcularCambio()">
+                <span class="icon">💵</span> Efectivo
+              </div>
+              <div class="metodo-card" [class.active]="metodoPago === 'QR'" (click)="metodoPago = 'QR'; calcularCambio()">
+                <span class="icon">📱</span> Pago QR
+              </div>
+            </div>
+
+            @if (metodoPago === 'EFECTIVO') {
+              <div class="cambio-box">
+                <label>Monto Recibido (Bs.):</label>
+                <input type="number" [(ngModel)]="montoRecibido" (input)="calcularCambio()" class="form-control">
+                <div class="fila-total" [class.text-red]="cambio < 0">
+                  <span>Cambio:</span> <span>Bs. {{ cambio }}</span>
+                </div>
+              </div>
+            }
+
+            @if (metodoPago === 'QR') {
+              <div class="qr-box">
+                <p>Escanea el código QR para realizar el pago</p>
+                <img src="assets/qr-prueba.png" alt="Código QR de Pago" class="img-qr">
+                <p class="monto-qr">Monto a pagar: <strong>Bs. {{ total }}</strong></p>
+              </div>
+            }
+
+            <button class="btn-registrar-venta" (click)="finalizarVenta()" [disabled]="carrito.length === 0">
+              ✓ Registrar Venta
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+}
