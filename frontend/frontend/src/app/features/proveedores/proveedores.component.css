@@ -168,6 +168,10 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn-view {
+  background: linear-gradient(135deg, #00bcd4, #0288d1);
+}
+
 .btn-edit {
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }

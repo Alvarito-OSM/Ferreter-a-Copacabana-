@@ -2,6 +2,9 @@ package com.ferreteria.copacabana.controller;
 
 import com.ferreteria.copacabana.dto.LoginRequest;
 import com.ferreteria.copacabana.dto.LoginResponse;
+import com.ferreteria.copacabana.dto.RegistroClienteRequest;
+import com.ferreteria.copacabana.model.Cliente;
+import com.ferreteria.copacabana.repository.ClienteRepository;
 import com.ferreteria.copacabana.service.CustomUserDetailsService;
 import com.ferreteria.copacabana.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,6 +34,12 @@ public class AuthController {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -70,6 +80,51 @@ public class AuthController {
             error.put("mensaje", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
+    }
+
+    @PostMapping("/registro")
+    public ResponseEntity<?> registrar(@RequestBody RegistroClienteRequest request) {
+        String mensaje = validarRegistro(request);
+        if (mensaje != null) {
+            return ResponseEntity.badRequest().body(Map.of("mensaje", mensaje));
+        }
+
+        Cliente cliente = new Cliente();
+        cliente.setNombre(request.getNombre().trim());
+        cliente.setApellido(request.getApellido());
+        cliente.setCedulaNit(request.getCedulaNit().trim());
+        cliente.setTelefono(request.getTelefono());
+        cliente.setEmail(request.getEmail());
+        cliente.setDireccion(request.getDireccion());
+        cliente.setUsuario(request.getUsuario().trim());
+        cliente.setContrasena(passwordEncoder.encode(request.getContrasena()));
+
+        clienteRepository.save(cliente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Cuenta creada correctamente"));
+    }
+
+    private String validarRegistro(RegistroClienteRequest request) {
+        if (esVacio(request.getNombre()) || esVacio(request.getCedulaNit())) {
+            return "El nombre y la cédula/NIT son obligatorios.";
+        }
+        if (esVacio(request.getUsuario()) || request.getUsuario().trim().length() < 4) {
+            return "El usuario debe tener al menos 4 caracteres.";
+        }
+        if (esVacio(request.getContrasena()) || request.getContrasena().length() < 6) {
+            return "La contraseña debe tener al menos 6 caracteres.";
+        }
+        if (clienteRepository.existsByCedulaNit(request.getCedulaNit().trim())) {
+            return "Ya existe un cliente con esa cédula/NIT.";
+        }
+        if (clienteRepository.existsByUsuario(request.getUsuario().trim())
+                || userDetailsService.existeUsuario(request.getUsuario().trim())) {
+            return "Ese nombre de usuario ya está en uso.";
+        }
+        return null;
+    }
+
+    private boolean esVacio(String valor) {
+        return valor == null || valor.isBlank();
     }
 
     @GetMapping("/me")

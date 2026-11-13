@@ -1,5 +1,6 @@
 package com.ferreteria.copacabana.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -33,6 +34,13 @@ public class Cliente {
 
     @Column(length = 255)
     private String direccion;
+
+    @Column(unique = true, length = 50)
+    private String usuario;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(length = 255)
+    private String contrasena;
 
     @Column(name = "fecha_registro", nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;

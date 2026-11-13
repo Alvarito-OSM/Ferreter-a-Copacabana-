@@ -1,8 +1,10 @@
 package com.ferreteria.copacabana.service;
 
 import com.ferreteria.copacabana.model.Administrador;
+import com.ferreteria.copacabana.model.Cliente;
 import com.ferreteria.copacabana.model.Empleado;
 import com.ferreteria.copacabana.repository.AdministradorRepository;
+import com.ferreteria.copacabana.repository.ClienteRepository;
 import com.ferreteria.copacabana.repository.EmpleadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +25,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,7 +62,27 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
+        Optional<Cliente> clienteOpt = clienteRepository.findByUsuario(username);
+        if (clienteOpt.isPresent()) {
+            Cliente cliente = clienteOpt.get();
+            return new User(
+                    cliente.getUsuario(),
+                    cliente.getContrasena(),
+                    cliente.getEstado(),
+                    true,
+                    true,
+                    true,
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_CLIENTE"))
+            );
+        }
+
         // 3. No encontrado
         throw new UsernameNotFoundException("Usuario no encontrado: " + username);
+    }
+
+    public boolean existeUsuario(String usuario) {
+        return administradorRepository.findByUsuario(usuario).isPresent()
+                || empleadoRepository.findByUsuario(usuario).isPresent()
+                || clienteRepository.findByUsuario(usuario).isPresent();
     }
 }

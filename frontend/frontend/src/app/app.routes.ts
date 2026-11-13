@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { rolGuard } from './core/guards/rol.guard';
+import { inject } from '@angular/core';
+import { AuthService, ROLES } from './core/services/auth.service';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+
+const soloAdmin = { roles: [ROLES.administrador] };
+const personal = { roles: [ROLES.administrador, ROLES.empleado] };
 
 export const routes: Routes = [
   // 👇 1. EL CATÁLOGO ES LA PÁGINA PRINCIPAL 👇
@@ -40,83 +46,125 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/dashboard/dashboard.component')
             .then(m => m.DashboardComponent)
       },
       {
         path: 'empleados',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/empleados/pages/empleado-list/empleado-list.component')
             .then(m => m.EmpleadoListComponent)
       },
       {
         path: 'empleados/nuevo',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/empleados/pages/empleado-form/empleado-form.component')
             .then(m => m.EmpleadoFormComponent)
       },
       {
         path: 'empleados/editar/:id',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/empleados/pages/empleado-form/empleado-form.component')
             .then(m => m.EmpleadoFormComponent)
       },
       {
         path: 'clientes',
+        canActivate: [rolGuard],
+        data: personal,
         loadComponent: () =>
           import('./features/clientes/clientes.component')
             .then(m => m.ClientesComponent)
       },
       {
         path: 'categorias',
+        canActivate: [rolGuard],
+        data: personal,
         loadComponent: () =>
           import('./features/categorias/categorias.component')
             .then(m => m.CategoriasComponent)
       },
       {
         path: 'productos',
+        canActivate: [rolGuard],
+        data: personal,
         loadComponent: () =>
           import('./features/productos/productos.component')
             .then(m => m.ProductosComponent)
       },
       {
         path: 'proveedores',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/proveedores/proveedores.component')
             .then(m => m.ProveedoresComponent)
       },
       {
+        path: 'proveedores/:id',
+        canActivate: [rolGuard],
+        data: soloAdmin,
+        loadComponent: () =>
+          import('./features/proveedores/detalle/proveedor-detalle.component')
+            .then(m => m.ProveedorDetalleComponent)
+      },
+      {
         path: 'ventas',
+        canActivate: [rolGuard],
+        data: personal,
         loadComponent: () =>
           import('./features/ventas/ventas')
             .then(m => m.Ventas)
       },
       {
         path: 'compras',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/compras/compras')
             .then(m => m.Compras)
       },
       {
         path: 'reportes',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/reportes/reportes/reportes')
             .then(m => m.Reportes)
       },
             {
         path: 'inventario',
+        canActivate: [rolGuard],
+        data: personal,
         loadComponent: () =>
           import('./features/inventario/inventario')
             .then(m => m.InventarioComponent)
       },      {
         path: 'configuracion',
+        canActivate: [rolGuard],
+        data: soloAdmin,
         loadComponent: () =>
           import('./features/configuracion/configuracion')
             .then(m => m.ConfiguracionComponent)
       },
       
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      {
+        path: 'punto-venta',
+        canActivate: [rolGuard],
+        data: { roles: [ROLES.empleado] },
+        loadComponent: () =>
+          import('./features/empleado/punto-venta/punto-venta.component')
+            .then(m => m.PuntoVentaComponent)
+      },
+      { path: '', pathMatch: 'full', redirectTo: () => inject(AuthService).rutaInicio() }
     ]
   },
   

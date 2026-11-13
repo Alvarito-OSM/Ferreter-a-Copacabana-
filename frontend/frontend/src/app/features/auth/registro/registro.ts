@@ -19,13 +19,15 @@ export class RegistroComponent {
     cedulaNit: '',
     telefono: '',
     email: '',
-    direccion: ''
+    direccion: '',
+    usuario: '',
+    contrasena: ''
   };
 
   cargando = false;
   error = '';
   exito = false;
-  apiUrl = 'http://localhost:8080/api/clientes';
+  apiUrl = 'http://localhost:8080/api/auth/registro';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -35,6 +37,11 @@ export class RegistroComponent {
     // Validación básica
     if (!this.nuevoCliente.nombre || !this.nuevoCliente.cedulaNit) {
       this.error = 'El nombre y la cédula/NIT son obligatorios.';
+      return;
+    }
+
+    if (this.nuevoCliente.usuario.trim().length < 4 || this.nuevoCliente.contrasena.length < 6) {
+      this.error = 'Usuario de 4+ caracteres y contraseña de 6+ caracteres.';
       return;
     }
 
