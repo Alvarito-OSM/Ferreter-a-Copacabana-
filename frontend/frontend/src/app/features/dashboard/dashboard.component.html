@@ -1,36 +1,178 @@
+<div class="dashboard-wrapper">
+  
+  <!-- HEADER -->
+  <header class="top-header">
+    <div class="header-left">
+      <h1>¡Hola, {{ usuario }}! 👋</h1>
+      <p>Aquí tienes un resumen de tu ferretería hoy.</p>
+    </div>
+    
+    <div class="header-right">
+      <!-- Fecha -->
+      <div class="date-picker">
+        📅 Hoy, 13 Nov. 2026
+      </div>
+      
+      <!-- Notificaciones -->
+      <button class="icon-btn notification-btn">
+        🔔
+        <span class="badge-count">3</span>
+      </button>
+      
+      <!-- Botón Modo Oscuro (Lógica visual por ahora) -->
+      <button class="icon-btn dark-mode-btn" onclick="document.documentElement.classList.toggle('dark-mode')">
+        🌙
+      </button>
+      
+      <!-- Perfil -->
+      <div class="profile-menu">
+        <div class="avatar">A</div>
+        <span class="profile-name">admin</span>
+        <span class="profile-role">Administrador</span>
+      </div>
+    </div>
+  </header>
 
-<div class="dashboard">
+  <!-- TARJETAS KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card card-blue">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-info">
+        <h3>Ventas del Día</h3>
+        <p class="kpi-value">Bs. {{ ventasHoy | number:'1.0-0' }}</p>
+        <span class="kpi-trend positive">↑ +12.5%</span>
+      </div>
+    </div>
 
-  <!-- Bienvenida -->
-  <div class="welcome-card">
-    <h1>Bienvenido, {{ usuario }}</h1>
-    <p>
-      Has iniciado sesión como
-      <strong>{{ rol }}</strong>
-    </p>
+    <div class="kpi-card card-dark-blue">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-info">
+        <h3>Productos en Stock</h3>
+        <p class="kpi-value">{{ productosStock | number }}</p>
+        <span class="kpi-trend positive">↑ +2.3%</span>
+      </div>
+    </div>
+
+    <div class="kpi-card card-yellow">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-info">
+        <h3>Productos en Stock Bajo</h3>
+        <p class="kpi-value">{{ productosStockBajo }}</p>
+        <span class="kpi-trend text-dark">Ver detalles →</span>
+      </div>
+    </div>
+
+    <div class="kpi-card card-green">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-info">
+        <h3>Compras del Mes</h3>
+        <p class="kpi-value">Bs. {{ comprasMes | number:'1.0-0' }}</p>
+        <span class="kpi-trend positive">↑ +8.7%</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Estadísticas -->
-  <div class="stats-grid">
-
-    <div class="stat-card">
-      <div class="stat-label">Productos</div>
-      <div class="stat-value">152</div>
+  <!-- SECCIÓN CENTRAL -->
+  <div class="middle-grid">
+    
+    <!-- Gráfico de Ventas -->
+    <div class="chart-card large-card">
+      <h3>📊 Ventas de los Últimos 7 Días</h3>
+      <div class="canvas-container">
+        <canvas #ventasChart></canvas>
+      </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Categorías</div>
-      <div class="stat-value">12</div>
+    <!-- Top Productos -->
+    <div class="chart-card top-products-card">
+      <h3>📦 Productos Más Vendidos</h3>
+      <ul class="top-list">
+        @for (prod of topProductos; track prod.nombre; let i = $index) {
+          <li class="top-item">
+            <span class="rank">{{ i + 1 }}</span>
+            <img [src]="prod.imagen" class="prod-img" alt="producto">
+            <div class="prod-info">
+              <span class="prod-name">{{ prod.nombre }}</span>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="(prod.ventas / 245) * 100"></div>
+              </div>
+            </div>
+            <span class="prod-sales">{{ prod.ventas }} ventas</span>
+          </li>
+        }
+      </ul>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Clientes</div>
-      <div class="stat-value">0</div>
+  </div>
+
+  <!-- SECCIÓN INFERIOR -->
+  <div class="bottom-grid">
+    
+    <!-- Estado del Inventario -->
+    <div class="chart-card">
+      <h3>📊 Estado de Inventario</h3>
+      <div class="inventory-status">
+        <div class="donut-container">
+          <canvas #stockChart></canvas>
+          <div class="donut-center">
+            <strong>2,845</strong>
+            <span>Productos</span>
+          </div>
+        </div>
+        <ul class="legend-list">
+          <li><span class="dot green"></span> En Stock (78%)</li>
+          <li><span class="dot yellow"></span> Stock Bajo (13%)</li>
+          <li><span class="dot red"></span> Sin Stock (9%)</li>
+        </ul>
+      </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Ventas del mes</div>
-      <div class="stat-value">0</div>
+    <!-- Actividad Reciente -->
+    <div class="chart-card">
+      <h3>🕒 Actividad Reciente</h3>
+      <ul class="activity-list">
+        <li class="activity-item">
+          <span class="activity-icon green">🛒</span>
+          <div class="activity-info">
+            <p>Venta realizada por Bs. 320</p>
+            <span class="time">Hace 5 min</span>
+          </div>
+        </li>
+        <li class="activity-item">
+          <span class="activity-icon blue">📦</span>
+          <div class="activity-info">
+            <p>Ingreso de mercadería: 50 unidades</p>
+            <span class="time">Hace 20 min</span>
+          </div>
+        </li>
+        <li class="activity-item">
+          <span class="activity-icon yellow">✏️</span>
+          <div class="activity-info">
+            <p>Stock actualizado: Taladro 750W</p>
+            <span class="time">Hace 1 h</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Alertas Importantes -->
+    <div class="chart-card alerts-card">
+      <div class="alerts-header">
+        <h3>🚨 Alertas Importantes</h3>
+        <span class="badge-red">2</span>
+      </div>
+      <ul class="alerts-list">
+        @for (alerta of alertas; track alerta.mensaje) {
+          <li class="alert-item">
+            <div class="alert-box {{ alerta.clase }}">📦</div>
+            <div class="alert-text">
+              <p>{{ alerta.mensaje }}</p>
+              <span class="alert-badge {{ alerta.clase }}">{{ alerta.tipo }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+      <a href="#" class="link-alerts">Ver todas las alertas →</a>
     </div>
 
   </div>

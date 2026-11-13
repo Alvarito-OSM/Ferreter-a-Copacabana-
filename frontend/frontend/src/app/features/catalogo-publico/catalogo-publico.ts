@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +11,7 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './catalogo-publico.html',
   styleUrls: ['./catalogo-publico.css']
 })
-export class CatalogoPublicoComponent implements OnInit {
+export class CatalogoPublicoComponent implements OnInit, OnDestroy {
   
   productos: any[] = [];
   categorias: any[] = [];
@@ -30,11 +30,78 @@ export class CatalogoPublicoComponent implements OnInit {
 
   menuAbierto: boolean = false;
 
+  // 👇 VARIABLES DEL CARRUSEL 👇
+  diapositivaActual: number = 0;
+  intervalo: any;
+
+  diapositivas = [
+    {
+      tag: 'TODO PARA TUS',
+      titulo: 'PROYECTOS',
+      desc: 'Calidad, resistencia y el mejor precio',
+      imagen: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?q=80&w=1000',
+      boton: 'Ver catálogo',
+      accion: () => this.scrollTo('novedades')
+    },
+    {
+      tag: 'RECIÉN LLEGADOS',
+      titulo: 'NUEVOS PRODUCTOS',
+      desc: 'Descubre las últimas herramientas que llegaron',
+      imagen: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?q=80&w=1000',
+      boton: 'Ver novedades',
+      accion: () => this.scrollTo('novedades')
+    },
+    {
+      tag: 'OFERTAS ESPECIALES',
+      titulo: 'HASTA 20% DTO',
+      desc: 'Aprovecha los mejores precios de la temporada',
+      imagen: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?q=80&w=1000',
+      boton: 'Ver ofertas',
+      accion: () => this.scrollTo('ofertas')
+    },
+    {
+      tag: 'CONÓCENOS',
+      titulo: 'MÁS DE 20 AÑOS',
+      desc: 'Siendo el aliado de confianza en Reyes, Beni',
+      imagen: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?q=80&w=1000',
+      boton: 'Nuestra Historia',
+      accion: () => this.scrollTo('nosotros')
+    }
+  ];
+
   constructor(private http: HttpClient, private router: Router, private cdRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarProductos();
     this.cargarCategorias();
+    this.iniciarCarrusel();
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervalo) clearInterval(this.intervalo);
+  }
+
+  iniciarCarrusel() {
+    this.intervalo = setInterval(() => {
+      this.siguienteDiapositiva();
+    }, 4000);
+  }
+
+  // 👇 FUNCIÓN NUEVA PARA PAUSAR EL CARRUSEL 👇
+  pausarCarrusel() {
+    if (this.intervalo) {
+      clearInterval(this.intervalo);
+    }
+  }
+
+  siguienteDiapositiva() {
+    this.diapositivaActual = (this.diapositivaActual + 1) % this.diapositivas.length;
+  }
+
+  irADiapositiva(index: number) {
+    this.diapositivaActual = index;
+    if (this.intervalo) clearInterval(this.intervalo);
+    this.iniciarCarrusel();
   }
 
   cargarProductos() {
@@ -57,7 +124,6 @@ export class CatalogoPublicoComponent implements OnInit {
     });
   }
 
-  // Redirige a la página de login completa
   abrirLogin() {
     this.router.navigate(['/login']);
   }
@@ -86,6 +152,16 @@ export class CatalogoPublicoComponent implements OnInit {
 
   obtenerProductosDestacados() {
     return this.productos.slice(0, 4);
+  }
+
+  obtenerProductosNuevos() {
+    return this.productos.slice(-4).reverse();
+  }
+
+  obtenerOfertas() {
+    return [...this.productos]
+      .sort((a, b) => Number(a.precioVenta) - Number(b.precioVenta))
+      .slice(0, 4);
   }
 
   contarProductosCategoria(): number {

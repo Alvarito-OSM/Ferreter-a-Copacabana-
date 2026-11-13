@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router'; // 👈 Agregamos RouterModule
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule], // 👈 Importante
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -41,7 +41,7 @@ export class Login {
           localStorage.setItem('token', res.token);
         }
 
-        // 👇 CAMBIO CLAVE: Ahora redirige a /admin/dashboard 👇
+        // Redirigimos al panel de administración
         this.router.navigate(['/admin/dashboard']);
       },
       error: (err) => {
@@ -54,11 +54,5 @@ export class Login {
 
   alternarContrasena(): void {
     this.mostrarContrasena = !this.mostrarContrasena;
-  }
-
-  loginConGoogle(): void {
-    alert(
-      'El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.'
-    );
   }
 }

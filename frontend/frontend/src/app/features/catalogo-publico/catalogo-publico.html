@@ -28,7 +28,6 @@
     </div>
     
     <div class="auth-buttons">
-      <!-- 👇 AQUÍ ESTÁ LA MAGIA: routerLink redirige a la página azul 👇 -->
       <a routerLink="/login" class="btn-login">Iniciar Sesión</a>
       <a routerLink="/registro" class="btn-register">Registrarse</a>
     </div>
@@ -49,7 +48,7 @@
       </div>
     </div>
 
-    <a (click)="scrollTo('footer')">Nosotros</a>
+    <a (click)="scrollTo('nosotros')">Nosotros</a>
     <a (click)="scrollTo('footer')">Contacto</a>
   </div>
 </nav>
@@ -57,18 +56,85 @@
 <!-- CONTENIDO PRINCIPAL -->
 <div class="main-container" id="inicio">
   
-  <!-- Banner Principal -->
-  <div class="hero-banner">
-    <div class="hero-text">
-      <span class="tag">TODO PARA TUS</span>
-      <h1>PROYECTOS</h1>
-      <p>Calidad, resistencia y el mejor precio</p>
+  <!-- 👇 CARRUSEL PRINCIPAL 👇 -->
+  <div class="hero-carousel" 
+       (mouseenter)="pausarCarrusel()" 
+       (mouseleave)="iniciarCarrusel()">
+    
+    @for (slide of diapositivas; track $index; let i = $index) {
+      <div class="carousel-slide" [class.active]="i === diapositivaActual">
+        <div class="slide-text">
+          <span class="tag">{{ slide.tag }}</span>
+          <h1>{{ slide.titulo }}</h1>
+          <p>{{ slide.desc }}</p>
+          <button class="btn-comprar" (click)="slide.accion()">{{ slide.boton }} ➔</button>
+        </div>
+        <div class="slide-image" [style.backgroundImage]="'url(' + slide.imagen + ')'"></div>
+      </div>
+    }
+
+    <!-- Botones de navegación (puntos) -->
+    <div class="carousel-dots">
+      @for (slide of diapositivas; track $index; let i = $index) {
+        <span class="dot" [class.active-dot]="i === diapositivaActual" (click)="irADiapositiva(i)"></span>
+      }
     </div>
-    <div class="hero-image"></div>
   </div>
 
   <!-- VISTA 1: INICIO (DESTACADOS + CATEGORÍAS) -->
   @if (vistaActual === 'categorias') {
+    
+    <div class="seccion-especial" id="novedades">
+      <div class="seccion-header">
+        <h2> Recién Llegados</h2>
+        <a (click)="scrollTo('productos-area')">Ver todo el catálogo ➔</a>
+      </div>
+      
+      <div class="grid-productos-public">
+        @for (prod of obtenerProductosNuevos(); track prod.idProducto) {
+          <div class="card-public">
+            <span class="etiqueta-nuevo">Nuevo</span>
+            <div class="img-container">
+              <img [src]="obtenerImagen(prod)" [alt]="prod.nombre" class="producto-img">
+            </div>
+            <h4>{{ prod.nombre }}</h4>
+            <div class="precios">
+              <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
+            </div>
+            <button class="btn-add-carrito" (click)="agregarAlCarritoVisual(prod)">
+              Agregar al carrito
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="seccion-especial" id="ofertas">
+      <div class="seccion-header">
+        <h2>🔥 Ofertas Especiales</h2>
+        <a (click)="scrollTo('productos-area')">Ver todas las ofertas ➔</a>
+      </div>
+      
+      <div class="grid-productos-public">
+        @for (prod of obtenerOfertas(); track prod.idProducto) {
+          <div class="card-public">
+            <span class="etiqueta-oferta">-20% DTO</span>
+            <div class="img-container">
+              <img [src]="obtenerImagen(prod)" [alt]="prod.nombre" class="producto-img">
+            </div>
+            <h4>{{ prod.nombre }}</h4>
+            <div class="precios">
+              <span class="precio-anterior">Bs. {{ (prod.precioVenta * 1.2).toFixed(2) }}</span>
+              <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
+            </div>
+            <button class="btn-add-carrito" (click)="agregarAlCarritoVisual(prod)">
+              Agregar al carrito
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
     <div class="productos-destacados-section">
       <h2 class="section-title">Productos Destacados</h2>
       <div class="grid-productos-public">
@@ -112,7 +178,6 @@
     </div>
   }
 
-  <!-- VISTA 2: PRODUCTOS DE UNA CATEGORÍA -->
   @if (vistaActual === 'productos') {
     <div class="productos-vista-container" id="productos-area">
       <div class="productos-header">
@@ -175,16 +240,102 @@
   }
 </div>
 
+<!-- SECCIÓN: SOBRE NOSOTROS -->
+<section class="nosotros-section" id="nosotros">
+  <div class="nosotros-container">
+    <div class="nosotros-text">
+      <h2>Sobre Nosotros</h2>
+      <div class="linea-decorativa"></div>
+      
+      <p>
+        Desde nuestra fundación en el año 2004, en <strong>Ferretería Copacabana</strong> hemos trabajado con un propósito claro: ser el aliado de confianza de las familias, trabajadores y constructores de Reyes. A lo largo de más de dos décadas de trayectoria ininterrumpida, hemos crecido junto a nuestra comunidad, acompañando desde pequeñas reparaciones en el hogar hasta los proyectos de construcción más exigentes de la región.
+      </p>
+      
+      <p>
+        Ubicados en el corazón de nuestra localidad, nos enorgullece ofrecer atención directa y personalizada en nuestra tienda única, donde cada cliente encuentra no solo un amplio stock de herramientas y materiales de calidad garantizada, sino también el asesoramiento honesto y cercano que solo años de experiencia pueden brindar.
+      </p>
+    </div>
+    
+    <div class="nosotros-image">
+      <img src="nosotros.jpeg" alt="Ferretería Copacabana">
+    </div>
+  </div>
+</section>
+
 <!-- BOTÓN FLOTANTE DE WHATSAPP -->
-<a href="https://wa.me/78779202?text=Hola, estoy interesado en un producto del catálogo" target="_blank" class="whatsapp-float" title="Contactar por WhatsApp">
+<a href="https://wa.me/59178779202?text=Hola, estoy interesado en un producto del catálogo" target="_blank" class="whatsapp-float" title="Contactar por WhatsApp">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="white">
     <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.8 14.04c-.24.67-1.39 1.28-1.9 1.33-.51.05-1.02.27-2.87-.6-1.85-.87-3.03-3-3.12-3.14-.09-.14-.75-1.01-.75-1.92 0-.91.48-1.36.65-1.55.17-.19.37-.24.5-.24.13 0 .26 0 .38.01.12.01.29-.05.45.34.17.39.57 1.39.62 1.49.05.1.08.22.02.35-.06.13-.13.21-.25.34-.12.13-.26.29-.37.39-.13.12-.27.25-.11.54.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.21 1.37.27.14.43.12.59-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.61-.12.25.1 1.58.74 1.85.88.27.14.45.21.51.33.07.11.07.67-.17 1.34z"/>
   </svg>
 </a>
 
-<!-- FOOTER -->
-<footer class="public-footer" id="footer">
-  <div class="footer-item">Compra segura</div>
-  <div class="footer-item">Atención personalizada</div>
-  <div class="footer-item">Devoluciones fáciles</div>
+<!-- FOOTER COMPLETO -->
+<footer class="main-footer" id="footer">
+  <div class="footer-container">
+    
+    <div class="footer-col">
+      <h4>Identidad y Trayectoria</h4>
+      <div class="footer-brand">
+        <div class="footer-logo">FC</div>
+        <span>Ferretería<br>Copacabana</span>
+      </div>
+      <p class="footer-desc">
+        Desde 2004 acompañando los proyectos de las familias y los constructores de Reyes, Beni.
+        Calidad, resistencia y atención personalizada en un solo lugar.
+      </p>
+      <p class="footer-badge">★ Más de 22 años de experiencia</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Navegación Rápida</h4>
+      <ul class="footer-links">
+        <li><a (click)="volverACategorias()">Inicio</a></li>
+        <li><a (click)="scrollTo('productos-area')">Catálogo Completo</a></li>
+        <li><a (click)="scrollTo('nosotros')">Nosotros (Nuestra Historia)</a></li>
+        <li><a (click)="scrollTo('footer')">Contacto y Ubicación</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Categorías Principales</h4>
+      <ul class="footer-links">
+        @for (cat of categorias.slice(0, 5); track cat.idCategoria) {
+          <li><a (click)="abrirCategoria(cat)">{{ cat.nombre }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Ubicación y Horarios</h4>
+      <ul class="footer-contact">
+        <li> Localidad de Reyes, Beni - Bolivia</li>
+        <li> Lunes a Viernes: 08:00 - 12:30 / 14:30 - 18:30</li>
+        <li> Sábados: 08:00 - 13:00</li>
+        <li> WhatsApp: +591 78779202</li>
+        <li> Precios en Bolivianos (Bs.)</li>
+      </ul>
+      
+      <div class="footer-socials">
+        <a href="#" title="Facebook" class="social-icon">
+          <i class="bi bi-facebook"></i>
+        </a>
+        <a href="https://wa.me/59178779202" target="_blank" title="WhatsApp" class="social-icon">
+          <i class="bi bi-whatsapp"></i>
+        </a>
+        <a href="#" title="Instagram" class="social-icon">
+          <i class="bi bi-instagram"></i>
+        </a>
+        <a href="#" title="TikTok" class="social-icon">
+          <i class="bi bi-tiktok"></i>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Ferretería Copacabana. Todos los derechos reservados.</p>
+    <p>Reyes, Beni - Precios expresados en Bolivianos (Bs.)</p>
+    <a (click)="scrollTo('inicio')" class="btn-top">Volver arriba ↑</a>
+  </div>
 </footer>

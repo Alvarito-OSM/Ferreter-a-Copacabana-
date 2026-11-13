@@ -17,12 +17,19 @@ export const routes: Routes = [
         .then(m => m.CatalogoPublicoComponent)
   },
   
-  // 👇 2. LA PÁGINA DE LOGIN 👇
+  // 👇 2. LA PÁGINA DE LOGIN Y REGISTRO (PÚBLICAS) 👇
   {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login')
         .then(m => m.Login)
+  },
+  {
+    // 👇 MOVIDO AQUÍ AFUERA PARA QUE SEA PÚBLICO 👇
+    path: 'registro',
+    loadComponent: () => 
+      import('./features/auth/registro/registro')
+        .then(m => m.RegistroComponent)
   },
 
   // 👇 3. EL PANEL PRIVADO (PROTEGIDO POR EL GUARD) 👇
@@ -79,26 +86,34 @@ export const routes: Routes = [
           import('./features/proveedores/proveedores.component')
             .then(m => m.ProveedoresComponent)
       },
-      // Módulo de Ventas (el que hizo tu amigo)
       {
         path: 'ventas',
         loadComponent: () =>
           import('./features/ventas/ventas')
             .then(m => m.Ventas)
       },
-      // Módulo de Compras
       {
         path: 'compras',
         loadComponent: () =>
           import('./features/compras/compras')
             .then(m => m.Compras)
       },
-      // Módulo de Reportes
       {
         path: 'reportes',
         loadComponent: () =>
           import('./features/reportes/reportes/reportes')
             .then(m => m.Reportes)
+      },
+            {
+        path: 'inventario',
+        loadComponent: () =>
+          import('./features/inventario/inventario')
+            .then(m => m.InventarioComponent)
+      },      {
+        path: 'configuracion',
+        loadComponent: () =>
+          import('./features/configuracion/configuracion')
+            .then(m => m.ConfiguracionComponent)
       },
       
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

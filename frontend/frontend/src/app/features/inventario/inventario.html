@@ -1,0 +1,229 @@
+<div class="inventario-container">
+  
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Inventario</h1>
+      <p>Monitorea los niveles de stock y optimiza tus operaciones.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline">📦 Gestionar Productos</button>
+      <button class="btn-primary">➕ Ingresar Stock</button>
+    </div>
+  </div>
+
+  <!-- TARJETAS DE MÉTRICAS -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon blue">📦</div>
+      <div class="metric-info">
+        <h3>Total Items</h3>
+        <p>{{ totalItems }}</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon green">✅</div>
+      <div class="metric-info">
+        <h3>Productos Activos</h3>
+        <p>{{ activeItems }}</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon orange">⚠️</div>
+      <div class="metric-info">
+        <h3>Stock Bajo</h3>
+        <p>{{ lowStockItems }}</p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon red">❌</div>
+      <div class="metric-info">
+        <h3>Agotados</h3>
+        <p>{{ outOfStockItems }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 👇 SECCIÓN DE INVESTIGACIÓN OPERATIVA 👇 -->
+  <div class="analisis-operativo">
+    <div class="analisis-header">
+      <h2>📊 Análisis de Investigación Operativa</h2>
+      <p>Modelos matemáticos aplicados al inventario.</p>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tabs-nav">
+      <button [class.active]="pestanaActiva === 'eoq'" (click)="pestanaActiva = 'eoq'">📦 EOQ y Reorden</button>
+      <button [class.active]="pestanaActiva === 'pronostico'" (click)="pestanaActiva = 'pronostico'">📈 Pronóstico</button>
+      <button [class.active]="pestanaActiva === 'lineal'" (click)="pestanaActiva = 'lineal'">📐 Prog. Lineal</button>
+      <button [class.active]="pestanaActiva === 'colas'" (click)="pestanaActiva = 'colas'">⏱️ Teoría de Colas</button>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div class="tabs-content">
+      
+      <!-- EOQ -->
+      @if (pestanaActiva === 'eoq') {
+        <div class="grid-2-cols">
+          <div class="card">
+            <h3>Datos de Entrada</h3>
+            <div class="form-group"><label>Demanda Anual</label><input type="number" [(ngModel)]="eoqDatos.demandaAnual" class="form-control"></div>
+            <div class="form-group"><label>Costo por Pedido (Bs.)</label><input type="number" [(ngModel)]="eoqDatos.costoPedido" class="form-control"></div>
+            <div class="form-group"><label>Costo Mantenimiento (Bs.)</label><input type="number" [(ngModel)]="eoqDatos.costoMantenimiento" class="form-control"></div>
+            <div class="form-group"><label>Tiempo de Entrega (Días)</label><input type="number" [(ngModel)]="eoqDatos.tiempoEntregaDias" class="form-control"></div>
+            <div class="form-group"><label>Desviación Estándar</label><input type="number" [(ngModel)]="eoqDatos.desviacionEstandar" class="form-control"></div>
+            <button class="btn-primary w-100" (click)="calcularEOQ()">Calcular EOQ</button>
+          </div>
+          <div class="card results-card" *ngIf="eoqResultados">
+            <h3>Resultados Óptimos</h3>
+            <div class="result-item"><span>Q Óptimo:</span> <strong>{{ eoqResultados.qOptimo }} unds</strong></div>
+            <div class="result-item"><span>Punto de Reorden:</span> <strong>{{ eoqResultados.puntoReorden }} unds</strong></div>
+            <div class="result-item"><span>Stock Seguridad:</span> <strong>{{ eoqResultados.stockSeguridad }} unds</strong></div>
+            <div class="result-item"><span>Costo Total:</span> <strong>Bs. {{ eoqResultados.costoTotal }}</strong></div>
+          </div>
+        </div>
+      }
+
+      <!-- Pronóstico -->
+      @if (pestanaActiva === 'pronostico') {
+        <div class="grid-2-cols">
+          <div class="card">
+            <h3>Demanda Histórica</h3>
+            <div class="form-group" *ngFor="let d of demandaHistorica; let i = index">
+              <label>Mes {{ i + 1 }}</label>
+              <input type="number" [(ngModel)]="demandaHistorica[i]" class="form-control">
+            </div>
+            <button class="btn-primary w-100" (click)="calcularPronostico()">Calcular Pronóstico</button>
+          </div>
+          <div class="card results-card" *ngIf="pronosticoResultados">
+            <h3>Resultado</h3>
+            <div class="result-item"><span>Próximo Mes:</span> <strong>{{ pronosticoResultados.pronosticoProximoMes }} unds</strong></div>
+          </div>
+        </div>
+      }
+
+      <!-- Programación Lineal -->
+      @if (pestanaActiva === 'lineal') {
+        <div class="grid-2-cols">
+          <div class="card">
+            <h3>Datos de Producción</h3>
+            <div class="form-group"><label>Madera Disponible</label><input type="number" [(ngModel)]="linealDatos.maderaDisponible" class="form-control"></div>
+            <button class="btn-primary w-100" (click)="calcularLineal()">Calcular Mezcla</button>
+          </div>
+          <div class="card results-card" *ngIf="linealResultados">
+            <h3>Producción Óptima</h3>
+            <div class="result-item" *ngFor="let p of linealResultados.produccion | keyvalue">
+              <span>{{ p.key }}:</span> <strong>{{ p.value }}</strong>
+            </div>
+            <div class="result-item" style="margin-top: 10px;"><span>Ganancia:</span> <strong>Bs. {{ linealResultados.gananciaTotal }}</strong></div>
+          </div>
+        </div>
+      }
+
+      <!-- Colas -->
+      @if (pestanaActiva === 'colas') {
+        <div class="grid-2-cols">
+          <div class="card">
+            <h3>Datos de Atención</h3>
+            <div class="form-group"><label>Tasa de Llegada (λ)</label><input type="number" [(ngModel)]="colasDatos.tasaLLegada" class="form-control"></div>
+            <div class="form-group"><label>Tasa de Servicio (μ)</label><input type="number" [(ngModel)]="colasDatos.tasaServicio" class="form-control"></div>
+            <button class="btn-primary w-100" (click)="calcularColas()">Calcular Métricas</button>
+          </div>
+          <div class="card results-card" *ngIf="colasResultados">
+            <h3>Resultados M/M/1</h3>
+            <div class="result-item"><span>Utilización:</span> <strong>{{ colasResultados.utilizacion }}</strong></div>
+            <div class="result-item"><span>Cola Promedio:</span> <strong>{{ colasResultados.longitudCola }}</strong></div>
+            <div class="result-item"><span>Tiempo en Cola:</span> <strong>{{ colasResultados.tiempoCola }}</strong></div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- 👇 TABLA DE PRODUCTOS 👇 -->
+  <div class="table-container" style="margin-top: 30px;">
+    <div class="table-header">
+      <h2>📋 Listado de Productos</h2>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Buscar</label>
+        <input type="text" [(ngModel)]="filtroBusqueda" placeholder="Nombre o código..." class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select [(ngModel)]="filtroCategoria" class="form-control">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select [(ngModel)]="filtroEstado" class="form-control">
+          <option value="">Todos</option>
+          <option value="bajo">Stock Bajo</option>
+          <option value="agotado">Agotado</option>
+        </select>
+      </div>
+      <div class="form-group filter-btn-group">
+        <button class="btn-primary" style="width: 100%;">🔍 Filtrar</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <table class="tabla-inventario">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Unidad</th>
+            <th>Stock</th>
+            <th>Stock Mín.</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (prod of productosFiltrados; track prod.idProducto) {
+            <tr>
+              <td><strong>{{ prod.codigoBarras }}</strong></td>
+              <td>{{ prod.nombre }}</td>
+              <td>{{ prod.categoria?.nombre }}</td>
+              <td>{{ prod.unidadMedida }}</td>
+              <td>
+                <strong [class.text-red]="prod.inventario?.stockActual <= prod.inventario?.stockMinimo">
+                  {{ prod.inventario ? prod.inventario.stockActual : 0 }}
+                </strong>
+              </td>
+              <td>{{ prod.inventario ? prod.inventario.stockMinimo : 5 }}</td>
+              <td>
+                @if (!prod.inventario || prod.inventario.stockActual === 0) {
+                  <span class="badge badge-red">Agotado</span>
+                } @else if (prod.inventario.stockActual <= prod.inventario.stockMinimo) {
+                  <span class="badge badge-orange">Stock Bajo</span>
+                } @else {
+                  <span class="badge badge-green">Normal</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center">
+                <div class="empty-state">
+                  <span>📦</span>
+                  <p>No se encontraron productos.</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

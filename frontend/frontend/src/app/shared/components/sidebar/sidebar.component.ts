@@ -63,12 +63,20 @@ export class SidebarComponent {
       icon: 'bi-bag-check',
       soloAdmin: true
     },
+        { label: 'Inventario',
+           path: '/admin/inventario',
+           icon: 'bi-boxes' },
     {
       label: 'Reportes',
       path: '/admin/reportes', // 👈 Agregamos /admin
       icon: 'bi-bar-chart-line',
       soloAdmin: true
-    }
+    },
+    // 👇 NUEVA OPCIÓN 👇
+    { label: 'Configuración', 
+      path: '/admin/configuracion',
+       icon: 'bi-gear',
+      soloAdmin: true } 
   ];
 
   constructor(private authService: AuthService) {}

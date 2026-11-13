@@ -1,0 +1,24 @@
+/* Reutilizamos los estilos base del login */
+@import '../login/login.css';
+
+/* Estilos exclusivos para el registro */
+.exito-mensaje {
+  text-align: center;
+  padding: 40px 20px;
+  color: #16a34a;
+  animation: fadeIn 0.5s ease;
+}
+
+.exito-mensaje h3 {
+  margin: 15px 0 10px;
+  font-size: 1.5rem;
+}
+
+.exito-mensaje p {
+  color: #64748b;
+}
+
+/* Hacemos que el formulario de registro tenga un poco de scroll si es muy largo */
+.login-form-panel {
+  overflow-y: auto;
+}
