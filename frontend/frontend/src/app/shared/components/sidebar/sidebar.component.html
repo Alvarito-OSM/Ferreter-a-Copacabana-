@@ -1,25 +1,45 @@
 <aside class="sidebar">
 
+  <!-- Logo -->
   <div class="sidebar-brand">
-    <div class="brand-icon">FC</div>
+    <div class="brand-icon">
+      <i class="bi bi-tools" aria-hidden="true"></i>
+    </div>
+
     <div class="brand-text">
       <strong>Ferretería</strong>
       <small>Copacabana</small>
     </div>
   </div>
 
-  <nav class="sidebar-nav">
+  <!-- Navegación -->
+  <nav class="sidebar-nav" aria-label="Menú principal">
     <ul class="nav-list">
       <li *ngFor="let item of menuVisible">
-        <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
-          <span class="nav-icon">{{ item.icon }}</span>
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          <i
+            class="bi nav-icon"
+            [ngClass]="item.icon"
+            aria-hidden="true"
+          ></i>
           <span>{{ item.label }}</span>
         </a>
       </li>
     </ul>
   </nav>
 
+  <!-- Pie -->
   <div class="sidebar-footer">
+    <!-- Botón para volver al catálogo público -->
+    <a routerLink="/" class="catalog-link">
+      <i class="bi bi-shop"></i>
+      <span>Ir al Catálogo</span>
+    </a>
+    
     <small>Sistema v1.0</small>
   </div>
 

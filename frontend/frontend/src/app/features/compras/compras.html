@@ -1,0 +1,97 @@
+
+<div class="compras-container">
+  <header class="header">
+    <h1>Gestión de compras</h1>
+    <p>Registra las compras de productos a proveedores.</p>
+  </header>
+
+  <div class="panel">
+    <h2>Nueva compra</h2>
+
+    <div class="form-grid">
+      <div class="campo">
+        <label>Proveedor</label>
+        <input
+          type="text"
+          [(ngModel)]="proveedor"
+          placeholder="Nombre del proveedor">
+      </div>
+
+      <div class="campo">
+        <label>Producto</label>
+        <input
+          type="text"
+          [(ngModel)]="producto"
+          placeholder="Nombre del producto">
+      </div>
+
+      <div class="campo">
+        <label>Cantidad</label>
+        <input
+          type="number"
+          min="1"
+          [(ngModel)]="cantidad">
+      </div>
+
+      <div class="campo">
+        <label>Costo unitario (Bs)</label>
+        <input
+          type="number"
+          min="0"
+          [(ngModel)]="costo">
+      </div>
+    </div>
+
+    <button class="btn-principal" (click)="agregarProducto()">
+      + Agregar producto
+    </button>
+  </div>
+
+  <div class="panel">
+    <h2>Detalle de compra</h2>
+
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Costo unitario</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of productos; let i = index">
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>Bs {{ item.costo | number:'1.2-2' }}</td>
+            <td>
+              Bs {{ item.cantidad * item.costo | number:'1.2-2' }}
+            </td>
+            <td>
+              <button class="btn-eliminar" (click)="quitarProducto(i)">
+                Quitar
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="productos.length === 0">
+            <td colspan="5">No hay productos agregados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="total">
+      Total: Bs {{ total | number:'1.2-2' }}
+    </div>
+
+    <button class="btn-principal" (click)="registrarCompra()">
+      Validar compra
+    </button>
+
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+  </div>
+</div>

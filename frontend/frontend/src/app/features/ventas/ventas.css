@@ -1,0 +1,335 @@
+
+/* ==========================================
+   FERRETERÍA COPACABANA
+   MÓDULO DE VENTAS
+   ========================================== */
+
+/* CONTENEDOR PRINCIPAL */
+.modulo-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  color: #161616;
+  box-sizing: border-box;
+}
+
+/* ENCABEZADO */
+.modulo-header {
+  margin-bottom: 25px;
+}
+
+.modulo-header h1 {
+  font-size: 30px;
+  font-weight: 800;
+  color: #991b1b;
+  margin-bottom: 10px;
+}
+
+.modulo-header p {
+  color: #666;
+  font-size: 15px;
+}
+
+/* PANELES */
+.panel {
+  background: #ffffff;
+  padding: 25px;
+  border: 1px solid #e5e5e5;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.panel h2 {
+  color: #991b1b;
+  font-size: 23px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* FORMULARIO */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 16px;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: #991b1b;
+  box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.1);
+}
+
+/* BOTONES */
+.btn-principal,
+.btn-secundario,
+.btn-eliminar {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.btn-principal {
+  background: #991b1b;
+  color: #ffffff;
+}
+
+.btn-principal:hover {
+  background: #c62828;
+}
+
+.btn-secundario {
+  background: #222222;
+  color: #ffffff;
+}
+
+.btn-secundario:hover {
+  background: #444444;
+}
+
+.btn-eliminar {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-eliminar:hover {
+  background: #fecaca;
+}
+
+/* TABLA DE VENTAS */
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th,
+td {
+  padding: 14px;
+  border-bottom: 1px solid #eeeeee;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background: #991b1b;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+tbody tr:hover {
+  background: #fafafa;
+}
+
+/* TOTAL DE VENTA */
+.total {
+  text-align: right;
+  font-size: 24px;
+  font-weight: 800;
+  color: #991b1b;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* MÉTODOS DE PAGO */
+.metodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-bottom: 20px;
+}
+
+.metodos label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.metodos input[type="radio"] {
+  accent-color: #991b1b;
+  cursor: pointer;
+}
+
+/* ==========================================
+   PAGO MEDIANTE QR - BCP
+   ========================================== */
+
+.pago-qr {
+  width: 100%;
+  max-width: 450px;
+  margin: 20px auto;
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.pago-qr h3 {
+  color: #991b1b;
+  font-size: 19px;
+  font-weight: 700;
+  margin: 12px 0;
+}
+
+.pago-qr p {
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+
+/* IMAGEN QR PEQUEÑA Y CENTRADA */
+.pago-qr .imagen-qr {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+  margin: 18px auto;
+  border-radius: 10px;
+  background: #ffffff;
+  object-fit: contain;
+}
+
+/* AVISO DE VENCIMIENTO */
+.pago-qr .advertencia-qr {
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+  background: #fef3c7;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+/* BOTONES DE PAGO */
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* MENSAJES */
+.mensaje {
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 15px;
+}
+
+/* COMPROBANTE */
+.solo-impresion {
+  display: none;
+}
+
+/* ==========================================
+   DISEÑO RESPONSIVO
+   ========================================== */
+
+@media (max-width: 768px) {
+  .modulo-container {
+    padding: 15px;
+  }
+
+  .modulo-header h1 {
+    font-size: 24px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .panel h2 {
+    font-size: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .pago-qr {
+    padding: 15px;
+  }
+
+  .pago-qr .imagen-qr {
+    width: 180px;
+  }
+
+  .total {
+    font-size: 21px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   IMPRESIÓN DEL COMPROBANTE
+   ========================================== */
+
+@media print {
+  .modulo-container > :not(.solo-impresion) {
+    display: none !important;
+  }
+
+  .solo-impresion {
+    display: block !important;
+    color: #000000;
+    background: #ffffff;
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .solo-impresion h2,
+  .solo-impresion h3 {
+    color: #000000;
+    margin-bottom: 12px;
+  }
+}

@@ -17,6 +17,7 @@ export class Login {
   contrasena = '';
   error = '';
   cargando = false;
+  mostrarContrasena = false;
 
   constructor(
     private authService: AuthService,
@@ -24,29 +25,40 @@ export class Login {
   ) {}
 
   onLogin(): void {
+    if (this.cargando) return;
+
     this.error = '';
     this.cargando = true;
 
-    // 👇 CAMBIO IMPORTANTE: Spring Security espera 'username' y 'password' 👇
     this.authService.login({
-      usuario: this.usuario,   // El AuthService se encargará de traducir esto
+      usuario: this.usuario,
       contrasena: this.contrasena
     }).subscribe({
-      next: (res) => {
-        console.log('Login exitoso:', res);
+      next: (res: any) => {
         this.cargando = false;
-        // Redirigimos al panel de administración
-        this.router.navigate(['/admin/dashboard']); 
+
+        if (res && res.token) {
+          localStorage.setItem('token', res.token);
+        }
+
+        // 👇 CAMBIO CLAVE: Ahora redirige a /admin/dashboard 👇
+        this.router.navigate(['/admin/dashboard']);
       },
       error: (err) => {
         this.cargando = false;
         this.error = 'Usuario o contraseña incorrectos';
-        console.error('Error del backend:', err);
+        console.error(err);
       }
     });
   }
 
+  alternarContrasena(): void {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
+
   loginConGoogle(): void {
-    alert('El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.');
+    alert(
+      'El inicio de sesión con Google estará disponible próximamente. Por favor, use su usuario y contraseña.'
+    );
   }
 }

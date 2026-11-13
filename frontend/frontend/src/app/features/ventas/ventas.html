@@ -1,0 +1,260 @@
+
+<div class="modulo-container">
+
+  <header class="modulo-header">
+    <h1>Gestión de ventas</h1>
+    <p>
+      Registra productos, calcula importes y selecciona
+      el método de pago.
+    </p>
+  </header>
+
+  <!-- NUEVA VENTA -->
+  <div class="panel">
+    <h2>Nueva venta</h2>
+
+    <div class="form-grid">
+
+      <div class="campo">
+        <label>Nombre del cliente</label>
+        <input
+          type="text"
+          [(ngModel)]="cliente"
+          placeholder="Nombre del cliente">
+      </div>
+
+      <div class="campo">
+        <label>Producto</label>
+        <select [(ngModel)]="productoId">
+          <option [ngValue]="0">
+            Seleccionar producto
+          </option>
+
+          <option
+            *ngFor="let producto of productos"
+            [ngValue]="producto.id">
+            {{ producto.nombre }} -
+            Bs {{ producto.precio }}
+            (Stock: {{ producto.stock }})
+          </option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Cantidad</label>
+        <input
+          type="number"
+          min="1"
+          [(ngModel)]="cantidad">
+      </div>
+
+    </div>
+
+    <button
+      class="btn-principal"
+      (click)="agregarProducto()">
+      + Agregar producto
+    </button>
+  </div>
+
+  <!-- DETALLE DE VENTA -->
+  <div class="panel">
+    <h2>Detalle de venta</h2>
+
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of carrito">
+            <td>{{ item.producto.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+
+            <td>
+              Bs {{ item.producto.precio | number:'1.2-2' }}
+            </td>
+
+            <td>
+              Bs {{
+                item.producto.precio * item.cantidad
+                | number:'1.2-2'
+              }}
+            </td>
+
+            <td>
+              <button
+                class="btn-eliminar"
+                (click)="quitarProducto(item.producto.id)">
+                Quitar
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="carrito.length === 0">
+            <td colspan="5">
+              No hay productos agregados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="total">
+      Total: Bs {{ total | number:'1.2-2' }}
+    </div>
+  </div>
+
+  <!-- MÉTODO DE PAGO -->
+  <div class="panel">
+    <h2>Método de pago</h2>
+
+    <div class="metodos">
+
+      <label>
+        <input
+          type="radio"
+          name="metodo"
+          value="EFECTIVO"
+          [(ngModel)]="metodoPago">
+        Efectivo
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="metodo"
+          value="QR"
+          [(ngModel)]="metodoPago">
+        Pago mediante QR
+      </label>
+
+    </div>
+
+    <!-- PAGO EN EFECTIVO -->
+    <div
+      *ngIf="metodoPago === 'EFECTIVO'"
+      class="campo">
+
+      <label>Monto recibido (Bs)</label>
+
+      <input
+        type="number"
+        min="0"
+        [(ngModel)]="montoRecibido">
+
+      <p>
+        <strong>Cambio:</strong>
+        Bs {{ cambio | number:'1.2-2' }}
+      </p>
+
+    </div>
+
+    <!-- PAGO MEDIANTE QR BCP -->
+    <div
+      *ngIf="metodoPago === 'QR'"
+      class="pago-qr">
+
+      <h3>Pago mediante QR - BCP</h3>
+
+      <p>
+        Escanea el siguiente código QR
+        desde tu aplicación bancaria.
+      </p>
+
+      <img
+        src="/qr-bcp.jpeg"
+        alt="Código QR de pago BCP"
+        class="imagen-qr">
+
+      <h3>
+        Total a pagar:
+        Bs {{ total | number:'1.2-2' }}
+      </h3>
+
+      <p>
+        Introduce el importe indicado si
+        tu aplicación bancaria lo solicita.
+      </p>
+
+      <p>
+        Verifica los datos del destinatario
+        antes de realizar el pago.
+      </p>
+
+      <p class="advertencia-qr">
+        QR válido hasta el 12/11/2028.
+        El pago requiere confirmación manual.
+      </p>
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="acciones">
+
+      <button
+        class="btn-principal"
+        (click)="registrarVenta()">
+        Validar venta
+      </button>
+
+      <button
+        class="btn-secundario"
+        (click)="imprimirComprobante()">
+        Imprimir borrador
+      </button>
+
+    </div>
+
+    <p
+      class="mensaje"
+      *ngIf="mensaje">
+      {{ mensaje }}
+    </p>
+
+  </div>
+
+  <!-- COMPROBANTE DE PRUEBA -->
+  <div class="solo-impresion">
+
+    <h2>Ferretería Copacabana</h2>
+
+    <h3>
+      Borrador de venta - No es factura fiscal
+    </h3>
+
+    <p>Cliente: {{ cliente }}</p>
+
+    <p *ngFor="let item of carrito">
+      {{ item.producto.nombre }}
+      × {{ item.cantidad }}
+      — Bs {{
+        item.producto.precio * item.cantidad
+        | number:'1.2-2'
+      }}
+    </p>
+
+    <h3>
+      Total: Bs {{ total | number:'1.2-2' }}
+    </h3>
+
+    <p>
+      Método de pago seleccionado:
+      {{ metodoPago }}
+    </p>
+
+    <p>
+      Documento de prueba.
+      No acredita pago.
+    </p>
+
+  </div>
+
+</div>

@@ -1,111 +1,201 @@
-.dashboard-container {
-  padding: 2rem;
-  background-color: #f8fafc;
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+/* ==========================================
+   DASHBOARD - FERRETERÍA COPACABANA
+   ========================================== */
+
+.dashboard {
+  padding: 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.header h1 {
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-  font-size: 1.8rem;
+/* Tarjeta de bienvenida */
+
+.welcome-card {
+  background: linear-gradient(
+    135deg,
+    #dc2626 0%,
+    #991b1b 55%,
+    #171717 100%
+  );
+  border-radius: 20px;
+  padding: 40px;
+  color: #ffffff;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 30px rgba(153, 27, 27, 0.2);
 }
 
-.header p {
-  color: #64748b;
-  margin-bottom: 2rem;
+.welcome-card h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+  color: #ffffff;
 }
 
-/* Grid de Métricas */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.metric-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación fluida */
-  cursor: pointer;
-}
-
-.metric-card:hover {
-  transform: translateY(-5px); /* Se eleva al pasar el mouse */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-}
-
-.icon.blue { background: #e0f2fe; color: #0284c7; }
-.icon.red { background: #fee2e2; color: #dc2626; }
-.icon.green { background: #dcfce7; color: #16a34a; }
-.icon.purple { background: #f3e8ff; color: #9333ea; }
-
-.info h3 {
+.welcome-card p {
+  font-size: 15px;
   margin: 0;
-  font-size: 0.9rem;
-  color: #64748b;
-  font-weight: 600;
+  opacity: 0.9;
+  color: #ffffff;
 }
 
-.info .value {
-  margin: 0.3rem 0;
-  font-size: 1.6rem;
+.welcome-card strong {
   font-weight: 700;
-  color: #1e293b;
 }
 
-.info .text-red {
-  color: #dc2626;
+.welcome-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.trend {
-  font-size: 0.8rem;
-  font-weight: 500;
+.welcome-heading h1 {
+  margin: 0;
 }
 
-.trend.positive { color: #16a34a; }
-.trend.negative { color: #dc2626; }
+.welcome-icon {
+  font-size: 28px;
+}
 
-/* Grid de Gráficos */
-.charts-grid {
+/* Cuadrícula de estadísticas */
+
+.stats-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  );
+  gap: 20px;
 }
 
-.chart-card {
-  background: white;
-  padding: 1.5rem;
+/* Tarjetas */
+
+.stat-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #dc2626;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(185, 28, 28, 0.12);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #fee2e2;
+  color: #b91c1c;
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  font-size: 22px;
 }
 
-.chart-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: #1e293b;
-  font-size: 1.1rem;
+.stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #6b7280;
 }
 
-/* Responsive para celulares */
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -1px;
+}
+
+/* ==========================================
+   MODO OSCURO DEL DASHBOARD
+   Solo cambian los colores
+   ========================================== */
+
+:host-context(html.dark-mode) .dashboard {
+  color: #f8fafc;
+}
+
+/* Mantener bienvenida roja */
+
+:host-context(html.dark-mode) .welcome-card {
+  color: #ffffff;
+}
+
+:host-context(html.dark-mode) .welcome-card h1,
+:host-context(html.dark-mode) .welcome-card p,
+:host-context(html.dark-mode) .welcome-card strong {
+  color: #ffffff;
+}
+
+/* Tarjetas oscuras */
+
+:host-context(html.dark-mode) .stat-card {
+  background: #1e293b;
+  border-color: #334155;
+  border-left: 4px solid #dc2626;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:host-context(html.dark-mode) .stat-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Etiquetas visibles */
+
+:host-context(html.dark-mode) .stat-label {
+  color: #cbd5e1;
+}
+
+/* Números blancos */
+
+:host-context(html.dark-mode) .stat-value {
+  color: #ffffff;
+}
+
+/* Iconos */
+
+:host-context(html.dark-mode) .stat-icon {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+/* ==========================================
+   RESPONSIVE ORIGINAL
+   ========================================== */
+
 @media (max-width: 768px) {
-  .charts-grid {
+  .dashboard {
+    padding: 20px;
+  }
+
+  .welcome-card {
+    padding: 28px;
+  }
+
+  .welcome-card h1 {
+    font-size: 25px;
+  }
+
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 }

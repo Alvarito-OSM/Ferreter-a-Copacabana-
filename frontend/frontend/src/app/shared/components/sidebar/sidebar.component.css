@@ -1,33 +1,34 @@
+
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: #0f172a;
+  background: #111111;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 
+/* Marca */
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 22px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #303030;
 }
 
 .brand-icon {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #ef4444, #991b1b);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 21px;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .brand-text {
@@ -44,10 +45,11 @@
 
 .brand-text small {
   font-size: 11px;
-  color: #94a3b8;
+  color: #d1d5db;
   font-weight: 500;
 }
 
+/* Navegación */
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
@@ -63,45 +65,53 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
+  gap: 14px;
+  padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: #cbd5e1;
+  color: #d1d5db;
   border-radius: 10px;
-  transition: all 0.15s ease;
-  margin-bottom: 2px;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
   cursor: pointer;
   text-decoration: none;
 }
 
 .nav-icon {
-  font-size: 16px;
-  width: 20px;
+  font-size: 19px;
+  width: 22px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #292929;
   color: #ffffff;
+  transform: translateX(3px);
 }
 
 .nav-link.active {
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #dc2626, #991b1b);
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.25);
 }
 
+.nav-link:focus-visible {
+  outline: 2px solid #fca5a5;
+  outline-offset: 2px;
+}
+
+/* Pie del menú */
 .sidebar-footer {
   padding: 16px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #303030;
   text-align: center;
 }
 
 .sidebar-footer small {
   font-size: 11px;
-  color: #64748b;
+  color: #9ca3af;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -109,6 +119,23 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #444444;
   border-radius: 3px;
+}
+
+.catalog-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  color: #fbbf24; /* Color amarillo para que resalte */
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.catalog-link:hover {
+  background: rgba(251, 191, 36, 0.1);
 }

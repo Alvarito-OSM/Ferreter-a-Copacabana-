@@ -20,14 +20,55 @@ interface MenuItem {
 export class SidebarComponent {
 
   menuItems: MenuItem[] = [
-    // 👇 CAMBIO: Agregamos /admin a todas las rutas 👇
-    { label: 'Dashboard', path: '/admin/dashboard', icon: ' ' },
-    { label: 'Ventas', path: '/admin/ventas', icon: ' ' },       
-    { label: 'Productos', path: '/admin/productos', icon: ' ' },
-    { label: 'Categorías', path: '/admin/categorias', icon: ' ' },
-    { label: 'Clientes', path: '/admin/clientes', icon: ' ' },
-    { label: 'Proveedores', path: '/admin/proveedores', icon: ' ', soloAdmin: true },
-    { label: 'Empleados', path: '/admin/empleados', icon: ' ', soloAdmin: true }
+    {
+      label: 'Panel de control',
+      path: '/admin/dashboard', // 👈 Agregamos /admin
+      icon: 'bi-speedometer2'
+    },
+    {
+      label: 'Productos',
+      path: '/admin/productos', // 👈 Agregamos /admin
+      icon: 'bi-box-seam'
+    },
+    {
+      label: 'Categorías',
+      path: '/admin/categorias', // 👈 Agregamos /admin
+      icon: 'bi-tags'
+    },
+    {
+      label: 'Clientes',
+      path: '/admin/clientes', // 👈 Agregamos /admin
+      icon: 'bi-people'
+    },
+    {
+      label: 'Proveedores',
+      path: '/admin/proveedores', // 👈 Agregamos /admin
+      icon: 'bi-truck',
+      soloAdmin: true
+    },
+    {
+      label: 'Empleados',
+      path: '/admin/empleados', // 👈 Agregamos /admin
+      icon: 'bi-person-badge',
+      soloAdmin: true
+    },
+    {
+      label: 'Ventas',
+      path: '/admin/ventas', // 👈 Agregamos /admin
+      icon: 'bi-cart-check'
+    },
+    {
+      label: 'Compras',
+      path: '/admin/compras', // 👈 Agregamos /admin
+      icon: 'bi-bag-check',
+      soloAdmin: true
+    },
+    {
+      label: 'Reportes',
+      path: '/admin/reportes', // 👈 Agregamos /admin
+      icon: 'bi-bar-chart-line',
+      soloAdmin: true
+    }
   ];
 
   constructor(private authService: AuthService) {}
@@ -37,7 +78,12 @@ export class SidebarComponent {
   }
 
   get menuVisible(): MenuItem[] {
-    if (this.esAdmin) return this.menuItems;
-    return this.menuItems.filter(item => !item.soloAdmin);
+    if (this.esAdmin) {
+      return this.menuItems;
+    }
+
+    return this.menuItems.filter(
+      item => !item.soloAdmin
+    );
   }
 }

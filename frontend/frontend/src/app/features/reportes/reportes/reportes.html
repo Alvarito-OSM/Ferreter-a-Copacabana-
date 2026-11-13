@@ -1,0 +1,464 @@
+
+<div class="reportes-container">
+
+  <!-- ENCABEZADO -->
+  <div class="page-header">
+    <div>
+      <h1>Reportes y estadísticas</h1>
+      <p>
+        Ferretería Copacabana |
+        Análisis de ventas y compras
+      </p>
+    </div>
+
+    <button
+      class="btn-actualizar"
+      type="button"
+      (click)="cargarDatos()"
+      [disabled]="cargando">
+      <i class="bi bi-arrow-clockwise"></i>
+      {{ cargando ? 'Cargando...' : 'Actualizar datos' }}
+    </button>
+  </div>
+
+  <p *ngIf="errorDatos" class="error-message">
+    {{ errorDatos }}
+  </p>
+
+  <!-- FILTRO DE FECHAS -->
+  <section class="report-section calendario-section">
+
+    <div class="section-heading">
+      <div>
+        <h2>Consultar por fechas</h2>
+        <p>
+          Selecciona un período para analizar
+          las ventas y compras registradas.
+        </p>
+      </div>
+
+      <i class="bi bi-calendar3 icono-seccion"></i>
+    </div>
+
+    <div class="filtros-rapidos">
+      <button
+        type="button"
+        (click)="seleccionarPeriodo('hoy')">
+        Hoy
+      </button>
+
+      <button
+        type="button"
+        (click)="seleccionarPeriodo('semana')">
+        Últimos 7 días
+      </button>
+
+      <button
+        type="button"
+        (click)="seleccionarPeriodo('mes')">
+        Este mes
+      </button>
+    </div>
+
+    <div class="date-grid">
+
+      <!-- FECHA INICIAL -->
+      <div class="date-field">
+        <label>Fecha inicial</label>
+
+        <button
+          class="date-trigger"
+          type="button"
+          (click)="abrirCalendario('inicio')">
+          <i class="bi bi-calendar-event"></i>
+          <span>{{ fechaInicioTexto }}</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+      </div>
+
+      <!-- FECHA FINAL -->
+      <div class="date-field">
+        <label>Fecha final</label>
+
+        <button
+          class="date-trigger"
+          type="button"
+          (click)="abrirCalendario('fin')">
+          <i class="bi bi-calendar-check"></i>
+          <span>{{ fechaFinTexto }}</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- CALENDARIO TIPO CELULAR -->
+    <div
+      class="calendar-overlay"
+      *ngIf="calendarioAbierto"
+      (click)="cerrarCalendario()">
+
+      <div
+        class="calendar-popup"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Seleccionar fecha"
+        (click)="$event.stopPropagation()">
+
+        <div class="calendar-top">
+          <div>
+            <small>SELECCIONAR FECHA</small>
+            <h3>
+              {{
+                calendarioAbierto === 'inicio'
+                  ? 'Fecha inicial'
+                  : 'Fecha final'
+              }}
+            </h3>
+          </div>
+
+          <button
+            type="button"
+            class="calendar-close"
+            aria-label="Cerrar calendario"
+            (click)="cerrarCalendario()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="calendar-body">
+
+          <div class="calendar-navigation">
+            <button
+              type="button"
+              aria-label="Mes anterior"
+              (click)="cambiarMes(-1)">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <strong>
+              {{ nombresMeses[mesVisible] }}
+              {{ anioVisible }}
+            </strong>
+
+            <button
+              type="button"
+              aria-label="Mes siguiente"
+              (click)="cambiarMes(1)">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="calendar-grid">
+
+            <div
+              class="calendar-weekday"
+              *ngFor="let nombre of diasSemana">
+              {{ nombre }}
+            </div>
+
+            <div
+              class="calendar-day-container"
+              *ngFor="let dia of celdasCalendario">
+
+              <button
+                *ngIf="dia !== null"
+                type="button"
+                class="calendar-day"
+                [class.selected]="esDiaSeleccionado(dia)"
+                [class.today]="esHoy(dia)"
+                (click)="seleccionarDia(dia)">
+                {{ dia }}
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="calendar-footer">
+            <button
+              type="button"
+              (click)="cerrarCalendario()">
+              Cerrar
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TARJETAS DE RESUMEN -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon ventas-icon">
+        <i class="bi bi-cart-check"></i>
+      </div>
+      <p>Total vendido</p>
+      <h3>
+        Bs {{ totalVentas | number:'1.2-2' }}
+      </h3>
+      <small>{{ cantidadVentas }} ventas</small>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon compras-icon">
+        <i class="bi bi-bag-check"></i>
+      </div>
+      <p>Total comprado</p>
+      <h3>
+        Bs {{ totalCompras | number:'1.2-2' }}
+      </h3>
+      <small>{{ cantidadCompras }} compras</small>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon balance-icon">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <p>Diferencia de movimientos</p>
+      <h3>
+        Bs {{ balanceMovimientos | number:'1.2-2' }}
+      </h3>
+      <small>Ventas menos compras</small>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon operaciones-icon">
+        <i class="bi bi-clipboard-data"></i>
+      </div>
+      <p>Total de operaciones</p>
+      <h3>
+        {{ cantidadVentas + cantidadCompras }}
+      </h3>
+      <small>En el período seleccionado</small>
+    </div>
+
+  </div>
+
+  <!-- GRÁFICA -->
+  <section class="report-section">
+
+    <div class="section-heading">
+      <div>
+        <h2>Ventas y compras por día</h2>
+        <p>
+          Comparación diaria de los importes
+          en bolivianos (Bs).
+        </p>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <span>
+        <i class="legend-dot ventas-dot"></i>
+        Ventas
+      </span>
+
+      <span>
+        <i class="legend-dot compras-dot"></i>
+        Compras
+      </span>
+    </div>
+
+    <div *ngIf="cargando" class="empty-chart">
+      Cargando información...
+    </div>
+
+    <div
+      *ngIf="!cargando && rangoDemasiadoGrande"
+      class="empty-chart">
+      Selecciona un período de hasta 62 días
+      para visualizar la gráfica diaria.
+    </div>
+
+    <div
+      *ngIf="!cargando &&
+             !rangoDemasiadoGrande &&
+             !hayMovimientos"
+      class="empty-chart">
+      No hay ventas ni compras registradas
+      en las fechas seleccionadas.
+    </div>
+
+    <div
+      class="chart-scroll"
+      *ngIf="!cargando &&
+             !rangoDemasiadoGrande &&
+             hayMovimientos">
+
+      <div
+        class="chart-content"
+        [style.--dias]="movimientos.length">
+
+        <div class="chart-plot">
+
+          <div
+            class="chart-column"
+            *ngFor="let dia of movimientos">
+
+            <div class="chart-bars">
+
+              <div
+                class="bar ventas-bar"
+                [style.height.%]="alturaBarra(dia.ventas)"
+                [title]="
+                  'Ventas ' + dia.fecha +
+                  ': Bs ' + dia.ventas.toFixed(2)
+                ">
+              </div>
+
+              <div
+                class="bar compras-bar"
+                [style.height.%]="alturaBarra(dia.compras)"
+                [title]="
+                  'Compras ' + dia.fecha +
+                  ': Bs ' + dia.compras.toFixed(2)
+                ">
+              </div>
+
+            </div>
+
+            <div class="chart-date">
+              {{ dia.etiqueta }}
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <p
+      *ngIf="hayMovimientos && !rangoDemasiadoGrande"
+      class="chart-note">
+      Pasa el cursor sobre las barras para ver
+      el importe de cada día.
+    </p>
+
+  </section>
+
+  <!-- DÍAS DE MAYOR MOVIMIENTO -->
+  <div class="highlights-grid">
+
+    <div class="highlight-card">
+      <div class="highlight-heading">
+        <i class="bi bi-trophy"></i>
+        <h3>Día con más ventas</h3>
+      </div>
+
+      <ng-container *ngIf="diaMayorVenta as dia; else sinVentas">
+        <p class="highlight-date">
+          {{ dia.fecha | date:'dd/MM/yyyy':'UTC' }}
+        </p>
+
+        <h2>
+          Bs {{ dia.ventas | number:'1.2-2' }}
+        </h2>
+
+        <small>
+          {{ dia.cantidadVentas }} ventas realizadas
+        </small>
+      </ng-container>
+
+      <ng-template #sinVentas>
+        <p>Sin ventas en este período.</p>
+      </ng-template>
+    </div>
+
+    <div class="highlight-card">
+      <div class="highlight-heading">
+        <i class="bi bi-trophy"></i>
+        <h3>Día con más compras</h3>
+      </div>
+
+      <ng-container *ngIf="diaMayorCompra as dia; else sinCompras">
+        <p class="highlight-date">
+          {{ dia.fecha | date:'dd/MM/yyyy':'UTC' }}
+        </p>
+
+        <h2>
+          Bs {{ dia.compras | number:'1.2-2' }}
+        </h2>
+
+        <small>
+          {{ dia.cantidadCompras }} compras realizadas
+        </small>
+      </ng-container>
+
+      <ng-template #sinCompras>
+        <p>Sin compras en este período.</p>
+      </ng-template>
+    </div>
+
+  </div>
+
+  <!-- DESCARGAS EXCEL -->
+  <section class="report-section">
+
+    <h2>Descargar reportes</h2>
+
+    <p>
+      Exporta los registros de ventas y compras
+      de Ferretería Copacabana a Excel.
+    </p>
+
+    <div class="export-grid">
+
+      <div class="export-card">
+        <i class="bi bi-cart-check"></i>
+
+        <h3>Reporte de ventas</h3>
+
+        <p>
+          Consulta las ventas realizadas,
+          fechas, clientes, empleados,
+          importes y estados.
+        </p>
+
+        <button
+          type="button"
+          (click)="descargarVentas()"
+          [disabled]="descargando">
+          <i class="bi bi-file-earmark-excel"></i>
+          Descargar Excel
+        </button>
+      </div>
+
+      <div class="export-card">
+        <i class="bi bi-bag-check"></i>
+
+        <h3>Reporte de compras</h3>
+
+        <p>
+          Consulta las compras realizadas,
+          proveedores, importes y estados.
+        </p>
+
+        <button
+          type="button"
+          (click)="descargarCompras()"
+          [disabled]="descargando">
+          <i class="bi bi-file-earmark-excel"></i>
+          Descargar Excel
+        </button>
+      </div>
+
+    </div>
+
+    <p *ngIf="mensaje" class="export-message">
+      {{ mensaje }}
+    </p>
+
+    <p class="export-note">
+      Los archivos Excel incluyen todos los registros
+      devueltos por el backend, independientemente
+      del filtro de fechas de la gráfica.
+    </p>
+
+  </section>
+
+</div>

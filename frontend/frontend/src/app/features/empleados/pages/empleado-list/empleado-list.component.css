@@ -1,3 +1,4 @@
+
 .page-container {
   padding: 40px;
   max-width: 1280px;
@@ -16,14 +17,14 @@
 .page-header-text h1 {
   font-size: 32px;
   font-weight: 800;
-  color: #0f172a;
+  color: #111111;
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }
 
 .page-subtitle {
   font-size: 15px;
-  color: #64748b;
+  color: #525252;
   margin: 0;
   font-weight: 500;
 }
@@ -39,7 +40,7 @@
   background: #ffffff;
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e5e5;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -48,28 +49,28 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #64748b;
+  color: #525252;
   margin-bottom: 8px;
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: 800;
-  color: #0f172a;
+  color: #111111;
   letter-spacing: -0.5px;
 }
 
 .table-card {
   background: #ffffff;
   border-radius: 20px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
 .table-card-header {
   padding: 20px 28px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #eeeeee;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -78,16 +79,16 @@
 .table-card-header h2 {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: #111111;
   margin: 0;
 }
 
 .table-count {
   font-size: 13px;
-  color: #64748b;
+  color: #525252;
   font-weight: 500;
   padding: 4px 12px;
-  background: #f1f5f9;
+  background: #f5f5f5;
   border-radius: 20px;
 }
 
@@ -100,7 +101,7 @@
   width: 64px;
   height: 64px;
   margin: 0 auto 20px;
-  background: #f1f5f9;
+  background: #fee2e2;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -111,12 +112,12 @@
 .empty-state h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #111111;
   margin: 0 0 8px 0;
 }
 
 .empty-state p {
-  color: #64748b;
+  color: #525252;
   margin: 0 0 24px 0;
   font-size: 14px;
 }
@@ -127,7 +128,7 @@
 }
 
 .data-table thead {
-  background: #f8fafc;
+  background: #b91c1c;
 }
 
 .data-table th {
@@ -137,8 +138,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  color: #ffffff;
+  border-bottom: 1px solid #991b1b;
 }
 
 .data-table th.text-center {
@@ -148,8 +149,8 @@
 .data-table td {
   padding: 20px 28px;
   font-size: 14px;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
+  color: #262626;
+  border-bottom: 1px solid #eeeeee;
   font-weight: 500;
 }
 
@@ -162,7 +163,7 @@
 }
 
 .data-table tbody tr:hover {
-  background: #f8fafc;
+  background: #fef2f2;
 }
 
 .avatar-cell {
@@ -175,7 +176,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -194,20 +195,20 @@
 
 .name-info strong {
   font-weight: 600;
-  color: #0f172a;
+  color: #111111;
   font-size: 14px;
 }
 
 .name-info small {
   font-size: 12px;
-  color: #94a3b8;
+  color: #737373;
   font-weight: 500;
 }
 
 .cell-ci {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-weight: 600;
-  color: #475569;
+  color: #404040;
   font-size: 13px;
 }
 
@@ -222,8 +223,8 @@
 }
 
 .badge-primary {
-  color: #1e40af;
-  background: #dbeafe;
+  color: #991b1b;
+  background: #fee2e2;
 }
 
 .badge-success {
@@ -257,36 +258,36 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.35);
+  box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35);
 }
 
 .btn-secondary {
-  background: #f1f5f9;
-  color: #334155;
+  background: #262626;
+  color: #ffffff;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
+  background: #404040;
 }
 
 .btn-outline {
   background: transparent;
-  color: #3b82f6;
-  border: 1.5px solid #bfdbfe;
+  color: #111111;
+  border: 1.5px solid #a3a3a3;
   padding: 8px 16px;
   font-size: 13px;
 }
 
 .btn-outline:hover {
-  background: #eff6ff;
-  border-color: #93c5fd;
+  background: #f5f5f5;
+  border-color: #525252;
 }
 
 .btn-danger {
@@ -324,6 +325,7 @@
     padding: 12px 16px;
   }
 }
+
 .alert-success {
   background: #ecfdf5;
   color: #047857;
@@ -339,6 +341,13 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
