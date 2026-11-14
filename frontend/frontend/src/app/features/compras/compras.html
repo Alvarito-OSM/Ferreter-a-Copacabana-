@@ -108,5 +108,51 @@
         {{ mensaje }}
       </div>
     }
+
+    @if (exito) {
+      <div class="alert-success" style="margin-top: 15px;">
+        {{ exito }}
+      </div>
+    }
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>3. Historial de Compras ({{ compras.length }})</h2>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="text-center">N°</th>
+            <th>FECHA</th>
+            <th>PROVEEDOR</th>
+            <th class="text-center">SUBTOTAL</th>
+            <th class="text-center">IVA</th>
+            <th class="text-center">TOTAL</th>
+            <th class="text-center">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (compras.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-row">Todavía no hay compras registradas.</td>
+            </tr>
+          }
+          @for (c of compras; track c.idCompra) {
+            <tr>
+              <td class="text-center"><strong>#{{ c.idCompra }}</strong></td>
+              <td>{{ c.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ nombreProveedor(c.idProveedor) }}</td>
+              <td class="text-center">Bs. {{ c.subtotal | number:'1.2-2' }}</td>
+              <td class="text-center">Bs. {{ c.iva | number:'1.2-2' }}</td>
+              <td class="text-center"><strong>Bs. {{ c.total | number:'1.2-2' }}</strong></td>
+              <td class="text-center">{{ c.estado }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

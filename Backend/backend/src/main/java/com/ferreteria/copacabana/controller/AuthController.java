@@ -3,7 +3,11 @@ package com.ferreteria.copacabana.controller;
 import com.ferreteria.copacabana.dto.LoginRequest;
 import com.ferreteria.copacabana.dto.LoginResponse;
 import com.ferreteria.copacabana.dto.RegistroClienteRequest;
+import com.ferreteria.copacabana.model.Administrador;
 import com.ferreteria.copacabana.model.Cliente;
+import com.ferreteria.copacabana.model.Empleado;
+import com.ferreteria.copacabana.repository.AdministradorRepository;
+import com.ferreteria.copacabana.repository.EmpleadoRepository;
 import com.ferreteria.copacabana.repository.ClienteRepository;
 import com.ferreteria.copacabana.service.CustomUserDetailsService;
 import com.ferreteria.copacabana.service.JwtService;
@@ -39,6 +43,22 @@ public class AuthController {
     private ClienteRepository clienteRepository;
 
     @Autowired
+    private AdministradorRepository administradorRepository;
+
+    @Autowired
+    private EmpleadoRepository empleadoRepository;
+
+    private Integer resolverId(String usuario, String rol) {
+        if ("ROLE_ADMINISTRADOR".equals(rol)) {
+            return administradorRepository.findByUsuario(usuario).map(Administrador::getIdAdministrador).orElse(null);
+        }
+        if ("ROLE_EMPLEADO".equals(rol)) {
+            return empleadoRepository.findByUsuario(usuario).map(Empleado::getIdEmpleado).orElse(null);
+        }
+        return clienteRepository.findByUsuario(usuario).map(Cliente::getIdCliente).orElse(null);
+    }
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
@@ -59,17 +79,19 @@ public class AuthController {
                     .findFirst()
                     .orElse("ROLE_EMPLEADO");
 
+            Integer idUsuario = resolverId(userDetails.getUsername(), rol);
+
             String token = jwtService.generarToken(
                     userDetails.getUsername(),
                     rol,
-                    null
+                    idUsuario
             );
 
             LoginResponse response = new LoginResponse(
                     token,
                     userDetails.getUsername(),
                     rol,
-                    null
+                    idUsuario
             );
 
             return ResponseEntity.ok(response);

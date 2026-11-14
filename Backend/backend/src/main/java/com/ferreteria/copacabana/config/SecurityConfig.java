@@ -39,14 +39,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Permitir explícitamente peticiones OPTIONS (CRÍTICO PARA CORS)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // 2. Rutas públicas
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
-                        // 3. Todo lo demás requiere token
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/empleados/**", "/api/compras/**", "/api/proveedores/**", "/api/dashboard/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/ventas/*/anular").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**", "/api/categorias/**", "/api/inventario/**", "/api/lotes/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/productos/**", "/api/categorias/**", "/api/inventario/**", "/api/lotes/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/ventas/**", "/api/pagos/**", "/api/caja/**", "/api/clientes/**", "/api/inventario/**", "/api/kardex/**", "/api/lotes/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO")
+                        .anyRequest().hasRole("ADMINISTRADOR")
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

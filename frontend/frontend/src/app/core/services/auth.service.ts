@@ -18,7 +18,7 @@ interface LoginResponse {
   token: string;
   usuario: string;
   rol: string;
-  id: number;
+  id: number | null;
 }
 
 @Injectable({
@@ -31,6 +31,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'ferreteria_token';
   private readonly USER_KEY = 'ferreteria_usuario';
   private readonly ROL_KEY = 'ferreteria_rol';
+  private readonly ID_KEY = 'ferreteria_id';
 
   constructor(
     private http: HttpClient,
@@ -43,6 +44,11 @@ export class AuthService {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.USER_KEY, response.usuario);
         localStorage.setItem(this.ROL_KEY, response.rol);
+        if (response.id !== null && response.id !== undefined) {
+          localStorage.setItem(this.ID_KEY, String(response.id));
+        } else {
+          localStorage.removeItem(this.ID_KEY);
+        }
       })
     );
   }
@@ -51,6 +57,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ROL_KEY);
+    localStorage.removeItem(this.ID_KEY);
     this.router.navigate(['/catalogo']);
   }
 
@@ -60,6 +67,11 @@ export class AuthService {
 
   getUsuario(): string | null {
     return localStorage.getItem(this.USER_KEY);
+  }
+
+  getId(): number | null {
+    const valor = localStorage.getItem(this.ID_KEY);
+    return valor ? Number(valor) : null;
   }
 
   getRol(): string | null {
