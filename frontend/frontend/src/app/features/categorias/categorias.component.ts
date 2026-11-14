@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CategoriaService } from '../../core/services/categoria.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Categoria } from '../../core/models/categoria';
 
 @Component({
@@ -12,6 +13,7 @@ import { Categoria } from '../../core/models/categoria';
   styleUrls: ['./categorias.component.css']
 })
 export class CategoriasComponent implements OnInit {
+  readonly esAdmin = inject(AuthService).isAdministrador();
   categorias: Categoria[] = [];
   categoriasFiltradas: Categoria[] = [];
   formCategoria: FormGroup;

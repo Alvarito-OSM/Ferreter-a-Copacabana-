@@ -121,7 +121,7 @@ export const routes: Routes = [
       {
         path: 'punto-venta',
         canActivate: [rolGuard],
-        data: personal,
+        data: { roles: [ROLES.empleado] },
         loadComponent: () =>
           import('./features/ventas/pos/pos')
             .then(m => m.PosComponent) // Si te marca error aquí, cambia PosComponent por PuntoVentaComponent

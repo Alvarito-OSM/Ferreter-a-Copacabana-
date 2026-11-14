@@ -26,7 +26,7 @@
       <div class="kpi-info">
         <h3>Ventas del Día</h3>
         <p class="kpi-value">Bs. {{ ventasHoy | number:'1.0-0' }}</p>
-        <span class="kpi-trend positive">↑ +12.5%</span>
+        <span class="kpi-trend positive">{{ cantidadVentasHoy }} {{ cantidadVentasHoy === 1 ? 'venta' : 'ventas' }} hoy</span>
       </div>
     </div>
 
@@ -35,7 +35,7 @@
       <div class="kpi-info">
         <h3>Productos en Stock</h3>
         <p class="kpi-value">{{ productosStock | number }}</p>
-        <span class="kpi-trend positive">↑ +2.3%</span>
+        <span class="kpi-trend positive">de {{ totalInventario }} registrados</span>
       </div>
     </div>
 
@@ -44,7 +44,7 @@
       <div class="kpi-info">
         <h3>Productos en Stock Bajo</h3>
         <p class="kpi-value">{{ productosStockBajo }}</p>
-        <span class="kpi-trend text-dark">Ver detalles →</span>
+        <a routerLink="/admin/inventario" class="kpi-trend text-dark">Ver detalles →</a>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
       <div class="kpi-info">
         <h3>Compras del Mes</h3>
         <p class="kpi-value">Bs. {{ comprasMes | number:'1.0-0' }}</p>
-        <span class="kpi-trend positive">↑ +8.7%</span>
+        <span class="kpi-trend positive">{{ cantidadComprasMes }} {{ cantidadComprasMes === 1 ? 'compra' : 'compras' }} este mes</span>
       </div>
     </div>
   </div>
@@ -72,15 +72,21 @@
         @for (prod of topProductos; track prod.nombre; let i = $index) {
           <li class="top-item">
             <span class="rank">{{ i + 1 }}</span>
-            <img [src]="prod.imagen" class="prod-img" alt="producto">
+            @if (prod.imagen) {
+              <img [src]="prod.imagen" class="prod-img" alt="producto" referrerpolicy="no-referrer">
+            } @else {
+              <span class="prod-img">📦</span>
+            }
             <div class="prod-info">
               <span class="prod-name">{{ prod.nombre }}</span>
               <div class="progress-bar">
-                <div class="progress" [style.width.%]="(prod.ventas / 245) * 100"></div>
+                <div class="progress" [style.width.%]="(prod.ventas / maxVentasTop) * 100"></div>
               </div>
             </div>
-            <span class="prod-sales">{{ prod.ventas }} ventas</span>
+            <span class="prod-sales">{{ prod.ventas }} uds.</span>
           </li>
+        } @empty {
+          <li class="top-item">Todavía no hay ventas registradas.</li>
         }
       </ul>
     </div>
@@ -93,14 +99,14 @@
         <div class="donut-container">
           <canvas #stockChart></canvas>
           <div class="donut-center">
-            <strong>{{ productosStock | number }}</strong>
+            <strong>{{ totalInventario | number }}</strong>
             <span>Productos</span>
           </div>
         </div>
         <ul class="legend-list">
-          <li><span class="dot green"></span> En Stock (78%)</li>
-          <li><span class="dot yellow"></span> Stock Bajo (13%)</li>
-          <li><span class="dot red"></span> Sin Stock (9%)</li>
+          <li><span class="dot green"></span> En Stock ({{ porcentajeStock }}%)</li>
+          <li><span class="dot yellow"></span> Stock Bajo ({{ porcentajeBajo }}%)</li>
+          <li><span class="dot red"></span> Sin Stock ({{ porcentajeSin }}%)</li>
         </ul>
       </div>
     </div>
@@ -116,6 +122,8 @@
               <span class="time">{{ act.tiempo }}</span>
             </div>
           </li>
+        } @empty {
+          <li class="activity-item">Todavía no hay movimientos.</li>
         }
       </ul>
     </div>
@@ -134,9 +142,11 @@
               <span class="alert-badge {{ alerta.clase }}">{{ alerta.tipo }}</span>
             </div>
           </li>
+        } @empty {
+          <li class="alert-item">Sin alertas: el inventario está en orden.</li>
         }
       </ul>
-      <a href="#" class="link-alerts">Ver todas las alertas →</a>
+      <a routerLink="/admin/inventario" class="link-alerts">Ver todas las alertas →</a>
     </div>
   </div>
 </div>

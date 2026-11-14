@@ -76,6 +76,7 @@
 .btn-delete:hover { background: #dc2626; transform: scale(1.05); }
 
 .alert-error { background: #fef2f2; color: #b91c1c; padding: 16px 20px; border-radius: 12px; font-weight: 600; border: 1px solid #fecaca; }
+.alert-success { background: #f0fdf4; color: #15803d; padding: 16px 20px; border-radius: 12px; font-weight: 600; border: 1px solid #bbf7d0; }
 
 /* MODO OSCURO */
 :host-context(body.dark-mode) .page-container { background-color: #0f172a; }
@@ -90,3 +91,4 @@
 :host-context(body.dark-mode) .total-row { border-top-color: #334155; }
 :host-context(body.dark-mode) .total-row span { color: #94a3b8; }
 :host-context(body.dark-mode) .alert-error { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #f87171; }
+:host-context(body.dark-mode) .alert-success { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.2); color: #4ade80; }

@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -13,6 +14,7 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./inventario.css']
 })
 export class InventarioComponent implements OnInit {
+  readonly esAdmin = inject(AuthService).isAdministrador();
 
   productos: any[] = [];
   categorias: string[] = [];

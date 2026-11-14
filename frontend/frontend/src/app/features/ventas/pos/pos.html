@@ -50,6 +50,13 @@
     </div>
 
     <div class="pago-section">
+      <label>Cliente:</label>
+      <select [(ngModel)]="idCliente">
+        @for (c of clientes; track c.idCliente) {
+          <option [ngValue]="c.idCliente">{{ c.nombre }} {{ c.apellido }}</option>
+        }
+      </select>
+
       <label>Método de Pago:</label>
       <select [(ngModel)]="metodoPago" (change)="calcularCambio()">
         <option value="EFECTIVO">Efectivo</option>

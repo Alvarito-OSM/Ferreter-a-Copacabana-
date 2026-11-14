@@ -17,7 +17,8 @@ export class PosComponent implements OnInit {
   busqueda: string = '';
   carrito: any[] = [];
   
-  idCliente: number = 4; 
+  clientes: any[] = [];
+  idCliente: number | null = null;
   metodoPago: string = 'EFECTIVO';
   montoRecibido: number = 0;
   
@@ -31,6 +32,19 @@ export class PosComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarProductos();
+    this.cargarClientes();
+  }
+
+  cargarClientes() {
+    this.http.get<any[]>(`${this.apiUrl}/clientes`).subscribe({
+      next: (data) => {
+        this.clientes = data.filter(c => c.estado !== false);
+        if (this.clientes.length > 0 && this.idCliente === null) {
+          this.idCliente = this.clientes[0].idCliente;
+        }
+      },
+      error: (err) => console.error('Error cargando clientes', err)
+    });
   }
 
   cargarProductos() {
@@ -85,7 +99,9 @@ export class PosComponent implements OnInit {
   finalizarVenta() {
     if (this.carrito.length === 0) return alert('El carrito está vacío');
 
-    const idEmpleado = 2; 
+    const idEmpleado = this.authService.getId();
+    if (idEmpleado === null) return alert('Vuelve a iniciar sesión como empleado para registrar ventas');
+    if (this.idCliente === null) return alert('Selecciona un cliente');
 
     const ventaData = {
       idCliente: this.idCliente,

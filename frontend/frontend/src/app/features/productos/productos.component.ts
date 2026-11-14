@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -6,6 +6,7 @@ import { ProductoService } from '../../core/services/producto.service';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { InventarioService } from '../../core/services/inventario.service';
 import { Producto } from '../../core/models/producto';
+import { AuthService } from '../../core/services/auth.service';
 import { Categoria } from '../../core/models/categoria';
 
 @Component({
@@ -16,6 +17,7 @@ import { Categoria } from '../../core/models/categoria';
   styleUrls: ['./productos.component.css']
 })
 export class ProductosComponent implements OnInit {
+  readonly esAdmin = inject(AuthService).isAdministrador();
   productos: Producto[] = [];
   categorias: Categoria[] = [];
   inventarios: any[] = []; 

@@ -57,7 +57,9 @@
             <th>CLIENTE</th>
             <th class="text-center">TOTAL (BS.)</th>
             <th class="text-center">ESTADO</th>
-            <th class="text-center">ACCIONES</th>
+            @if (esAdmin()) {
+              <th class="text-center">ACCIONES</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -77,15 +79,17 @@
                     <span class="dot"></span> {{ venta.estado }}
                   </span>
                 </td>
-                <td class="cell-actions">
-                  @if (venta.estado === 'COMPLETADA' && esAdmin()) {
-                    <button class="action-btn btn-delete" (click)="anularVenta(venta.idVenta)" title="Anular Venta">
-                      <i class="bi bi-x-circle"></i>
-                    </button>
-                  } @else {
-                    <span class="text-muted">—</span>
-                  }
-                </td>
+                @if (esAdmin()) {
+                  <td class="cell-actions">
+                    @if (venta.estado === 'COMPLETADA') {
+                      <button class="action-btn btn-delete" (click)="anularVenta(venta.idVenta)" title="Anular Venta">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
+                  </td>
+                }
               </tr>
             }
           }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 interface DetalleCompra {
   idProducto: number;
@@ -35,9 +36,15 @@ export class ComprasComponent implements OnInit {
   // Lista de productos agregados a la compra
   detalles: DetalleCompra[] = [];
   mensaje: string = '';
+  exito: string = '';
   cargando: boolean = false;
+  compras: any[] = [];
 
-  constructor(private http: HttpClient, private cdRef: ChangeDetectorRef) {}
+  constructor(
+    private http: HttpClient,
+    private cdRef: ChangeDetectorRef,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -47,11 +54,15 @@ export class ComprasComponent implements OnInit {
     // Traemos proveedores y productos al mismo tiempo
     forkJoin({
       proveedores: this.http.get<any[]>(`${this.apiUrl}/proveedores`),
-      productos: this.http.get<any[]>(`${this.apiUrl}/productos`)
+      productos: this.http.get<any[]>(`${this.apiUrl}/productos`),
+      compras: this.http.get<any[]>(`${this.apiUrl}/compras`)
     }).subscribe({
       next: (data) => {
         this.proveedores = data.proveedores.filter(p => p.estado); // Solo activos
         this.productos = data.productos.filter(p => p.estado);
+        this.compras = data.compras
+          .filter(c => c.estado !== 'ANULADA')
+          .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
         this.cdRef.detectChanges();
       },
       error: (err) => console.error('Error al cargar datos', err)
@@ -66,6 +77,11 @@ export class ComprasComponent implements OnInit {
         this.costo = prod.precioCompra; // Usamos el precio de compra del producto
       }
     }
+  }
+
+  nombreProveedor(id: number): string {
+    const prov = this.proveedores.find(p => p.idProveedor === id);
+    return prov ? prov.razonSocial : 'Proveedor #' + id;
   }
 
   get total(): number {
@@ -114,7 +130,14 @@ export class ComprasComponent implements OnInit {
 
   registrarCompra(): void {
     this.mensaje = '';
-    
+    this.exito = '';
+
+    const idAdministrador = this.authService.getId();
+    if (idAdministrador === null) {
+      this.mensaje = 'Vuelve a iniciar sesión como administrador para registrar compras.';
+      return;
+    }
+
     if (!this.idProveedor) {
       this.mensaje = 'Selecciona un proveedor.';
       return;
@@ -126,30 +149,27 @@ export class ComprasComponent implements OnInit {
 
     this.cargando = true;
 
-    // Armamos el JSON para el Backend
     const compraData = {
       idProveedor: Number(this.idProveedor),
-      idEmpleado: 1, // 👈 ¡OJO! Si da error, pon el ID de un empleado real de tu BD
-      total: this.total,
+      idAdministrador: idAdministrador,
       detalles: this.detalles.map(d => ({
         idProducto: d.idProducto,
         cantidad: d.cantidad,
-        costoUnitario: d.costo
+        precioUnitario: d.costo
       }))
     };
 
-    this.http.post(`${this.apiUrl}/compras`, compraData).subscribe({
+    this.http.post(`${this.apiUrl}/compras/completa`, compraData).subscribe({
       next: (res: any) => {
-        alert('¡Compra registrada exitosamente! El stock ha sido actualizado.');
+        this.exito = 'Compra #' + res.idCompra + ' registrada por Bs. ' + res.total + '. El stock fue actualizado.';
         this.detalles = [];
         this.idProveedor = null;
-        this.mensaje = '';
         this.cargando = false;
-        this.cargarDatos(); // Recargamos los productos (por si cambió el stock)
+        this.cargarDatos();
       },
       error: (err) => {
         console.error('Error al registrar compra', err);
-        this.mensaje = 'Error del servidor: ' + (err.error?.message || 'Revisa la consola o el stock del empleado.');
+        this.mensaje = 'No se pudo registrar la compra: ' + (err.error?.message || err.error?.error || 'revisa los datos enviados.');
         this.cargando = false;
       }
     });

@@ -6,7 +6,9 @@
       <p class="page-subtitle">Administra el catálogo y el inventario de la ferretería</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="abrirFormulario()">+ Nuevo Producto</button>
+      @if (esAdmin) {
+        <button class="btn btn-primary" (click)="abrirFormulario()">+ Nuevo Producto</button>
+      }
     </div>
   </div>
 
@@ -61,7 +63,9 @@
             <th class="text-center" style="width: 10%;">STOCK</th>
             <th class="text-center" style="width: 10%;">ESTADO</th>
             <th class="text-center" style="width: 15%;">PRECIOS</th>
-            <th class="text-center" style="width: 10%;">ACCIONES</th>
+            @if (esAdmin) {
+              <th class="text-center" style="width: 10%;">ACCIONES</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -112,14 +116,16 @@
               </div>
             </td>
 
-            <td class="cell-actions">
-              <button type="button" (click)="abrirFormulario(prod)" class="action-btn btn-edit" title="Editar">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-              <button type="button" (click)="eliminar(prod.idProducto)" class="action-btn btn-delete" title="Eliminar">
-                <i class="bi bi-trash3"></i>
-              </button>
-            </td>
+            @if (esAdmin) {
+              <td class="cell-actions">
+                <button type="button" (click)="abrirFormulario(prod)" class="action-btn btn-edit" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button type="button" (click)="eliminar(prod.idProducto)" class="action-btn btn-delete" title="Eliminar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            }
           </tr>
         </tbody>
       </table>
