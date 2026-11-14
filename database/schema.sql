@@ -50,6 +50,8 @@ CREATE TABLE cliente (
     telefono            VARCHAR(20),
     email               VARCHAR(150),
     direccion           VARCHAR(255),
+    usuario             VARCHAR(50)     UNIQUE,
+    contrasena          VARCHAR(255),
     fecha_registro      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado              BOOLEAN         NOT NULL DEFAULT TRUE
 );

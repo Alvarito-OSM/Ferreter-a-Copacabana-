@@ -3,6 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
+export const ROLES = {
+  administrador: 'ROLE_ADMINISTRADOR',
+  empleado: 'ROLE_EMPLEADO',
+  cliente: 'ROLE_CLIENTE'
+} as const;
+
 interface LoginRequest {
   usuario: string;
   contrasena: string;
@@ -32,18 +38,7 @@ export class AuthService {
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    
-    // 👇 ESTA ES LA CORRECCIÓN CLAVE 👇
-    // Traducimos los campos para que Spring Security los reconozca
-    const payload = {
-      username: credentials.usuario,
-      password: credentials.contrasena
-    };
-
-    return this.http.post<LoginResponse>(
-      `${this.API}/login`,
-      payload // 👈 Enviamos el 'payload' traducido, no las 'credentials' originales
-    ).pipe(
+    return this.http.post<LoginResponse>(`${this.API}/login`, credentials).pipe(
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.USER_KEY, response.usuario);
@@ -76,10 +71,27 @@ export class AuthService {
   }
 
   isAdministrador(): boolean {
-    return this.getRol() === 'ROLE_ADMINISTRADOR';
+    return this.getRol() === ROLES.administrador;
   }
 
   isEmpleado(): boolean {
-    return this.getRol() === 'ROLE_EMPLEADO';
+    return this.getRol() === ROLES.empleado;
+  }
+
+  isCliente(): boolean {
+    return this.getRol() === ROLES.cliente;
+  }
+
+  rutaInicio(): string {
+    switch (this.getRol()) {
+      case ROLES.administrador:
+        return '/admin/dashboard';
+      case ROLES.empleado:
+        return '/admin/punto-venta';
+      case ROLES.cliente:
+        return '/catalogo';
+      default:
+        return '/login';
+    }
   }
 }

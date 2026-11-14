@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Proveedor } from '../models/proveedor';
+import { ProveedorResumen } from '../models/proveedor-resumen';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,10 @@ export class ProveedorService {
 
   buscarPorId(id: number): Observable<Proveedor> {
     return this.http.get<Proveedor>(`${this.apiUrl}/${id}`);
+  }
+
+  obtenerResumen(id: number): Observable<ProveedorResumen> {
+    return this.http.get<ProveedorResumen>(`${this.apiUrl}/${id}/resumen`);
   }
 
   crear(proveedor: Proveedor): Observable<Proveedor> {

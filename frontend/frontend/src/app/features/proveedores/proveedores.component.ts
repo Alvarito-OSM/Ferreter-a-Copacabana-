@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ProveedorService } from '../../core/services/proveedor.service';
 import { Proveedor } from '../../core/models/proveedor';
 
@@ -25,7 +26,8 @@ export class ProveedoresComponent implements OnInit {
   constructor(
     private proveedorService: ProveedorService,
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.formProveedor = this.fb.group({
       razonSocial: ['', [Validators.required, Validators.maxLength(150)]],
@@ -63,6 +65,10 @@ export class ProveedoresComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudo cargar la lista de proveedores.')
     });
+  }
+
+  verDetalle(proveedor: Proveedor): void {
+    this.router.navigate(['/admin/proveedores', proveedor.idProveedor]);
   }
 
   buscar(): void {

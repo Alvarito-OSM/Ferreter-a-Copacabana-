@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClienteRepository
@@ -15,6 +16,10 @@ public interface ClienteRepository
 
     // Comprueba documentos duplicados al registrar.
     boolean existsByCedulaNit(String cedulaNit);
+
+    boolean existsByUsuario(String usuario);
+
+    Optional<Cliente> findByUsuario(String usuario);
 
     // Comprueba documentos duplicados al editar,
     // excluyendo al cliente que estamos modificando.

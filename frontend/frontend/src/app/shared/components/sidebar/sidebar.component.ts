@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, ROLES } from '../../../core/services/auth.service';
 
 interface MenuItem {
   label: string;
   path: string;
   icon: string;
-  soloAdmin?: boolean;
+  roles: string[];
 }
 
 @Component({
@@ -19,79 +19,28 @@ interface MenuItem {
 })
 export class SidebarComponent {
 
+  private readonly administrador = [ROLES.administrador];
+  private readonly personal = [ROLES.administrador, ROLES.empleado];
+
   menuItems: MenuItem[] = [
-    {
-      label: 'Panel de control',
-      path: '/admin/dashboard', // 👈 Agregamos /admin
-      icon: 'bi-speedometer2'
-    },
-    {
-      label: 'Productos',
-      path: '/admin/productos', // 👈 Agregamos /admin
-      icon: 'bi-box-seam'
-    },
-    {
-      label: 'Categorías',
-      path: '/admin/categorias', // 👈 Agregamos /admin
-      icon: 'bi-tags'
-    },
-    {
-      label: 'Clientes',
-      path: '/admin/clientes', // 👈 Agregamos /admin
-      icon: 'bi-people'
-    },
-    {
-      label: 'Proveedores',
-      path: '/admin/proveedores', // 👈 Agregamos /admin
-      icon: 'bi-truck',
-      soloAdmin: true
-    },
-    {
-      label: 'Empleados',
-      path: '/admin/empleados', // 👈 Agregamos /admin
-      icon: 'bi-person-badge',
-      soloAdmin: true
-    },
-    {
-      label: 'Ventas',
-      path: '/admin/ventas', // 👈 Agregamos /admin
-      icon: 'bi-cart-check'
-    },
-    {
-      label: 'Compras',
-      path: '/admin/compras', // 👈 Agregamos /admin
-      icon: 'bi-bag-check',
-      soloAdmin: true
-    },
-        { label: 'Inventario',
-           path: '/admin/inventario',
-           icon: 'bi-boxes' },
-    {
-      label: 'Reportes',
-      path: '/admin/reportes', // 👈 Agregamos /admin
-      icon: 'bi-bar-chart-line',
-      soloAdmin: true
-    },
-    // 👇 NUEVA OPCIÓN 👇
-    { label: 'Configuración', 
-      path: '/admin/configuracion',
-       icon: 'bi-gear',
-      soloAdmin: true } 
+    { label: 'Panel de control', path: '/admin/dashboard', icon: 'bi-speedometer2', roles: this.administrador },
+    { label: 'Punto de venta', path: '/admin/punto-venta', icon: 'bi-cash-coin', roles: [ROLES.empleado] },
+    { label: 'Productos', path: '/admin/productos', icon: 'bi-box-seam', roles: this.personal },
+    { label: 'Categorías', path: '/admin/categorias', icon: 'bi-tags', roles: this.personal },
+    { label: 'Clientes', path: '/admin/clientes', icon: 'bi-people', roles: this.personal },
+    { label: 'Proveedores', path: '/admin/proveedores', icon: 'bi-truck', roles: this.administrador },
+    { label: 'Empleados', path: '/admin/empleados', icon: 'bi-person-badge', roles: this.administrador },
+    { label: 'Ventas', path: '/admin/ventas', icon: 'bi-cart-check', roles: this.personal },
+    { label: 'Compras', path: '/admin/compras', icon: 'bi-bag-check', roles: this.administrador },
+    { label: 'Inventario', path: '/admin/inventario', icon: 'bi-boxes', roles: this.personal },
+    { label: 'Reportes', path: '/admin/reportes', icon: 'bi-bar-chart-line', roles: this.administrador },
+    { label: 'Configuración', path: '/admin/configuracion', icon: 'bi-gear', roles: this.administrador }
   ];
 
   constructor(private authService: AuthService) {}
 
-  get esAdmin(): boolean {
-    return this.authService.isAdministrador();
-  }
-
   get menuVisible(): MenuItem[] {
-    if (this.esAdmin) {
-      return this.menuItems;
-    }
-
-    return this.menuItems.filter(
-      item => !item.soloAdmin
-    );
+    const rol = this.authService.getRol() ?? '';
+    return this.menuItems.filter(item => item.roles.includes(rol));
   }
 }

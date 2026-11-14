@@ -37,12 +37,7 @@ export class Login {
       next: (res: any) => {
         this.cargando = false;
 
-        if (res && res.token) {
-          localStorage.setItem('token', res.token);
-        }
-
-        // Redirigimos al panel de administración
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigateByUrl(this.authService.rutaInicio());
       },
       error: (err) => {
         this.cargando = false;

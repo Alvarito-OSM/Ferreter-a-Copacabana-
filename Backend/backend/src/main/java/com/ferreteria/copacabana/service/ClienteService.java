@@ -24,6 +24,12 @@ public class ClienteService {
     }
 
     public Cliente guardar(Cliente cliente) {
+        if (cliente.getIdCliente() != null) {
+            clienteRepository.findById(cliente.getIdCliente()).ifPresent(actual -> {
+                cliente.setUsuario(actual.getUsuario());
+                cliente.setContrasena(actual.getContrasena());
+            });
+        }
         return clienteRepository.save(cliente);
     }
 

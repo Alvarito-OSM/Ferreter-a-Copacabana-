@@ -1,0 +1,91 @@
+<div class="pos">
+  <header class="pos-header">
+    <div>
+      <h1>Punto de venta</h1>
+      <p>Cajero: {{ usuario }}</p>
+    </div>
+    <div class="resumen-dia">
+      <span>{{ ventasHoy().length }} ventas hoy</span>
+      <strong>Bs {{ totalVendidoHoy() | number:'1.2-2' }}</strong>
+    </div>
+  </header>
+
+  <div *ngIf="mensaje() as m" class="aviso" [class.aviso-error]="m.tipo === 'error'">{{ m.texto }}</div>
+
+  <div class="pos-grid">
+    <section class="panel">
+      <input
+        class="buscador"
+        type="text"
+        placeholder="Buscar por nombre o código de barras"
+        [ngModel]="busqueda()"
+        (ngModelChange)="busqueda.set($event)"
+      />
+
+      <p *ngIf="cargando()" class="vacio">Cargando productos...</p>
+      <p *ngIf="!cargando() && !productosFiltrados().length" class="vacio">No hay productos que coincidan.</p>
+
+      <div class="productos">
+        <button
+          type="button"
+          class="producto"
+          *ngFor="let p of productosFiltrados()"
+          [disabled]="disponible(p) <= 0"
+          (click)="agregar(p)"
+        >
+          <span class="producto-nombre">{{ p.nombre }}</span>
+          <span class="producto-precio">Bs {{ p.precioVenta | number:'1.2-2' }}</span>
+          <span class="producto-stock" [class.agotado]="disponible(p) <= 0">
+            {{ disponible(p) > 0 ? disponible(p) + ' ' + p.unidadMedida : 'Agotado' }}
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <aside class="panel carrito">
+      <h2>Venta actual</h2>
+
+      <label class="campo">
+        Cliente
+        <select [ngModel]="idCliente()" (ngModelChange)="idCliente.set($event)">
+          <option [ngValue]="null">Selecciona un cliente</option>
+          <option *ngFor="let c of clientes()" [ngValue]="c.idCliente">
+            {{ c.nombre }} {{ c.apellido }} · {{ c.cedulaNit }}
+          </option>
+        </select>
+      </label>
+
+      <p *ngIf="!carrito().length" class="vacio">Agrega productos para comenzar.</p>
+
+      <ul class="lineas">
+        <li *ngFor="let l of carrito()">
+          <div class="linea-info">
+            <span>{{ l.producto.nombre }}</span>
+            <small>Bs {{ l.producto.precioVenta | number:'1.2-2' }} c/u</small>
+          </div>
+          <div class="linea-control">
+            <button type="button" (click)="quitar(l)">−</button>
+            <span>{{ l.cantidad }}</span>
+            <button type="button" (click)="agregar(l.producto)" [disabled]="disponible(l.producto) <= 0">+</button>
+          </div>
+          <strong>Bs {{ l.producto.precioVenta * l.cantidad | number:'1.2-2' }}</strong>
+          <button type="button" class="linea-borrar" (click)="eliminar(l)">×</button>
+        </li>
+      </ul>
+
+      <dl class="totales">
+        <div><dt>Unidades</dt><dd>{{ unidades() }}</dd></div>
+        <div><dt>Subtotal</dt><dd>Bs {{ subtotal() | number:'1.2-2' }}</dd></div>
+        <div><dt>IVA 13%</dt><dd>Bs {{ iva() | number:'1.2-2' }}</dd></div>
+        <div class="total"><dt>Total</dt><dd>Bs {{ total() | number:'1.2-2' }}</dd></div>
+      </dl>
+
+      <div class="acciones">
+        <button type="button" class="btn-secundario" (click)="vaciar()" [disabled]="!carrito().length">Vaciar</button>
+        <button type="button" class="btn-primario" (click)="cobrar()" [disabled]="!puedeCobrar()">
+          {{ procesando() ? 'Registrando...' : 'Cobrar' }}
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
