@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { Cliente, ClienteService } from '../../core/services/cliente.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-clientes',
@@ -13,6 +14,7 @@ import { Cliente, ClienteService } from '../../core/services/cliente.service';
   styleUrls: ['./clientes.css']
 })
 export class ClientesComponent implements OnInit {
+  readonly esAdmin = inject(AuthService).isAdministrador();
   private readonly servicio = inject(ClienteService);
 
   // Variables reactivas (Signals)

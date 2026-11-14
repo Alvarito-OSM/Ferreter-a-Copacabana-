@@ -57,9 +57,11 @@
                 <button (click)="editar(c)" class="action-btn btn-edit" title="Editar" [disabled]="ocupado()">
                   <i class="bi bi-pencil-square"></i>
                 </button>
-                <button (click)="eliminar(c)" class="action-btn btn-delete" title="Desactivar" [disabled]="ocupado()">
-                  <i class="bi bi-trash3"></i>
-                </button>
+                @if (esAdmin) {
+                  <button (click)="eliminar(c)" class="action-btn btn-delete" title="Desactivar" [disabled]="ocupado()">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                }
               </td>
             </tr>
           } @empty {

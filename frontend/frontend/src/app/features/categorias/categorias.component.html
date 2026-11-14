@@ -5,9 +5,11 @@
       <h1>GESTIÓN DE CATEGORÍAS</h1>
       <p class="page-subtitle">Administra las clasificaciones del catálogo</p>
     </div>
-    <button (click)="abrirFormulario()" class="btn btn-primary">
-      + Nueva Categoría
-    </button>
+    @if (esAdmin) {
+      <button (click)="abrirFormulario()" class="btn btn-primary">
+        + Nueva Categoría
+      </button>
+    }
   </div>
 
   @if (mensajeExito) {
@@ -36,7 +38,9 @@
           <th class="text-center" style="width: 10%;">ID</th>
           <th class="text-center" style="width: 30%;">NOMBRE</th>
           <th class="text-center" style="width: 40%;">DESCRIPCIÓN</th>
-          <th class="text-center" style="width: 20%;">ACCIONES</th>
+          @if (esAdmin) {
+            <th class="text-center" style="width: 20%;">ACCIONES</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -51,10 +55,12 @@
             <td class="cell-code text-center">{{ cat.idCategoria }}</td>
             <td class="text-center"><strong>{{ cat.nombre }}</strong></td>
             <td class="text-center text-muted">{{ cat.descripcion || '—' }}</td>
-            <td class="cell-actions">
-              <button (click)="abrirFormulario(cat)" class="action-btn btn-edit" title="Editar">✎</button>
-              <button (click)="eliminar(cat.idCategoria)" class="action-btn btn-delete" title="Eliminar">🗑</button>
-            </td>
+            @if (esAdmin) {
+              <td class="cell-actions">
+                <button (click)="abrirFormulario(cat)" class="action-btn btn-edit" title="Editar">✎</button>
+                <button (click)="eliminar(cat.idCategoria)" class="action-btn btn-delete" title="Eliminar">🗑</button>
+              </td>
+            }
           </tr>
         }
       </tbody>
