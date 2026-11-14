@@ -1,8 +1,12 @@
 <div class="page-container">
 
+  <a routerLink="/admin/empleados" class="btn-volver">
+    <i class="bi bi-arrow-left"></i> Volver a la lista
+  </a>
+
   <div class="page-header">
     <div>
-      <h1>{{ esEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}</h1>
+      <h1>{{ esEdicion ? 'EDITAR EMPLEADO' : 'NUEVO EMPLEADO' }}</h1>
       <p class="page-subtitle">
         {{ esEdicion ? 'Modifica los datos del empleado' : 'Registra un nuevo empleado en el sistema' }}
       </p>
@@ -16,33 +20,45 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="nombres">Nombres <span class="required">*</span></label>
-          <input id="nombres" type="text" formControlName="nombres" placeholder="Ej: Juan Carlos">
+          <label>Nombres *</label>
+          <input type="text" formControlName="nombres" placeholder="Ej: Juan Carlos">
+          @if (formEmpleado.get('nombres')?.invalid && formEmpleado.get('nombres')?.touched) {
+            <span class="campo-error">El nombre es obligatorio.</span>
+          }
         </div>
 
         <div class="form-group">
-          <label for="apellidos">Apellidos <span class="required">*</span></label>
-          <input id="apellidos" type="text" formControlName="apellidos" placeholder="Ej: Pérez Gómez">
+          <label>Apellidos *</label>
+          <input type="text" formControlName="apellidos" placeholder="Ej: Pérez Gómez">
         </div>
 
         <div class="form-group">
-          <label for="ci">Cédula de Identidad <span class="required">*</span></label>
-          <input id="ci" type="text" formControlName="ci" placeholder="Ej: 12345678">
+          <label>Cédula de Identidad *</label>
+          <input type="text" formControlName="ci" placeholder="Ej: 12345678">
         </div>
 
         <div class="form-group">
-          <label for="telefono">Teléfono</label>
-          <input id="telefono" type="text" formControlName="telefono" placeholder="Ej: 71234567">
+          <label>Teléfono</label>
+          <input type="text" formControlName="telefono" placeholder="Ej: 71234567">
         </div>
 
         <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" type="email" formControlName="email" placeholder="Ej: empleado@ferreteria.bo">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="empleado@ferreteria.bo">
+          @if (formEmpleado.get('email')?.invalid && formEmpleado.get('email')?.touched) {
+            <span class="campo-error">Ingresa un correo válido.</span>
+          }
         </div>
 
         <div class="form-group">
-          <label for="cargo">Cargo <span class="required">*</span></label>
-          <input id="cargo" type="text" formControlName="cargo" placeholder="Ej: Vendedor">
+          <label>Cargo *</label>
+          <select formControlName="cargo">
+            <option value="" disabled>Seleccione un cargo</option>
+            <option value="VENDEDOR">Vendedor</option>
+            <option value="ALMACENERO">Almacenero</option>
+            <option value="CAJERO">Cajero</option>
+            <option value="ADMINISTRADOR">Administrador</option>
+          </select>
         </div>
       </div>
 
@@ -50,18 +66,21 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="usuario">Usuario de Sistema <span class="required">*</span></label>
-          <input id="usuario" type="text" formControlName="usuario" placeholder="Ej: jperez">
+          <label>Usuario de Sistema *</label>
+          <input type="text" formControlName="usuario" placeholder="Ej: jperez">
         </div>
 
         <div class="form-group">
-          <label for="contrasena">Contraseña <span class="required">*</span></label>
-          <input id="contrasena" type="password" formControlName="contrasena" placeholder="Ej: 123456">
+          <label>{{ esEdicion ? 'Nueva Contraseña (Opcional)' : 'Contraseña *' }}</label>
+          <input type="password" formControlName="contrasena" placeholder="Mínimo 6 caracteres">
+          @if (formEmpleado.get('contrasena')?.invalid && formEmpleado.get('contrasena')?.touched) {
+            <span class="campo-error">La contraseña es obligatoria.</span>
+          }
         </div>
 
         <div class="form-group">
-          <label for="estado">Estado</label>
-          <select id="estado" formControlName="estado">
+          <label>Estado</label>
+          <select formControlName="estado">
             <option [ngValue]="true">Activo</option>
             <option [ngValue]="false">Inactivo</option>
           </select>
@@ -69,13 +88,12 @@
       </div>
 
       <div class="form-actions">
-        <a routerLink="/empleados" class="btn btn-secondary">Cancelar</a>
+        <a routerLink="/admin/empleados" class="btn btn-secondary">Cancelar</a>
         <button type="submit" class="btn btn-primary" [disabled]="formEmpleado.invalid">
-          {{ esEdicion ? 'Actualizar' : 'Guardar' }}
+          {{ esEdicion ? 'Guardar Cambios' : 'Crear Empleado' }}
         </button>
       </div>
 
     </form>
   </div>
-
 </div>

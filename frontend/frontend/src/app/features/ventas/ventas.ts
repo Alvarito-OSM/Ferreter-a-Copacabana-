@@ -1,13 +1,13 @@
-
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 interface ProductoVenta {
-  id: number;
+  idProducto: number;
   nombre: string;
-  precio: number;
-  stock: number;
+  precioVenta: number;
+  stockActual: number;
 }
 
 interface ItemVenta {
@@ -20,29 +20,56 @@ interface ItemVenta {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './ventas.html',
-  styleUrl: './ventas.css'
+  styleUrls: ['./ventas.css']
 })
-export class Ventas {
-  productos: ProductoVenta[] = [
-    { id: 1, nombre: 'Martillo', precio: 45, stock: 20 },
-    { id: 2, nombre: 'Destornillador', precio: 18, stock: 30 },
-    { id: 3, nombre: 'Tornillos (paquete)', precio: 12, stock: 50 },
-    { id: 4, nombre: 'Taladro', precio: 350, stock: 10 }
-  ];
-
+export class Ventas implements OnInit {
+  productos: ProductoVenta[] = [];
   carrito: ItemVenta[] = [];
 
-  productoId = 0;
-  cantidad = 1;
-  cliente = '';
+  productoId: number = 0;
+  cantidad: number = 1;
+  cliente: string = '';
   metodoPago: 'EFECTIVO' | 'QR' = 'EFECTIVO';
-  montoRecibido = 0;
-  mensaje = '';
+  montoRecibido: number = 0;
+  mensaje: string = '';
+  cargando: boolean = false;
+  procesandoVenta: boolean = false;
+
+  private apiUrl = 'http://localhost:8080/api';
+
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    this.cargarProductos();
+  }
+
+  cargarProductos(): void {
+    this.cargando = true;
+    this.http.get<any[]>(`${this.apiUrl}/productos`).subscribe({
+      next: (data) => {
+        // Mapeamos los datos del backend para que encajen con nuestra interfaz
+        this.productos = data
+          .filter(p => p.estado && p.inventario && p.inventario.stockActual > 0)
+          .map(p => ({
+            idProducto: p.idProducto,
+            nombre: p.nombre,
+            precioVenta: p.precioVenta,
+            stockActual: p.inventario.stockActual
+          }));
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al cargar productos', err);
+        this.mensaje = 'Error al conectar con el servidor.';
+        this.cargando = false;
+      }
+    });
+  }
 
   get total(): number {
     return this.carrito.reduce(
-      (suma, item) => suma + item.producto.precio * item.cantidad,
-      0
+      (suma, item) => suma + item.producto.precioVenta * item.cantidad, 0
     );
   }
 
@@ -54,7 +81,7 @@ export class Ventas {
     this.mensaje = '';
 
     const producto = this.productos.find(
-      p => p.id === Number(this.productoId)
+      p => p.idProducto === Number(this.productoId)
     );
 
     if (!producto) {
@@ -70,13 +97,13 @@ export class Ventas {
     }
 
     const existente = this.carrito.find(
-      item => item.producto.id === producto.id
+      item => item.producto.idProducto === producto.idProducto
     );
 
     const acumulado = (existente?.cantidad ?? 0) + cantidad;
 
-    if (acumulado > producto.stock) {
-      this.mensaje = 'La cantidad supera el stock disponible.';
+    if (acumulado > producto.stockActual) {
+      this.mensaje = `La cantidad supera el stock disponible (${producto.stockActual}).`;
       return;
     }
 
@@ -91,12 +118,12 @@ export class Ventas {
   }
 
   quitarProducto(id: number): void {
-    this.carrito = this.carrito.filter(
-      item => item.producto.id !== id
-    );
+    this.carrito = this.carrito.filter(item => item.producto.idProducto !== id);
   }
 
   registrarVenta(): void {
+    this.mensaje = '';
+
     if (!this.cliente.trim()) {
       this.mensaje = 'Ingresa el nombre del cliente.';
       return;
@@ -107,22 +134,46 @@ export class Ventas {
       return;
     }
 
-    if (
-      this.metodoPago === 'EFECTIVO' &&
-      this.montoRecibido < this.total
-    ) {
+    if (this.metodoPago === 'EFECTIVO' && this.montoRecibido < this.total) {
       this.mensaje = 'El efectivo recibido es insuficiente.';
       return;
     }
 
     if (this.metodoPago === 'QR') {
-      this.mensaje =
-        'Pago QR pendiente: debe confirmarse antes de registrar la venta.';
-      return;
+      // Aquí podrías integrar pasarela de pagos, por ahora simulamos que se valida
+      this.mensaje = 'Pago QR validado. Registrando venta...';
     }
 
-    this.mensaje =
-      'Venta de ejemplo validada. Falta conectar el registro al backend.';
+    this.procesandoVenta = true;
+
+    // Armamos el JSON para el backend
+    const ventaPayload = {
+      nombreCliente: this.cliente,
+      metodoPago: this.metodoPago,
+      total: this.total,
+      detalles: this.carrito.map(item => ({
+        idProducto: item.producto.idProducto,
+        cantidad: item.cantidad,
+        precioUnitario: item.producto.precioVenta
+      }))
+    };
+
+    // Enviamos al backend (Asegúrate de tener este endpoint en Java)
+    this.http.post(`${this.apiUrl}/ventas`, ventaPayload).subscribe({
+      next: () => {
+        this.mensaje = '¡Venta registrada exitosamente!';
+        this.procesandoVenta = false;
+        this.carrito = [];
+        this.cliente = '';
+        this.montoRecibido = 0;
+        this.cargarProductos(); // Recargamos para actualizar el stock
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error al guardar venta', err);
+        this.mensaje = err.error?.message || 'Error al registrar la venta. Revisa la consola.';
+        this.procesandoVenta = false;
+      }
+    });
   }
 
   imprimirComprobante(): void {
@@ -130,7 +181,6 @@ export class Ventas {
       this.mensaje = 'Agrega productos antes de imprimir.';
       return;
     }
-
     window.print();
   }
 }

@@ -1,5 +1,6 @@
 package com.ferreteria.copacabana.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -18,12 +19,15 @@ public class Producto {
     @Column(name = "id_producto")
     private Integer idProducto;
 
+    // Agregamos JsonIgnoreProperties para evitar problemas con el JSON
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "productos"})
     private Categoria categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_administrador", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "productos"})
     private Administrador administrador;
 
     @Column(name = "codigo_barras", nullable = false, unique = true, length = 50)
@@ -52,6 +56,11 @@ public class Producto {
     
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
+
+    // 👇 ESTO ES LO QUE FALTABA: Enlazar el Inventario 👇
+    @OneToOne(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("producto") // Evita el bucle infinito en el JSON
+    private Inventario inventario;
 
     @PrePersist
     protected void onCreate() {

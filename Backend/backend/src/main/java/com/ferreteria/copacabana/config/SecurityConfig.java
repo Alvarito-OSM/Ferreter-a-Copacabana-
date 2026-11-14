@@ -4,6 +4,7 @@ import com.ferreteria.copacabana.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,8 +39,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Permitir explícitamente peticiones OPTIONS (CRÍTICO PARA CORS)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 2. Rutas públicas
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
+                        // 3. Todo lo demás requiere token
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
@@ -71,7 +77,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        // Usar addAllowedOrigin es más seguro que List.of en algunas versiones
+        config.addAllowedOrigin("http://localhost:4200"); 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

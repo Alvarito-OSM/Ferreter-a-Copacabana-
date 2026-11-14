@@ -1,4 +1,3 @@
-
 package com.ferreteria.copacabana.controller;
 
 import com.ferreteria.copacabana.model.Categoria;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categorias")
-@CrossOrigin(origins = "*")
 public class CategoriaController {
 
     private final CategoriaService categoriaService;

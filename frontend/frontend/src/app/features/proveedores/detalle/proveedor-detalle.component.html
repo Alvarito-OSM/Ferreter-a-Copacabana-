@@ -1,18 +1,25 @@
 <div class="page-container">
 
-  <button type="button" class="btn-volver" (click)="volver()">← Volver a proveedores</button>
+  <button type="button" class="btn-volver" (click)="volver()">
+    <i class="bi bi-arrow-left"></i> Volver a proveedores
+  </button>
 
-  <p *ngIf="cargando()" class="estado-vacio">Cargando información del proveedor...</p>
-  <div *ngIf="error()" class="alert-error">{{ error() }}</div>
+  @if (cargando()) {
+    <p class="estado-vacio">Cargando información del proveedor...</p>
+  }
 
-  <ng-container *ngIf="resumen() as datos">
+  @if (error()) {
+    <div class="alert-error">{{ error() }}</div>
+  }
+
+  @if (resumen(); as datos) {
     <div class="page-header">
       <div>
         <h1>{{ datos.proveedor.razonSocial }}</h1>
         <p class="page-subtitle">NIT {{ datos.proveedor.nit }}</p>
       </div>
-      <span class="badge" [ngClass]="datos.proveedor.estado ? 'badge-activo' : 'badge-inactivo'">
-        {{ datos.proveedor.estado ? 'Activo' : 'Inactivo' }}
+      <span class="status-indicator" [ngClass]="datos.proveedor.estado ? 'status-active' : 'status-inactive'">
+        <span class="dot"></span> {{ datos.proveedor.estado ? 'Activo' : 'Inactivo' }}
       </span>
     </div>
 
@@ -51,62 +58,74 @@
       </button>
     </div>
 
-    <div class="table-card" *ngIf="pestana() === 'productos'">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Código</th>
-            <th>Unidades compradas</th>
-            <th>Último precio</th>
-            <th>Última compra</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="!datos.productos.length">
-            <td colspan="5" class="empty-row">Todavía no se le compró ningún producto.</td>
-          </tr>
-          <tr *ngFor="let producto of datos.productos">
-            <td><strong>{{ producto.nombre }}</strong></td>
-            <td class="codigo">{{ producto.codigoBarras }}</td>
-            <td>{{ producto.unidadesCompradas }}</td>
-            <td>Bs {{ producto.ultimoPrecio | number:'1.2-2' }}</td>
-            <td>{{ producto.ultimaCompra | date:'dd/MM/yyyy' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    @if (pestana() === 'productos') {
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>PRODUCTO</th>
+              <th>CÓDIGO</th>
+              <th>UNIDADES COMPRADAS</th>
+              <th>ÚLTIMO PRECIO</th>
+              <th>ÚLTIMA COMPRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (datos.productos.length === 0) {
+              <tr>
+                <td colspan="5" class="empty-row">Todavía no se le compró ningún producto.</td>
+              </tr>
+            }
+            @for (producto of datos.productos; track producto.nombre) {
+              <tr>
+                <td><strong>{{ producto.nombre }}</strong></td>
+                <td class="codigo">{{ producto.codigoBarras }}</td>
+                <td>{{ producto.unidadesCompradas }}</td>
+                <td>Bs {{ producto.ultimoPrecio | number:'1.2-2' }}</td>
+                <td>{{ producto.ultimaCompra | date:'dd/MM/yyyy' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
 
-    <div class="table-card" *ngIf="pestana() === 'compras'">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>N.º</th>
-            <th>Fecha</th>
-            <th>Subtotal</th>
-            <th>IVA</th>
-            <th>Total</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="!datos.compras.length">
-            <td colspan="6" class="empty-row">Este proveedor aún no tiene compras registradas.</td>
-          </tr>
-          <tr *ngFor="let compra of datos.compras">
-            <td class="codigo">#{{ compra.idCompra }}</td>
-            <td>{{ compra.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td>Bs {{ compra.subtotal | number:'1.2-2' }}</td>
-            <td>Bs {{ compra.iva | number:'1.2-2' }}</td>
-            <td><strong>Bs {{ compra.total | number:'1.2-2' }}</strong></td>
-            <td>
-              <span class="badge" [ngClass]="compra.estado === 'ANULADA' ? 'badge-inactivo' : 'badge-activo'">
-                {{ compra.estado }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </ng-container>
+    @if (pestana() === 'compras') {
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>N.º</th>
+              <th>FECHA</th>
+              <th>SUBTOTAL</th>
+              <th>IVA</th>
+              <th>TOTAL</th>
+              <th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (datos.compras.length === 0) {
+              <tr>
+                <td colspan="6" class="empty-row">Este proveedor aún no tiene compras registradas.</td>
+              </tr>
+            }
+            @for (compra of datos.compras; track compra.idCompra) {
+              <tr>
+                <td class="codigo">#{{ compra.idCompra }}</td>
+                <td>{{ compra.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>Bs {{ compra.subtotal | number:'1.2-2' }}</td>
+                <td>Bs {{ compra.iva | number:'1.2-2' }}</td>
+                <td><strong>Bs {{ compra.total | number:'1.2-2' }}</strong></td>
+                <td>
+                  <span class="status-indicator" [ngClass]="compra.estado === 'ANULADA' ? 'status-inactive' : 'status-active'">
+                    <span class="dot"></span> {{ compra.estado }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
 </div>

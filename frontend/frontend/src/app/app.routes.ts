@@ -9,7 +9,6 @@ const soloAdmin = { roles: [ROLES.administrador] };
 const personal = { roles: [ROLES.administrador, ROLES.empleado] };
 
 export const routes: Routes = [
-  // 👇 1. EL CATÁLOGO ES LA PÁGINA PRINCIPAL 👇
   {
     path: '',
     loadComponent: () =>
@@ -22,8 +21,6 @@ export const routes: Routes = [
       import('./features/catalogo-publico/catalogo-publico')
         .then(m => m.CatalogoPublicoComponent)
   },
-  
-  // 👇 2. LA PÁGINA DE LOGIN Y REGISTRO (PÚBLICAS) 👇
   {
     path: 'login',
     loadComponent: () =>
@@ -31,14 +28,11 @@ export const routes: Routes = [
         .then(m => m.Login)
   },
   {
-    // 👇 MOVIDO AQUÍ AFUERA PARA QUE SEA PÚBLICO 👇
     path: 'registro',
     loadComponent: () => 
       import('./features/auth/registro/registro')
         .then(m => m.RegistroComponent)
   },
-
-  // 👇 3. EL PANEL PRIVADO (PROTEGIDO POR EL GUARD) 👇
   {
     path: 'admin', 
     component: LayoutComponent,
@@ -121,8 +115,16 @@ export const routes: Routes = [
         canActivate: [rolGuard],
         data: personal,
         loadComponent: () =>
-          import('./features/ventas/ventas')
-            .then(m => m.Ventas)
+          import('./features/ventas/historial-ventas/historial-ventas')
+            .then(m => m.HistorialVentasComponent)
+      },
+      {
+        path: 'punto-venta',
+        canActivate: [rolGuard],
+        data: personal,
+        loadComponent: () =>
+          import('./features/ventas/pos/pos')
+            .then(m => m.PosComponent) // Si te marca error aquí, cambia PosComponent por PuntoVentaComponent
       },
       {
         path: 'compras',
@@ -130,7 +132,7 @@ export const routes: Routes = [
         data: soloAdmin,
         loadComponent: () =>
           import('./features/compras/compras')
-            .then(m => m.Compras)
+            .then(m => m.ComprasComponent) // 👈 AQUÍ ESTABA EL ERROR (Decía m.Compras)
       },
       {
         path: 'reportes',
@@ -140,14 +142,15 @@ export const routes: Routes = [
           import('./features/reportes/reportes/reportes')
             .then(m => m.Reportes)
       },
-            {
+      {
         path: 'inventario',
         canActivate: [rolGuard],
         data: personal,
         loadComponent: () =>
           import('./features/inventario/inventario')
             .then(m => m.InventarioComponent)
-      },      {
+      },      
+      {
         path: 'configuracion',
         canActivate: [rolGuard],
         data: soloAdmin,
@@ -155,19 +158,8 @@ export const routes: Routes = [
           import('./features/configuracion/configuracion')
             .then(m => m.ConfiguracionComponent)
       },
-      
-      {
-        path: 'punto-venta',
-        canActivate: [rolGuard],
-        data: { roles: [ROLES.empleado] },
-        loadComponent: () =>
-          import('./features/empleado/punto-venta/punto-venta.component')
-            .then(m => m.PuntoVentaComponent)
-      },
       { path: '', pathMatch: 'full', redirectTo: () => inject(AuthService).rutaInicio() }
     ]
   },
-  
-  // 👇 4. CUALQUIER RUTA DESCONOCIDA VUELVE AL CATÁLOGO 👇
   { path: '**', redirectTo: '' }
 ];

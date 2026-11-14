@@ -1,55 +1,62 @@
-
 <header class="navbar">
-
   <div class="navbar-left">
     <h2 class="page-title">Panel de Control</h2>
   </div>
 
   <div class="navbar-right">
-
     <!-- BOTÓN MODO OSCURO / CLARO -->
-    <button
-      type="button"
-      class="theme-toggle"
-      (click)="cambiarTema()"
-      [attr.aria-label]="modoOscuro
-        ? 'Activar modo claro'
-        : 'Activar modo oscuro'"
-      [title]="modoOscuro
-        ? 'Cambiar a modo claro'
-        : 'Cambiar a modo oscuro'">
-
-      <i
-        class="bi"
-        [ngClass]="modoOscuro ? 'bi-sun-fill' : 'bi-moon-stars-fill'">
-      </i>
-
+    <button type="button" class="theme-toggle" (click)="cambiarTema()">
+      <i class="bi" [ngClass]="modoOscuro ? 'bi-sun-fill' : 'bi-moon-stars-fill'"></i>
     </button>
+
+    <!-- CAMPANA DE NOTIFICACIONES DINÁMICA -->
+    <div class="notification-wrapper">
+      <button type="button" class="notification-btn" (click)="toggleNotificaciones()">
+        <i class="bi bi-bell-fill"></i>
+        
+        <!-- 👇 AQUÍ SE MUESTRA EL NÚMERO REAL DINÁMICO 👇 -->
+        <span class="notification-badge" *ngIf="notificaciones.length > 0">
+          {{ notificaciones.length }}
+        </span>
+      </button>
+
+      <div class="notificaciones-dropdown" *ngIf="mostrarNotificaciones">
+        <div class="dropdown-header">
+          <h4>Alertas de Inventario</h4>
+          <button class="close-btn" (click)="mostrarNotificaciones = false">&times;</button>
+        </div>
+        <div class="dropdown-body">
+          @for (n of notificaciones; track n.idProducto) {
+            <div class="notificacion-item">
+              <div class="alert-icon"></div>
+              <div class="alert-content">
+                <p class="alert-title">{{ n.nombre }}</p>
+                <p class="alert-desc">
+                  @if (n.stockActual === 0) {
+                    <strong style="color: #ef4444;">Agotado</strong> (0 unidades)
+                  } @else {
+                    Quedan <strong>{{ n.stockActual }}</strong> unidades (Mín: {{ n.stockMinimo }})
+                  }
+                </p>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-notif">Todo el inventario está en orden. No hay alertas.</div>
+          }
+        </div>
+      </div>
+    </div>
 
     <!-- INFORMACIÓN DEL USUARIO -->
     <div class="user-info">
-
-      <div class="user-avatar">
-        {{ usuario.charAt(0).toUpperCase() }}
-      </div>
-
+      <div class="user-avatar">{{ usuario.charAt(0).toUpperCase() }}</div>
       <div class="user-details">
         <strong>{{ usuario }}</strong>
         <small>{{ rol }}</small>
       </div>
-
     </div>
 
     <!-- CERRAR SESIÓN -->
-    <button
-      type="button"
-      class="logout-btn"
-      (click)="logout()">
-
-      Cerrar Sesión
-
-    </button>
-
+    <button type="button" class="logout-btn" (click)="logout()">Cerrar Sesión</button>
   </div>
-
 </header>

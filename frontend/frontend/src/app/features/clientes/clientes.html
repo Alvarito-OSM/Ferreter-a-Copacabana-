@@ -1,108 +1,136 @@
 <div class="page-container">
-  
-  <!-- HEADER -->
+
   <div class="page-header">
-    <h2>Gestión de Clientes</h2>
-    <button class="btn-primary" (click)="abrirModalNuevo()">+ Nuevo Cliente</button>
+    <div>
+      <h1>GESTIÓN DE CLIENTES</h1>
+      <p class="page-subtitle">Administra la información de tus clientes</p>
+    </div>
+    <button (click)="nuevo()" class="btn btn-primary" [disabled]="ocupado()">
+      + Nuevo Cliente
+    </button>
   </div>
 
-  <!-- BUSCADOR -->
-  <div class="search-bar">
-    <input 
-      type="text" 
-      [(ngModel)]="busqueda" 
-      (input)="buscar()" 
-      placeholder="Buscar por nombre, apellido o CI/NIT..."
-    >
-  </div>
+  @if (mensaje()) {
+    <div class="alert-success">{{ mensaje() }}</div>
+  }
 
-  <!-- TABLA -->
-  <div class="table-responsive">
-    <table class="tabla-clientes">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre Completo</th>
-          <th>CI / NIT</th>
-          <th>Teléfono</th>
-          <th>Email</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (c of clientes; track c.idCliente) {
+  @if (error()) {
+    <div class="alert-error">{{ error() }}</div>
+  }
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, apellido o CI/NIT..." 
+          [(ngModel)]="busqueda" 
+          (keyup.enter)="cargar()"
+        >
+        <button (click)="cargar()" class="btn btn-search" [disabled]="cargando()">Buscar</button>
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <div class="empty-row">Cargando clientes...</div>
+    } @else {
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>#{{ c.idCliente }}</td>
-            <td>{{ c.nombre }} {{ c.apellido }}</td>
-            <td>{{ c.cedulaNit }}</td>
-            <td>{{ c.telefono || '-' }}</td>
-            <td>{{ c.email || '-' }}</td>
-            <td>
-              <button class="btn-edit" (click)="abrirModalEditar(c)">Editar</button>
-              <button class="btn-delete" (click)="eliminarCliente(c.idCliente)">Desactivar</button>
-            </td>
+            <th class="text-center" style="width: 5%;">N°</th>
+            <th style="width: 30%;">NOMBRE COMPLETO</th>
+            <th style="width: 15%;">CI / NIT</th>
+            <th style="width: 15%;">TELÉFONO</th>
+            <th style="width: 20%;">EMAIL</th>
+            <th class="text-center" style="width: 15%;">ACCIONES</th>
           </tr>
-        } @empty {
-          <tr>
-            <td colspan="6" class="text-center">No se encontraron clientes.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (c of clientes(); track c.idCliente; let i = $index) {
+            <tr>
+              <td class="cell-code text-center">{{ i + 1 }}</td>
+              <td><strong>{{ c.nombre }} {{ c.apellido }}</strong></td>
+              <td>{{ c.cedulaNit }}</td>
+              <td>{{ c.telefono || '—' }}</td>
+              <td class="text-muted">{{ c.email || '—' }}</td>
+              <td class="cell-actions">
+                <button (click)="editar(c)" class="action-btn btn-edit" title="Editar" [disabled]="ocupado()">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button (click)="eliminar(c)" class="action-btn btn-delete" title="Desactivar" [disabled]="ocupado()">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-row">No se encontraron clientes.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
 </div>
 
-<!-- MODAL FLOTANTE -->
-@if (modalAbierto) {
+@if (mostrarFormulario()) {
   <div class="modal-overlay">
     <div class="modal-content">
-      
       <div class="modal-header">
-        <h3>{{ editando ? 'Editar Cliente' : 'Nuevo Cliente' }}</h3>
-        <button class="btn-close" (click)="cerrarModal()">✖</button>
+        <h2>{{ cliente.idCliente ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+        <button (click)="cancelar()" class="close-btn">&times;</button>
       </div>
 
-      <div class="modal-body">
+      <form #formulario="ngForm" (ngSubmit)="guardar(formulario)">
         <div class="form-grid">
           
           <div class="form-group">
             <label>Nombre *</label>
-            <input type="text" [(ngModel)]="clienteForm.nombre" class="form-control">
+            <input type="text" name="nombre" [(ngModel)]="cliente.nombre" required maxlength="100" placeholder="Ej: Juan">
           </div>
 
           <div class="form-group">
             <label>Apellido</label>
-            <input type="text" [(ngModel)]="clienteForm.apellido" class="form-control">
+            <input type="text" name="apellido" [(ngModel)]="cliente.apellido" maxlength="100" placeholder="Ej: Pérez">
           </div>
 
           <div class="form-group">
             <label>CI / NIT *</label>
-            <input type="text" [(ngModel)]="clienteForm.cedulaNit" class="form-control">
+            <input type="text" name="cedulaNit" [(ngModel)]="cliente.cedulaNit" required maxlength="20" placeholder="Ej: 12345678">
           </div>
 
           <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" [(ngModel)]="clienteForm.telefono" class="form-control">
+            <input type="tel" name="telefono" [(ngModel)]="cliente.telefono" maxlength="20" placeholder="Ej: 70000000">
           </div>
 
           <div class="form-group full-width">
-            <label>Email</label>
-            <input type="email" [(ngModel)]="clienteForm.email" class="form-control">
+            <label>Correo Electrónico (Opcional)</label>
+            <input type="text" name="email" [(ngModel)]="cliente.email" maxlength="150" placeholder="correo@ejemplo.com">
           </div>
 
           <div class="form-group full-width">
             <label>Dirección</label>
-            <input type="text" [(ngModel)]="clienteForm.direccion" class="form-control">
+            <input type="text" name="direccion" [(ngModel)]="cliente.direccion" maxlength="255" placeholder="Ej: Calle 5 #10-15">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Estado</label>
+            <select name="estado" [(ngModel)]="cliente.estado">
+              <option [ngValue]="true">Activo</option>
+              <option [ngValue]="false">Inactivo</option>
+            </select>
           </div>
 
         </div>
-      </div>
 
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
-        <button class="btn-primary" (click)="guardarCliente()">Guardar Cliente</button>
-      </div>
-
+        <div class="modal-actions">
+          <button type="button" (click)="cancelar()" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid || ocupado()">
+            {{ ocupado() ? 'Guardando...' : 'Guardar Cliente' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 }

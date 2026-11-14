@@ -1,71 +1,143 @@
-<div class="inventario-container">
+<div class="page-container">
   
-  <!-- HEADER -->
-  <div class="header">
+  <!-- HEADER TIPO IMAGEN -->
+  <div class="page-header">
     <div>
-      <h1>Inventario</h1>
-      <p>Monitorea los niveles de stock y optimiza tus operaciones.</p>
+      <h1>Productos</h1>
+      <p class="page-subtitle">Gestiona tu catálogo e inventario de productos</p>
     </div>
     <div class="header-actions">
-      <button class="btn-outline">📦 Gestionar Productos</button>
-      <button class="btn-primary">➕ Ingresar Stock</button>
+      <button class="btn btn-outline">Exportar</button>
+      <button class="btn btn-secondary" (click)="abrirModalStock()">Ingresar Stock</button>
+      <button class="btn btn-primary" routerLink="/admin/productos">+ Nuevo Producto</button>
     </div>
   </div>
 
-  <!-- TARJETAS DE MÉTRICAS -->
+  <!-- TARJETAS TIPO IMAGEN -->
   <div class="metrics-grid">
     <div class="metric-card">
-      <div class="metric-icon blue">📦</div>
       <div class="metric-info">
-        <h3>Total Items</h3>
+        <h3>TOTAL PRODUCTOS</h3>
         <p>{{ totalItems }}</p>
       </div>
+      <div class="metric-icon green">📦</div>
     </div>
 
     <div class="metric-card">
-      <div class="metric-icon green">✅</div>
       <div class="metric-info">
-        <h3>Productos Activos</h3>
-        <p>{{ activeItems }}</p>
+        <h3>VALOR INVENTARIO</h3>
+        <p>Bs. {{ valorInventario | number:'1.0-0' }}</p>
       </div>
+      <div class="metric-icon blue">💰</div>
     </div>
 
     <div class="metric-card">
-      <div class="metric-icon orange">⚠️</div>
       <div class="metric-info">
-        <h3>Stock Bajo</h3>
+        <h3>BAJO STOCK</h3>
         <p>{{ lowStockItems }}</p>
       </div>
+      <div class="metric-icon orange">⚠️</div>
     </div>
 
     <div class="metric-card">
-      <div class="metric-icon red">❌</div>
       <div class="metric-info">
-        <h3>Agotados</h3>
+        <h3>AGOTADOS</h3>
         <p>{{ outOfStockItems }}</p>
       </div>
+      <div class="metric-icon red">❌</div>
     </div>
   </div>
 
-  <!-- 👇 SECCIÓN DE INVESTIGACIÓN OPERATIVA 👇 -->
-  <div class="analisis-operativo">
+  <!-- TABLA TIPO IMAGEN -->
+  <div class="table-card">
+    <div class="table-header-title">
+      <h2>Catálogo de Productos</h2>
+    </div>
+    
+    <div class="table-toolbar">
+      <div class="search-box">
+        <input type="text" placeholder="Buscar por nombre, código o categoría..." [(ngModel)]="filtroBusqueda">
+        
+        <select [(ngModel)]="filtroCategoria" class="filter-select">
+          <option value="">Todas las categorías</option>
+          @for (cat of categorias; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+
+        <select [(ngModel)]="filtroEstado" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="bajo">Bajo Stock</option>
+          <option value="agotado">Agotado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>CÓDIGO</th>
+            <th>PRODUCTO</th>
+            <th>CATEGORÍA</th>
+            <th class="text-center">COSTO</th>
+            <th class="text-center">PRECIO</th>
+            <th class="text-center">STOCK</th>
+            <th class="text-center">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (prod of productosFiltrados; track prod.idProducto) {
+            <tr>
+              <td><strong>{{ prod.codigoBarras }}</strong></td>
+              <td>
+                <div class="prod-cell">
+                  <span class="prod-name">{{ prod.nombre }}</span>
+                  <span class="prod-sku">{{ prod.unidadMedida }}</span>
+                </div>
+              </td>
+              <td>{{ prod.categoria?.nombre || '—' }}</td>
+              <td class="text-center">Bs. {{ prod.precioCompra | number:'1.2-2' }}</td>
+              <td class="text-center">Bs. {{ prod.precioVenta | number:'1.2-2' }}</td>
+              <td class="text-center">
+                <span class="stock-pill" [ngClass]="{'low': (prod.inventario?.stockActual || 0) <= (prod.inventario?.stockMinimo || 5) && (prod.inventario?.stockActual || 0) > 0, 'empty': (prod.inventario?.stockActual || 0) === 0, 'normal': (prod.inventario?.stockActual || 0) > (prod.inventario?.stockMinimo || 5)}">
+                  {{ prod.inventario?.stockActual || 0 }}
+                </span>
+              </td>
+              <td class="text-center">
+                @if (!prod.inventario || prod.inventario.stockActual === 0) {
+                  <span class="status-badge inactivo">Agotado</span>
+                } @else if (prod.inventario.stockActual <= (prod.inventario.stockMinimo || 5)) {
+                  <span class="status-badge" style="background: #ffedd5; color: #9a3412;">Bajo Stock</span>
+                } @else {
+                  <span class="status-badge activo">Activo</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-row">No se encontraron productos.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE INVESTIGACIÓN OPERATIVA (La dejo abajo para no perderla) -->
+  <div class="analisis-operativo" style="margin-top: 30px;">
     <div class="analisis-header">
-      <h2>📊 Análisis de Investigación Operativa</h2>
-      <p>Modelos matemáticos aplicados al inventario.</p>
+      <h2>Análisis de Investigación Operativa</h2>
     </div>
 
-    <!-- Pestañas -->
     <div class="tabs-nav">
-      <button [class.active]="pestanaActiva === 'eoq'" (click)="pestanaActiva = 'eoq'">📦 EOQ y Reorden</button>
-      <button [class.active]="pestanaActiva === 'pronostico'" (click)="pestanaActiva = 'pronostico'">📈 Pronóstico</button>
-      <button [class.active]="pestanaActiva === 'lineal'" (click)="pestanaActiva = 'lineal'">📐 Prog. Lineal</button>
-      <button [class.active]="pestanaActiva === 'colas'" (click)="pestanaActiva = 'colas'">⏱️ Teoría de Colas</button>
+      <button [class.active]="pestanaActiva === 'eoq'" (click)="pestanaActiva = 'eoq'">EOQ y Reorden</button>
+      <button [class.active]="pestanaActiva === 'pronostico'" (click)="pestanaActiva = 'pronostico'">Pronóstico</button>
+      <button [class.active]="pestanaActiva === 'lineal'" (click)="pestanaActiva = 'lineal'">Prog. Lineal</button>
+      <button [class.active]="pestanaActiva === 'colas'" (click)="pestanaActiva = 'colas'">Teoría de Colas</button>
     </div>
 
-    <!-- Contenido de las pestañas -->
     <div class="tabs-content">
-      
-      <!-- EOQ -->
       @if (pestanaActiva === 'eoq') {
         <div class="grid-2-cols">
           <div class="card">
@@ -75,7 +147,7 @@
             <div class="form-group"><label>Costo Mantenimiento (Bs.)</label><input type="number" [(ngModel)]="eoqDatos.costoMantenimiento" class="form-control"></div>
             <div class="form-group"><label>Tiempo de Entrega (Días)</label><input type="number" [(ngModel)]="eoqDatos.tiempoEntregaDias" class="form-control"></div>
             <div class="form-group"><label>Desviación Estándar</label><input type="number" [(ngModel)]="eoqDatos.desviacionEstandar" class="form-control"></div>
-            <button class="btn-primary w-100" (click)="calcularEOQ()">Calcular EOQ</button>
+            <button class="btn btn-primary w-100" (click)="calcularEOQ()">Calcular EOQ</button>
           </div>
           <div class="card results-card" *ngIf="eoqResultados">
             <h3>Resultados Óptimos</h3>
@@ -87,7 +159,6 @@
         </div>
       }
 
-      <!-- Pronóstico -->
       @if (pestanaActiva === 'pronostico') {
         <div class="grid-2-cols">
           <div class="card">
@@ -96,7 +167,7 @@
               <label>Mes {{ i + 1 }}</label>
               <input type="number" [(ngModel)]="demandaHistorica[i]" class="form-control">
             </div>
-            <button class="btn-primary w-100" (click)="calcularPronostico()">Calcular Pronóstico</button>
+            <button class="btn btn-primary w-100" (click)="calcularPronostico()">Calcular Pronóstico</button>
           </div>
           <div class="card results-card" *ngIf="pronosticoResultados">
             <h3>Resultado</h3>
@@ -105,13 +176,12 @@
         </div>
       }
 
-      <!-- Programación Lineal -->
       @if (pestanaActiva === 'lineal') {
         <div class="grid-2-cols">
           <div class="card">
             <h3>Datos de Producción</h3>
             <div class="form-group"><label>Madera Disponible</label><input type="number" [(ngModel)]="linealDatos.maderaDisponible" class="form-control"></div>
-            <button class="btn-primary w-100" (click)="calcularLineal()">Calcular Mezcla</button>
+            <button class="btn btn-primary w-100" (click)="calcularLineal()">Calcular Mezcla</button>
           </div>
           <div class="card results-card" *ngIf="linealResultados">
             <h3>Producción Óptima</h3>
@@ -123,14 +193,13 @@
         </div>
       }
 
-      <!-- Colas -->
       @if (pestanaActiva === 'colas') {
         <div class="grid-2-cols">
           <div class="card">
             <h3>Datos de Atención</h3>
             <div class="form-group"><label>Tasa de Llegada (λ)</label><input type="number" [(ngModel)]="colasDatos.tasaLLegada" class="form-control"></div>
             <div class="form-group"><label>Tasa de Servicio (μ)</label><input type="number" [(ngModel)]="colasDatos.tasaServicio" class="form-control"></div>
-            <button class="btn-primary w-100" (click)="calcularColas()">Calcular Métricas</button>
+            <button class="btn btn-primary w-100" (click)="calcularColas()">Calcular Métricas</button>
           </div>
           <div class="card results-card" *ngIf="colasResultados">
             <h3>Resultados M/M/1</h3>
@@ -140,90 +209,39 @@
           </div>
         </div>
       }
-
-    </div>
-  </div>
-
-  <!-- 👇 TABLA DE PRODUCTOS 👇 -->
-  <div class="table-container" style="margin-top: 30px;">
-    <div class="table-header">
-      <h2>📋 Listado de Productos</h2>
-    </div>
-
-    <!-- Filtros -->
-    <div class="filters-grid">
-      <div class="form-group">
-        <label>Buscar</label>
-        <input type="text" [(ngModel)]="filtroBusqueda" placeholder="Nombre o código..." class="form-control">
-      </div>
-      <div class="form-group">
-        <label>Categoría</label>
-        <select [(ngModel)]="filtroCategoria" class="form-control">
-          <option value="">Todas</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Estado</label>
-        <select [(ngModel)]="filtroEstado" class="form-control">
-          <option value="">Todos</option>
-          <option value="bajo">Stock Bajo</option>
-          <option value="agotado">Agotado</option>
-        </select>
-      </div>
-      <div class="form-group filter-btn-group">
-        <button class="btn-primary" style="width: 100%;">🔍 Filtrar</button>
-      </div>
-    </div>
-
-    <!-- Tabla -->
-    <div class="table-responsive">
-      <table class="tabla-inventario">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Unidad</th>
-            <th>Stock</th>
-            <th>Stock Mín.</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (prod of productosFiltrados; track prod.idProducto) {
-            <tr>
-              <td><strong>{{ prod.codigoBarras }}</strong></td>
-              <td>{{ prod.nombre }}</td>
-              <td>{{ prod.categoria?.nombre }}</td>
-              <td>{{ prod.unidadMedida }}</td>
-              <td>
-                <strong [class.text-red]="prod.inventario?.stockActual <= prod.inventario?.stockMinimo">
-                  {{ prod.inventario ? prod.inventario.stockActual : 0 }}
-                </strong>
-              </td>
-              <td>{{ prod.inventario ? prod.inventario.stockMinimo : 5 }}</td>
-              <td>
-                @if (!prod.inventario || prod.inventario.stockActual === 0) {
-                  <span class="badge badge-red">Agotado</span>
-                } @else if (prod.inventario.stockActual <= prod.inventario.stockMinimo) {
-                  <span class="badge badge-orange">Stock Bajo</span>
-                } @else {
-                  <span class="badge badge-green">Normal</span>
-                }
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="7" class="text-center">
-                <div class="empty-state">
-                  <span>📦</span>
-                  <p>No se encontraron productos.</p>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
     </div>
   </div>
 </div>
+
+<!-- MODAL STOCK -->
+@if (mostrarModalStock) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Ingresar Stock</h2>
+        <button (click)="cerrarModalStock()" class="close-btn">&times;</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Seleccione el Producto *</label>
+          <select [(ngModel)]="productoSeleccionado" class="form-control">
+            <option [ngValue]="null">-- Seleccione un producto --</option>
+            @for (prod of productos; track prod.idProducto) {
+              <option [ngValue]="prod.idProducto">{{ prod.nombre }} (Stock: {{ prod.inventario?.stockActual || 0 }})</option>
+            }
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label>Cantidad a Ingresar *</label>
+          <input type="number" [(ngModel)]="cantidadIngreso" min="1" class="form-control" placeholder="Ej: 50">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button (click)="cerrarModalStock()" class="btn btn-secondary">Cancelar</button>
+        <button (click)="guardarStock()" class="btn btn-primary" [disabled]="!productoSeleccionado || cantidadIngreso <= 0 || procesando">
+          {{ procesando ? 'Guardando...' : 'Confirmar Ingreso' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

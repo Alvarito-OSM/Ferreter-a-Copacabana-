@@ -1,107 +1,166 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs';
+import { Cliente, ClienteService } from '../../core/services/cliente.service';
 
 @Component({
   selector: 'app-clientes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './clientes.html',
   styleUrls: ['./clientes.css']
 })
 export class ClientesComponent implements OnInit {
-  
-  clientes: any[] = [];
-  busqueda: string = '';
-  apiUrl = 'http://localhost:8080/api/clientes';
+  private readonly servicio = inject(ClienteService);
 
-  // Variables para el Modal
-  modalAbierto: boolean = false;
-  editando: boolean = false;
-  clienteForm: any = {
-    idCliente: null,
-    nombre: '',
-    apellido: '',
-    cedulaNit: '',
-    telefono: '',
-    email: '',
-    direccion: ''
-  };
+  // Variables reactivas (Signals)
+  readonly clientes = signal<Cliente[]>([]);
+  readonly cargando = signal(false);
+  readonly ocupado = signal(false);
+  readonly mostrarFormulario = signal(false);
+  readonly error = signal('');
+  readonly mensaje = signal('');
 
-  constructor(private http: HttpClient) {}
+  busqueda = '';
+  cliente: Cliente = this.clienteVacio();
 
   ngOnInit(): void {
-    this.cargarClientes();
+    this.cargar();
   }
 
-  cargarClientes() {
-    // Usamos el parámetro 'q' que espera tu backend para la búsqueda
-    this.http.get<any[]>(`${this.apiUrl}?q=${this.busqueda}`).subscribe({
-      next: (data) => this.clientes = data,
-      error: (err) => console.error('Error cargando clientes', err)
-    });
+  cargar(): void {
+    if (this.cargando()) return;
+
+    this.cargando.set(true);
+    this.error.set('');
+
+    this.servicio.listar(this.busqueda)
+      .pipe(finalize(() => this.cargando.set(false)))
+      .subscribe({
+        next: datos => this.clientes.set(datos),
+        error: error => this.mostrarError(error)
+      });
   }
 
-  buscar() {
-    this.cargarClientes();
+  nuevo(): void {
+    this.cliente = this.clienteVacio();
+    this.error.set('');
+    this.mensaje.set('');
+    this.mostrarFormulario.set(true);
   }
 
-  abrirModalNuevo() {
-    this.editando = false;
-    this.clienteForm = { idCliente: null, nombre: '', apellido: '', cedulaNit: '', telefono: '', email: '', direccion: '' };
-    this.modalAbierto = true;
+  editar(cliente: Cliente): void {
+    this.cliente = { ...cliente };
+    this.error.set('');
+    this.mensaje.set('');
+    this.mostrarFormulario.set(true);
   }
 
-  abrirModalEditar(cliente: any) {
-    this.editando = true;
-    // Clonamos el objeto para no modificar la tabla directamente mientras escribimos
-    this.clienteForm = { ...cliente };
-    this.modalAbierto = true;
+  cancelar(): void {
+    this.mostrarFormulario.set(false);
+    this.cliente = this.clienteVacio();
   }
 
-  cerrarModal() {
-    this.modalAbierto = false;
-  }
+  guardar(formulario: NgForm): void {
+    if (formulario.invalid || this.ocupado()) return;
 
-  guardarCliente() {
-    if (!this.clienteForm.nombre || !this.clienteForm.cedulaNit) {
-      return alert('El Nombre y la Cédula/NIT son obligatorios');
+    const datos: Cliente = {
+      ...this.cliente,
+      nombre: this.cliente.nombre.trim(),
+      apellido: this.cliente.apellido?.trim() || null,
+      cedulaNit: this.cliente.cedulaNit.trim(),
+      telefono: this.cliente.telefono?.trim() || null,
+      email: this.cliente.email?.trim() || null,
+      direccion: this.cliente.direccion?.trim() || null
+    };
+
+    if (!datos.nombre || !datos.cedulaNit) {
+      this.error.set('El nombre y el CI/NIT son obligatorios.');
+      return;
     }
 
-    if (this.editando) {
-      // Actualizar (PUT)
-      this.http.put(`${this.apiUrl}/${this.clienteForm.idCliente}`, this.clienteForm).subscribe({
-        next: () => {
-          alert('Cliente actualizado con éxito');
-          this.cerrarModal();
-          this.cargarClientes();
-        },
-        error: (err) => alert('Error: ' + (err.error?.mensaje || 'No se pudo actualizar'))
-      });
-    } else {
-      // Crear (POST)
-      this.http.post(this.apiUrl, this.clienteForm).subscribe({
-        next: () => {
-          alert('Cliente registrado con éxito');
-          this.cerrarModal();
-          this.cargarClientes();
-        },
-        error: (err) => alert('Error: ' + (err.error?.mensaje || 'No se pudo crear'))
-      });
-    }
-  }
+    this.ocupado.set(true);
+    this.error.set('');
+    this.mensaje.set('');
 
-  // Tu backend hace un DELETE lógico (desactivar)
-  eliminarCliente(id: number) {
-    if (!confirm('¿Estás seguro de desactivar este cliente?')) return;
+    const solicitud = datos.idCliente != null
+      ? this.servicio.actualizar(datos.idCliente, datos)
+      : this.servicio.crear(datos);
 
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+    solicitud.pipe(finalize(() => this.ocupado.set(false))).subscribe({
       next: () => {
-        alert('Cliente desactivado');
-        this.cargarClientes();
+        this.cancelar();
+        this.mensaje.set('Cliente guardado correctamente.');
+        this.cargar();
       },
-      error: (err) => alert('Error al desactivar: ' + (err.error?.mensaje || 'Verifique las ventas asociadas'))
+      error: error => this.mostrarError(error)
     });
+  }
+
+  eliminar(cliente: Cliente): void {
+    if (cliente.idCliente == null || this.ocupado()) return;
+
+    const confirmado = window.confirm(`¿Eliminar definitivamente a ${cliente.nombre} ${cliente.apellido || ''}?`);
+    if (!confirmado) return;
+
+    this.ocupado.set(true);
+    this.error.set('');
+    this.mensaje.set('');
+
+    this.servicio.eliminar(cliente.idCliente)
+      .pipe(finalize(() => this.ocupado.set(false)))
+      .subscribe({
+        next: () => {
+          if (this.cliente.idCliente === cliente.idCliente) {
+            this.cancelar();
+          }
+          this.mensaje.set('Cliente eliminado correctamente.');
+          this.cargar();
+        },
+        error: error => {
+          if (error instanceof HttpErrorResponse && error.status === 409) {
+            this.error.set('No se pudo eliminar el cliente. Puede tener registros asociados.');
+          } else {
+            this.mostrarError(error);
+          }
+        }
+      });
+  }
+
+  private clienteVacio(): Cliente {
+    return {
+      nombre: '',
+      apellido: '',
+      cedulaNit: '',
+      telefono: '',
+      email: '',
+      direccion: '',
+      estado: true
+    };
+  }
+
+  private mostrarError(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        this.error.set('No se pudo conectar con el backend.');
+        return;
+      }
+      if (error.status === 401) {
+        this.error.set('La sesión no es válida. Vuelve a iniciar sesión.');
+        return;
+      }
+      if (error.status === 403) {
+        this.error.set('No tienes permiso para realizar esta operación.');
+        return;
+      }
+      const mensaje = error.error?.mensaje;
+      if (typeof mensaje === 'string') {
+        this.error.set(mensaje);
+        return;
+      }
+    }
+    this.error.set('No se pudo completar la operación. Inténtalo nuevamente.');
   }
 }

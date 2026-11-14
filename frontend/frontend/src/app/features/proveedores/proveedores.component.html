@@ -1,16 +1,8 @@
 <div class="page-container">
 
-  <div *ngIf="mensajeExito" class="alert-success">
-    {{ mensajeExito }}
-  </div>
-
-  <div *ngIf="mensajeError" class="alert-error">
-    {{ mensajeError }}
-  </div>
-
   <div class="page-header">
     <div>
-      <h1>Gestión de Proveedores</h1>
+      <h1>GESTIÓN DE PROVEEDORES</h1>
       <p class="page-subtitle">Administra los proveedores de mercadería de la ferretería</p>
     </div>
     <button (click)="abrirFormulario()" class="btn btn-primary">
@@ -18,9 +10,15 @@
     </button>
   </div>
 
-  <div class="table-card">
+  @if (mensajeExito) {
+    <div class="alert-success">{{ mensajeExito }}</div>
+  }
 
-    <!-- Buscador -->
+  @if (mensajeError) {
+    <div class="alert-error">{{ mensajeError }}</div>
+  }
+
+  <div class="table-card">
     <div class="table-toolbar">
       <div class="search-box">
         <input
@@ -33,111 +31,130 @@
       </div>
     </div>
 
-    <!-- Tabla -->
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th class="text-center">ID</th>
-          <th class="text-center">RAZÓN SOCIAL</th>
-          <th class="text-center">NIT</th>
-          <th class="text-center">CONTACTO</th>
-          <th class="text-center">TELÉFONO</th>
-          <th class="text-center">ESTADO</th>
-          <th class="text-center">ACCIONES</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="proveedoresFiltrados.length === 0">
-          <td colspan="7" class="empty-row">No se encontraron proveedores.</td>
-        </tr>
-        <tr *ngFor="let prov of proveedoresFiltrados">
-          <td class="cell-code text-center">{{ prov.idProveedor }}</td>
-          <td class="text-center"><strong>{{ prov.razonSocial }}</strong></td>
-          <td class="text-center">{{ prov.nit }}</td>
-          <td class="text-center text-muted">{{ prov.contacto || '—' }}</td>
-          <td class="text-center text-muted">{{ prov.telefono || '—' }}</td>
-          <td class="text-center">
-            <span class="badge" [ngClass]="prov.estado ? 'badge-activo' : 'badge-inactivo'">
-              {{ prov.estado ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td class="cell-actions">
-            <button (click)="verDetalle(prov)" class="action-btn btn-view" title="Ver detalle">
-              👁
-            </button>
-            <button (click)="abrirFormulario(prov)" class="action-btn btn-edit" title="Editar">
-              ✎
-            </button>
-            <button (click)="eliminar(prov)" class="action-btn btn-delete" title="Eliminar">
-              🗑
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="text-center" style="width: 8%;">ID</th>
+            <th style="width: 25%;">RAZÓN SOCIAL</th>
+            <th style="width: 15%;">NIT</th>
+            <th style="width: 20%;">CONTACTO</th>
+            <th style="width: 12%;">TELÉFONO</th>
+            <th class="text-center" style="width: 10%;">ESTADO</th>
+            <th class="text-center" style="width: 10%;">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (proveedoresFiltrados.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-row">No se encontraron proveedores.</td>
+            </tr>
+          }
+          
+          @for (prov of proveedoresFiltrados; track prov.idProveedor) {
+            <tr>
+              <td class="cell-code text-center">{{ prov.idProveedor }}</td>
+              <td><strong>{{ prov.razonSocial }}</strong></td>
+              <td class="text-center">{{ prov.nit }}</td>
+              <td>
+                <div class="prod-info-text">
+                  <span class="prod-title">{{ prov.contacto || '—' }}</span>
+                  <span class="prod-subtitle">{{ prov.email || '' }}</span>
+                </div>
+              </td>
+              <td class="text-center">{{ prov.telefono || '—' }}</td>
+              <td class="text-center">
+                <span class="status-indicator" [ngClass]="prov.estado ? 'status-active' : 'status-inactive'">
+                  <span class="dot"></span> {{ prov.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                <button (click)="verDetalle(prov)" class="action-btn btn-view" title="Ver detalle">
+                  <i class="bi bi-eye-fill"></i>
+                </button>
+                <button (click)="abrirFormulario(prov)" class="action-btn btn-edit" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button (click)="eliminar(prov)" class="action-btn btn-delete" title="Eliminar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <!-- MODAL CREAR / EDITAR -->
-<div class="modal-overlay" *ngIf="mostrarFormulario">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>{{ esEdicion ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
-      <button (click)="cerrarFormulario()" class="close-btn">&times;</button>
+@if (mostrarFormulario) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{ esEdicion ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h2>
+        <button (click)="cerrarFormulario()" class="close-btn">&times;</button>
+      </div>
+
+      <form [formGroup]="formProveedor" (ngSubmit)="guardar()">
+        <div class="form-grid">
+          
+          <div class="form-group full-width">
+            <label>Razón Social *</label>
+            <input type="text" formControlName="razonSocial" placeholder="Ej: Distribuidora El Tornillo S.A.">
+            @if (invalido('razonSocial')) {
+              <span class="campo-error">La razón social es obligatoria.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>NIT *</label>
+            <input type="text" formControlName="nit" placeholder="Ej: 900123456-1">
+            @if (invalido('nit')) {
+              <span class="campo-error">El NIT es obligatorio.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Persona de contacto</label>
+            <input type="text" formControlName="contacto" placeholder="Ej: Juan Pérez">
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" formControlName="telefono" placeholder="Ej: 77788899">
+          </div>
+
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" formControlName="email" placeholder="ventas@proveedor.com">
+            @if (invalido('email')) {
+              <span class="campo-error">Ingresa un correo válido.</span>
+            }
+          </div>
+
+          <div class="form-group full-width">
+            <label>Dirección</label>
+            <input type="text" formControlName="direccion" placeholder="Calle, número, zona">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Estado</label>
+            <select formControlName="estado">
+              <option [ngValue]="true">Activo</option>
+              <option [ngValue]="false">Inactivo</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" (click)="cerrarFormulario()" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="formProveedor.invalid">
+            {{ esEdicion ? 'Guardar Cambios' : 'Crear Proveedor' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <form [formGroup]="formProveedor" (ngSubmit)="guardar()">
-      <div class="form-grid dos-columnas">
-
-        <div class="form-group full-width">
-          <label>Razón Social *</label>
-          <input type="text" formControlName="razonSocial" placeholder="Ej: Distribuidora El Tornillo S.A.">
-          <span class="campo-error" *ngIf="invalido('razonSocial')">La razón social es obligatoria.</span>
-        </div>
-
-        <div class="form-group">
-          <label>NIT *</label>
-          <input type="text" formControlName="nit" placeholder="Ej: 900123456-1">
-          <span class="campo-error" *ngIf="invalido('nit')">El NIT es obligatorio.</span>
-        </div>
-
-        <div class="form-group">
-          <label>Persona de contacto</label>
-          <input type="text" formControlName="contacto" placeholder="Ej: Juan Pérez">
-        </div>
-
-        <div class="form-group">
-          <label>Teléfono</label>
-          <input type="text" formControlName="telefono" placeholder="Ej: 77788899">
-        </div>
-
-        <div class="form-group">
-          <label>Correo electrónico</label>
-          <input type="email" formControlName="email" placeholder="ventas@proveedor.com">
-          <span class="campo-error" *ngIf="invalido('email')">Ingresa un correo válido.</span>
-        </div>
-
-        <div class="form-group full-width">
-          <label>Dirección</label>
-          <input type="text" formControlName="direccion" placeholder="Calle, número, zona">
-        </div>
-
-        <div class="form-group full-width">
-          <label>Estado</label>
-          <select formControlName="estado">
-            <option [ngValue]="true">Activo</option>
-            <option [ngValue]="false">Inactivo</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" (click)="cerrarFormulario()" class="btn btn-secondary">Cancelar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="formProveedor.invalid">
-          {{ esEdicion ? 'Guardar Cambios' : 'Crear Proveedor' }}
-        </button>
-      </div>
-    </form>
   </div>
-</div>
+}

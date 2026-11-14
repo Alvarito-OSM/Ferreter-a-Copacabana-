@@ -1,338 +1,17 @@
-
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
-import {
-  Cliente,
-  ClienteService
-} from '../../core/services/cliente.service';
+import { Cliente, ClienteService } from '../../core/services/cliente.service';
 
 @Component({
   selector: 'app-clientes',
   standalone: true,
-  imports: [FormsModule],
-
-  template: `
-    <section class="clientes">
-      <header>
-        <h1>Clientes</h1>
-        <button type="button" (click)="nuevo()" [disabled]="ocupado()">
-          Nuevo cliente
-        </button>
-      </header>
-
-      @if (error()) {
-        <p class="error" role="alert">{{ error() }}</p>
-      }
-
-      @if (mensaje()) {
-        <p class="exito" role="status">{{ mensaje() }}</p>
-      }
-
-      @if (mostrarFormulario()) {
-        <form #formulario="ngForm" (ngSubmit)="guardar(formulario)" class="tarjeta">
-          <h2>{{ cliente.idCliente ? 'Editar cliente' : 'Registrar cliente' }}</h2>
-
-          <fieldset [disabled]="ocupado()">
-            <div class="campos">
-              <label>
-                Nombre *
-                <input
-                  name="nombre"
-                  [(ngModel)]="cliente.nombre"
-                  required
-                  maxlength="100"
-                />
-              </label>
-
-              <label>
-                Apellido
-                <input
-                  name="apellido"
-                  [(ngModel)]="cliente.apellido"
-                  maxlength="100"
-                />
-              </label>
-
-              <label>
-                CI / NIT *
-                <input
-                  name="cedulaNit"
-                  [(ngModel)]="cliente.cedulaNit"
-                  required
-                  maxlength="20"
-                />
-              </label>
-
-              <label>
-                Teléfono
-                <input
-                  type="tel"
-                  name="telefono"
-                  [(ngModel)]="cliente.telefono"
-                  maxlength="20"
-                />
-              </label>
-
-              <label>
-                Correo electrónico
-                <input
-                  type="email"
-                  name="email"
-                  [(ngModel)]="cliente.email"
-                  email
-                  maxlength="150"
-                />
-              </label>
-
-              <label>
-                Dirección
-                <input
-                  name="direccion"
-                  [(ngModel)]="cliente.direccion"
-                  maxlength="255"
-                />
-              </label>
-
-              <label>
-                Estado
-                <select name="estado" [(ngModel)]="cliente.estado">
-                  <option [ngValue]="true">Activo</option>
-                  <option [ngValue]="false">Inactivo</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="acciones">
-              <button type="submit" [disabled]="formulario.invalid || ocupado()">
-                {{ ocupado() ? 'Guardando...' : 'Guardar' }}
-              </button>
-
-              <button type="button" class="secundario" (click)="cancelar()">
-                Cancelar
-              </button>
-            </div>
-          </fieldset>
-        </form>
-      }
-
-      <form class="busqueda" (ngSubmit)="cargar()">
-        <input
-          name="busqueda"
-          [(ngModel)]="busqueda"
-          placeholder="Buscar por nombre, apellido o CI/NIT"
-          aria-label="Buscar clientes"
-        />
-        <button type="submit" [disabled]="cargando() || ocupado()">
-          Buscar
-        </button>
-      </form>
-
-      @if (cargando()) {
-        <p role="status">Cargando clientes...</p>
-      } @else {
-        <div class="tabla">
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>CI / NIT</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @for (item of clientes(); track item.idCliente) {
-                <tr>
-                  <td>{{ item.nombre }} {{ item.apellido }}</td>
-                  <td>{{ item.cedulaNit }}</td>
-                  <td>{{ item.telefono || '—' }}</td>
-                  <td>{{ item.email || '—' }}</td>
-                  <td>{{ item.estado ? 'Activo' : 'Inactivo' }}</td>
-                  <td>
-                    <div class="acciones">
-                      <button
-                        type="button"
-                        class="secundario"
-                        (click)="editar(item)"
-                        [disabled]="ocupado()"
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        class="peligro"
-                        (click)="eliminar(item)"
-                        [disabled]="ocupado()"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="6">No se encontraron clientes.</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </section>
-  `,
-
-  styles: [`
-    :host { display: block; }
-
-    .clientes {
-      padding: 24px;
-      color: #1e293b;
-    }
-
-    header, .acciones, .busqueda {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    header {
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 20px;
-    }
-
-    .tarjeta, .tabla {
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-    }
-
-    .tarjeta {
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    fieldset {
-      border: 0;
-      padding: 0;
-      margin: 0;
-      min-width: 0;
-    }
-
-    .campos {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    input, select, button {
-      font: inherit;
-    }
-
-    input, select {
-      padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    /* BOTONES PRINCIPALES: ROJO */
-    button {
-      padding: 10px 16px;
-      border: 0;
-      border-radius: 6px;
-      background: #dc2626;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    /* BOTONES SECUNDARIOS: NEGRO */
-    .secundario {
-      background: #262626;
-      color: #ffffff;
-    }
-
-    /* BOTÓN ELIMINAR: ROJO OSCURO */
-    .peligro {
-      background: #b91c1c;
-    }
-
-    .busqueda {
-      margin-bottom: 20px;
-    }
-
-    .busqueda input {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .tabla {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 14px;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    /* ENCABEZADO DE TABLA: ROJO */
-    th {
-      background: #b91c1c;
-      color: #ffffff;
-    }
-
-    .error, .exito {
-      padding: 12px;
-      border-radius: 6px;
-    }
-
-    .error {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .exito {
-      background: #dcfce7;
-      color: #166534;
-    }
-  `]
+  imports: [FormsModule, CommonModule],
+  templateUrl: './clientes.html',
+  styleUrls: ['./clientes.css']
 })
-
 export class ClientesComponent implements OnInit {
   private readonly servicio = inject(ClienteService);
 
@@ -351,9 +30,7 @@ export class ClientesComponent implements OnInit {
   }
 
   cargar(): void {
-    if (this.cargando()) {
-      return;
-    }
+    if (this.cargando()) return;
 
     this.cargando.set(true);
     this.error.set('');
@@ -386,9 +63,7 @@ export class ClientesComponent implements OnInit {
   }
 
   guardar(formulario: NgForm): void {
-    if (formulario.invalid || this.ocupado()) {
-      return;
-    }
+    if (formulario.invalid || this.ocupado()) return;
 
     const datos: Cliente = {
       ...this.cliente,
@@ -413,30 +88,21 @@ export class ClientesComponent implements OnInit {
       ? this.servicio.actualizar(datos.idCliente, datos)
       : this.servicio.crear(datos);
 
-    solicitud
-      .pipe(finalize(() => this.ocupado.set(false)))
-      .subscribe({
-        next: () => {
-          this.cancelar();
-          this.mensaje.set('Cliente guardado correctamente.');
-          this.cargar();
-        },
-        error: error => this.mostrarError(error)
-      });
+    solicitud.pipe(finalize(() => this.ocupado.set(false))).subscribe({
+      next: () => {
+        this.cancelar();
+        this.mensaje.set('Cliente guardado correctamente.');
+        this.cargar();
+      },
+      error: error => this.mostrarError(error)
+    });
   }
 
   eliminar(cliente: Cliente): void {
-    if (cliente.idCliente == null || this.ocupado()) {
-      return;
-    }
+    if (cliente.idCliente == null || this.ocupado()) return;
 
-    const confirmado = window.confirm(
-      `¿Eliminar definitivamente a ${cliente.nombre} ${cliente.apellido || ''}?`
-    );
-
-    if (!confirmado) {
-      return;
-    }
+    const confirmado = window.confirm(`¿Eliminar definitivamente a ${cliente.nombre} ${cliente.apellido || ''}?`);
+    if (!confirmado) return;
 
     this.ocupado.set(true);
     this.error.set('');
@@ -449,15 +115,12 @@ export class ClientesComponent implements OnInit {
           if (this.cliente.idCliente === cliente.idCliente) {
             this.cancelar();
           }
-
           this.mensaje.set('Cliente eliminado correctamente.');
           this.cargar();
         },
         error: error => {
           if (error instanceof HttpErrorResponse && error.status === 409) {
-            this.error.set(
-              'No se pudo eliminar el cliente. Puede tener registros asociados.'
-            );
+            this.error.set('No se pudo eliminar el cliente. Puede tener registros asociados.');
           } else {
             this.mostrarError(error);
           }
@@ -483,25 +146,20 @@ export class ClientesComponent implements OnInit {
         this.error.set('No se pudo conectar con el backend.');
         return;
       }
-
       if (error.status === 401) {
         this.error.set('La sesión no es válida. Vuelve a iniciar sesión.');
         return;
       }
-
       if (error.status === 403) {
         this.error.set('No tienes permiso para realizar esta operación.');
         return;
       }
-
       const mensaje = error.error?.mensaje;
-
       if (typeof mensaje === 'string') {
         this.error.set(mensaje);
         return;
       }
     }
-
     this.error.set('No se pudo completar la operación. Inténtalo nuevamente.');
   }
 }

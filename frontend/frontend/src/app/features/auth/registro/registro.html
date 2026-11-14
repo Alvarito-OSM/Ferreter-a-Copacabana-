@@ -1,126 +1,73 @@
-<div class="login-wrapper">
-
-  <!-- PANEL IZQUIERDO -->
-  <section class="login-brand-panel">
-    <div class="background-grid"></div>
-    <div class="glow glow-one"></div>
-    <div class="glow glow-two"></div>
-
-    <div class="brand-content">
-      <div class="brand-logo">
-        <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14.7 6.3a4 4 0 0 0-5 5L3 18a2.1 2.1 0 0 0 3 3l6.7-6.7a4 4 0 0 0 5-5L15 12l-3-3z"/>
-          <path d="m16 5 3-3 3 3-3 3"/>
-        </svg>
-      </div>
-
-      <h1 class="brand-title">
-        <span class="title-line">Ferretería</span>
-        <span class="title-line title-accent">Copacabana</span>
-      </h1>
-
-      <p class="brand-description">
-        Únete a nuestra comunidad. Regístrate para agilizar tus compras y recibir la mejor atención.
-      </p>
+<div class="registro-container">
+  <div class="registro-card">
+    
+    <div class="header">
+      <h2>Crea tu cuenta</h2>
+      <p>Ingresa tus datos para registrarte en el sistema.</p>
     </div>
-  </section>
 
-  <!-- PANEL DERECHO (FORMULARIO) -->
-  <section class="login-form-panel">
-    <div class="form-container">
-
-      <div class="form-top">
-        <span class="welcome-label">REGISTRO DE CLIENTES</span>
-        <h2>Crea tu cuenta</h2>
-        <p>Ingresa tus datos para registrarte en el sistema.</p>
+    @if (exito) {
+      <div class="success-state">
+        <h3>¡Registro Exitoso!</h3>
+        <p>Serás redirigido al inicio de sesión en un momento...</p>
       </div>
-
-      <!-- Si el registro fue exitoso, mostramos este mensaje -->
-      @if (exito) {
-        <div class="exito-mensaje">
-          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          <h3>¡Registro Exitoso!</h3>
-          <p>Serás redirigido al inicio de sesión en un momento...</p>
-        </div>
-      } @else {
-        <form (ngSubmit)="guardarCliente()">
-          
+    } @else {
+      <form (ngSubmit)="guardarCliente()" class="registro-form">
+        
+        <div class="form-grid">
           <div class="input-group">
             <label>Nombre *</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.nombre" name="nombre" placeholder="Ej: Juan" required>
-            </div>
+            <input type="text" [(ngModel)]="nuevoCliente.nombre" name="nombre" placeholder="Ej: Juan" required>
           </div>
 
           <div class="input-group">
             <label>Apellido</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.apellido" name="apellido" placeholder="Ej: Perez">
-            </div>
+            <input type="text" [(ngModel)]="nuevoCliente.apellido" name="apellido" placeholder="Ej: Pérez">
           </div>
 
           <div class="input-group">
             <label>CI / NIT *</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.cedulaNit" name="cedulaNit" placeholder="Ej: 12345678" required>
-            </div>
+            <input type="text" [(ngModel)]="nuevoCliente.cedulaNit" name="cedulaNit" placeholder="Ej: 12345678" required>
           </div>
 
           <div class="input-group">
             <label>Teléfono</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.telefono" name="telefono" placeholder="Ej: 70000000">
-            </div>
+            <input type="text" [(ngModel)]="nuevoCliente.telefono" name="telefono" placeholder="Ej: 70000000">
           </div>
 
-          <div class="input-group">
+          <div class="input-group full-width">
             <label>Correo Electrónico</label>
-            <div class="input-wrapper">
-              <input type="email" [(ngModel)]="nuevoCliente.email" name="email" placeholder="Ej: correo@test.com">
-            </div>
+            <input type="email" [(ngModel)]="nuevoCliente.email" name="email" placeholder="correo@ejemplo.com">
           </div>
 
-          <div class="input-group">
+          <div class="input-group full-width">
             <label>Dirección</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.direccion" name="direccion" placeholder="Ej: Calle 5 #10-15">
-            </div>
+            <input type="text" [(ngModel)]="nuevoCliente.direccion" name="direccion" placeholder="Ej: Calle 5 #10-15">
           </div>
 
           <div class="input-group">
-            <label>Usuario</label>
-            <div class="input-wrapper">
-              <input type="text" [(ngModel)]="nuevoCliente.usuario" name="usuario" placeholder="Elige tu usuario" required>
-            </div>
+            <label>Usuario *</label>
+            <input type="text" [(ngModel)]="nuevoCliente.usuario" name="usuario" placeholder="Elige tu usuario" required>
           </div>
 
           <div class="input-group">
-            <label>Contraseña</label>
-            <div class="input-wrapper">
-              <input type="password" [(ngModel)]="nuevoCliente.contrasena" name="contrasena" placeholder="Mínimo 6 caracteres" required>
-            </div>
+            <label>Contraseña *</label>
+            <input type="password" [(ngModel)]="nuevoCliente.contrasena" name="contrasena" placeholder="Mínimo 6 caracteres" required>
           </div>
-
-          @if (error) {
-            <div class="error-message">{{ error }}</div>
-          }
-
-          <button type="submit" class="btn-login" [disabled]="cargando">
-            <span>{{ cargando ? 'Registrando...' : 'Registrarme' }}</span>
-            <span *ngIf="!cargando" class="button-arrow">→</span>
-            <span *ngIf="cargando" class="spinner"></span>
-          </button>
-        </form>
-
-        <div class="crear-cuenta-section">
-          <p>¿Ya tienes una cuenta?</p>
-          <a routerLink="/login" class="btn-crear-cuenta">Volver al Iniciar Sesión</a>
         </div>
-      }
 
-    </div>
-  </section>
+        @if (error) {
+          <div class="error-message">{{ error }}</div>
+        }
+
+        <button type="submit" class="btn-submit" [disabled]="cargando">
+          {{ cargando ? 'Registrando...' : 'Registrarme' }}
+        </button>
+      </form>
+
+      <div class="footer-links">
+        <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia Sesión</a></p>
+      </div>
+    }
+  </div>
 </div>

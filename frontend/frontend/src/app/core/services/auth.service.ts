@@ -51,7 +51,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ROL_KEY);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/catalogo']);
   }
 
   getToken(): string | null {
@@ -91,7 +91,7 @@ export class AuthService {
       case ROLES.cliente:
         return '/catalogo';
       default:
-        return '/login';
+        return '/catalogo';
     }
   }
 }

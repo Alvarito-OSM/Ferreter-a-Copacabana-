@@ -1,73 +1,76 @@
 <div class="page-container">
 
-  <div *ngIf="mensajeExito" class="alert-success">
-    {{ mensajeExito }}
-  </div>
-
   <div class="page-header">
-    <div class="page-header-text">
-      <h1>Gestión de Empleados</h1>
-      <p class="page-subtitle">Administra el personal de la ferretería</p>
+    <div>
+      <h1>GESTIÓN DE EMPLEADOS</h1>
+      <p class="page-subtitle">Administra al personal de la ferretería</p>
     </div>
-    <a routerLink="/empleados/nuevo" class="btn btn-primary">
+    <a routerLink="/admin/empleados/nuevo" class="btn btn-primary">
       + Nuevo Empleado
     </a>
   </div>
 
-  <div class="table-card">
+  @if (mensajeExito) {
+    <div class="alert-success">{{ mensajeExito }}</div>
+  }
 
-    <div class="table-card-header">
-      <h2>Lista de Empleados</h2>
-      <span class="table-count">{{ empleados.length }} registros</span>
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, apellido, CI o cargo..." 
+          [(ngModel)]="busqueda"
+        >
+      </div>
     </div>
 
-    <!-- La tabla ahora SIEMPRE se muestra, incluso si está vacía -->
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th class="text-center">Empleado</th>
-          <th class="text-center">Cédula</th>
-          <th class="text-center">Teléfono</th>
-          <th class="text-center">Cargo</th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Si no hay empleados, mostramos una fila que ocupe toda la tabla -->
-        <tr *ngIf="empleados.length === 0">
-          <td colspan="5" class="empty-row">
-            No hay empleados registrados en este momento.
-          </td>
-        </tr>
-
-        <!-- Si hay empleados, los mostramos -->
-        <tr *ngFor="let emp of empleados">
-          <td class="text-center">
-            <div class="avatar-cell">
-              <div class="avatar">{{ emp.nombre?.charAt(0) }}{{ emp.apellido?.charAt(0) }}</div>
-              <div class="name-info">
-                <strong>{{ emp.nombre }} {{ emp.apellido }}</strong>
-                <small>{{ emp.email || 'Sin correo' }}</small>
-              </div>
-            </div>
-          </td>
-          <td class="cell-ci text-center">{{ emp.cedula }}</td>
-          <td class="text-center">{{ emp.telefono || '—' }}</td>
-          <td class="text-center">
-            <span class="badge badge-primary">{{ emp.cargo }}</span>
-          </td>
-          <td class="cell-actions">
-            <a [routerLink]="['/empleados/editar', emp.idEmpleado]" class="btn btn-outline">
-              Editar
-            </a>
-            <button (click)="eliminar(emp.idEmpleado)" class="btn btn-danger">
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 35%;">EMPLEADO</th>
+            <th class="text-center" style="width: 15%;">CÉDULA</th>
+            <th class="text-center" style="width: 15%;">TELÉFONO</th>
+            <th class="text-center" style="width: 15%;">CARGO</th>
+            <th class="text-center" style="width: 20%;">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (empleadosFiltrados.length === 0) {
+            <tr>
+              <td colspan="5" class="empty-row">No se encontraron empleados.</td>
+            </tr>
+          }
+          
+          @for (emp of empleadosFiltrados; track emp.idEmpleado) {
+            <tr>
+              <td>
+                <div class="avatar-cell">
+                  <div class="avatar">{{ emp.nombre?.charAt(0) }}{{ emp.apellido?.charAt(0) }}</div>
+                  <div class="prod-info-text">
+                    <span class="prod-title">{{ emp.nombre }} {{ emp.apellido }}</span>
+                    <span class="prod-subtitle">{{ emp.email || 'Sin correo' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="cell-code text-center">{{ emp.cedula }}</td>
+              <td class="text-center">{{ emp.telefono || '—' }}</td>
+              <td class="text-center">
+                <span class="badge-categoria">{{ emp.cargo }}</span>
+              </td>
+              <td class="cell-actions">
+                <a [routerLink]="['/admin/empleados/editar', emp.idEmpleado]" class="action-btn btn-edit" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                <button type="button" (click)="eliminar(emp.idEmpleado)" class="action-btn btn-delete" title="Eliminar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>

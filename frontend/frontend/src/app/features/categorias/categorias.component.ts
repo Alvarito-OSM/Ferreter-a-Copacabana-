@@ -13,6 +13,7 @@ import { Categoria } from '../../core/models/categoria';
 })
 export class CategoriasComponent implements OnInit {
   categorias: Categoria[] = [];
+  categoriasFiltradas: Categoria[] = [];
   formCategoria: FormGroup;
   esEdicion = false;
   idEdicion?: number;
@@ -36,10 +37,10 @@ export class CategoriasComponent implements OnInit {
   }
 
   cargarCategorias(): void {
-    // Usamos obtenerCategorias() que es el que ya tenías
     this.categoriaService.obtenerCategorias().subscribe({
       next: (data: Categoria[]) => {
         this.categorias = data;
+        this.categoriasFiltradas = data;
         this.cdr.detectChanges();
       },
       error: (err: any) => console.error('Error al cargar categorías', err)
@@ -48,11 +49,11 @@ export class CategoriasComponent implements OnInit {
 
   buscar(): void {
     if (!this.busqueda.trim()) {
-      this.cargarCategorias();
+      this.categoriasFiltradas = this.categorias;
       return;
     }
     const busquedaLower = this.busqueda.toLowerCase();
-    this.categorias = this.categorias.filter(c => 
+    this.categoriasFiltradas = this.categorias.filter(c => 
       c.nombre.toLowerCase().includes(busquedaLower)
     );
     this.cdr.detectChanges();
@@ -85,13 +86,11 @@ export class CategoriasComponent implements OnInit {
     const valores = this.formCategoria.value;
 
     if (this.esEdicion && this.idEdicion) {
-      // CAMBIO: Usamos actualizar() en lugar de actualizarCategoria()
       this.categoriaService.actualizar(this.idEdicion, valores).subscribe({
         next: () => this.finalizarGuardado('Categoría actualizada correctamente'),
         error: (err: any) => alert('Error al actualizar: ' + (err.error?.message || 'Revisa la consola'))
       });
     } else {
-      // CAMBIO: Usamos crear() en lugar de crearCategoria()
       this.categoriaService.crear(valores).subscribe({
         next: () => this.finalizarGuardado('Categoría creada correctamente'),
         error: (err: any) => alert('Error al crear: ' + (err.error?.message || 'Revisa la consola'))
@@ -108,10 +107,9 @@ export class CategoriasComponent implements OnInit {
 
   eliminar(id?: number): void {
     if (id && confirm('¿Estás seguro de eliminar esta categoría?')) {
-      // CAMBIO: Usamos eliminar() en lugar de eliminarCategoria()
       this.categoriaService.eliminar(id).subscribe({
         next: () => {
-          this.mensajeExito = 'Categoría eliminada';
+          this.mensajeExito = 'Categoría eliminada correctamente';
           this.cargarCategorias();
           setTimeout(() => this.mensajeExito = '', 3000);
         },

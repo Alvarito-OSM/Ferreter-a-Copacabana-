@@ -26,8 +26,8 @@ export class ProveedoresComponent implements OnInit {
   constructor(
     private proveedorService: ProveedorService,
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef // 👈 Volvemos a inyectar esto
   ) {
     this.formProveedor = this.fb.group({
       razonSocial: ['', [Validators.required, Validators.maxLength(150)]],
@@ -44,12 +44,10 @@ export class ProveedoresComponent implements OnInit {
     this.cargarProveedores();
   }
 
-  /** Lista filtrada por el texto del buscador (razón social, NIT o contacto). */
   get proveedoresFiltrados(): Proveedor[] {
     const texto = this.busqueda.trim().toLowerCase();
-    if (!texto) {
-      return this.proveedores;
-    }
+    if (!texto) return this.proveedores;
+    
     return this.proveedores.filter(p =>
       p.razonSocial.toLowerCase().includes(texto) ||
       p.nit.toLowerCase().includes(texto) ||
@@ -61,7 +59,8 @@ export class ProveedoresComponent implements OnInit {
     this.proveedorService.listar().subscribe({
       next: (data: Proveedor[]) => {
         this.proveedores = data;
-        this.cdr.detectChanges();
+        // 👇 ESTA ES LA LÍNEA MÁGICA QUE HACE QUE APAREZCAN DE INMEDIATO 👇
+        this.cdr.detectChanges(); 
       },
       error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudo cargar la lista de proveedores.')
     });
@@ -72,7 +71,7 @@ export class ProveedoresComponent implements OnInit {
   }
 
   buscar(): void {
-    // El filtrado se hace en proveedoresFiltrados; aquí solo se refresca la vista.
+    // Al presionar buscar o enter, forzamos la actualización por si acaso
     this.cdr.detectChanges();
   }
 
@@ -150,12 +149,8 @@ export class ProveedoresComponent implements OnInit {
   }
 
   eliminar(proveedor: Proveedor): void {
-    if (proveedor.idProveedor == null) {
-      return;
-    }
-    if (!confirm(`¿Estás seguro de eliminar al proveedor "${proveedor.razonSocial}"?`)) {
-      return;
-    }
+    if (proveedor.idProveedor == null) return;
+    if (!confirm(`¿Estás seguro de eliminar al proveedor "${proveedor.razonSocial}"?`)) return;
 
     this.proveedorService.eliminar(proveedor.idProveedor).subscribe({
       next: () => {
@@ -168,7 +163,7 @@ export class ProveedoresComponent implements OnInit {
         }, 3000);
       },
       error: (err: HttpErrorResponse) =>
-        this.mostrarError(err, 'No se pudo eliminar. Puede tener compras asociadas; en ese caso, márcalo como Inactivo.')
+        this.mostrarError(err, 'No se pudo eliminar. Puede tener compras asociadas.')
     });
   }
 
@@ -176,7 +171,7 @@ export class ProveedoresComponent implements OnInit {
     if (err.status === 0) {
       this.mensajeError = 'No se pudo conectar con el servidor.';
     } else if (err.status === 401 || err.status === 403) {
-      this.mensajeError = 'No tienes permiso o tu sesión venció. Vuelve a iniciar sesión.';
+      this.mensajeError = 'No tienes permiso o tu sesión venció.';
     } else {
       this.mensajeError = mensajePorDefecto;
     }

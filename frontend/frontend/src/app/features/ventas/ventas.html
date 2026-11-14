@@ -1,260 +1,160 @@
+<div class="page-container">
 
-<div class="modulo-container">
+  <div class="page-header">
+    <div>
+      <h1>PUNTO DE VENTA</h1>
+      <p class="page-subtitle">Registra ventas, calcula importes y gestiona el pago</p>
+    </div>
+  </div>
 
-  <header class="modulo-header">
-    <h1>Gestión de ventas</h1>
-    <p>
-      Registra productos, calcula importes y selecciona
-      el método de pago.
-    </p>
-  </header>
-
-  <!-- NUEVA VENTA -->
   <div class="panel">
-    <h2>Nueva venta</h2>
+    <div class="panel-header">
+      <h2>1. Agregar Productos</h2>
+    </div>
 
     <div class="form-grid">
-
-      <div class="campo">
+      <div class="form-group">
         <label>Nombre del cliente</label>
-        <input
-          type="text"
-          [(ngModel)]="cliente"
-          placeholder="Nombre del cliente">
+        <input type="text" [(ngModel)]="cliente" placeholder="Ej: Juan Pérez (Opcional)">
       </div>
 
-      <div class="campo">
+      <div class="form-group">
         <label>Producto</label>
-        <select [(ngModel)]="productoId">
-          <option [ngValue]="0">
-            Seleccionar producto
-          </option>
-
-          <option
-            *ngFor="let producto of productos"
-            [ngValue]="producto.id">
-            {{ producto.nombre }} -
-            Bs {{ producto.precio }}
-            (Stock: {{ producto.stock }})
-          </option>
+        <select [(ngModel)]="productoId" [disabled]="cargando">
+          <option [ngValue]="0">-- Seleccionar producto --</option>
+          @for (prod of productos; track prod.idProducto) {
+            <option [ngValue]="prod.idProducto">
+              {{ prod.nombre }} - Bs {{ prod.precioVenta }} (Stock: {{ prod.stockActual }})
+            </option>
+          }
         </select>
       </div>
 
-      <div class="campo">
+      <div class="form-group">
         <label>Cantidad</label>
-        <input
-          type="number"
-          min="1"
-          [(ngModel)]="cantidad">
+        <input type="number" min="1" [(ngModel)]="cantidad">
       </div>
 
+      <div class="form-group" style="display: flex; align-items: flex-end;">
+        <button class="btn btn-primary w-100" (click)="agregarProducto()" [disabled]="cargando">
+          + Agregar al Carrito
+        </button>
+      </div>
     </div>
-
-    <button
-      class="btn-principal"
-      (click)="agregarProducto()">
-      + Agregar producto
-    </button>
   </div>
 
-  <!-- DETALLE DE VENTA -->
   <div class="panel">
-    <h2>Detalle de venta</h2>
+    <div class="panel-header">
+      <h2>2. Detalle de Venta</h2>
+    </div>
 
-    <div class="tabla-scroll">
-      <table>
+    <div class="table-responsive">
+      <table class="data-table">
         <thead>
           <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio</th>
-            <th>Subtotal</th>
-            <th>Acción</th>
+            <th>PRODUCTO</th>
+            <th class="text-center">CANTIDAD</th>
+            <th class="text-center">PRECIO UNIT.</th>
+            <th class="text-center">SUBTOTAL</th>
+            <th class="text-center">ACCIÓN</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let item of carrito">
-            <td>{{ item.producto.nombre }}</td>
-            <td>{{ item.cantidad }}</td>
-
-            <td>
-              Bs {{ item.producto.precio | number:'1.2-2' }}
-            </td>
-
-            <td>
-              Bs {{
-                item.producto.precio * item.cantidad
-                | number:'1.2-2'
-              }}
-            </td>
-
-            <td>
-              <button
-                class="btn-eliminar"
-                (click)="quitarProducto(item.producto.id)">
-                Quitar
-              </button>
-            </td>
-          </tr>
-
-          <tr *ngIf="carrito.length === 0">
-            <td colspan="5">
-              No hay productos agregados.
-            </td>
-          </tr>
+          @if (carrito.length === 0) {
+            <tr>
+              <td colspan="5" class="empty-row">No hay productos en el carrito.</td>
+            </tr>
+          }
+          @for (item of carrito; track item.producto.idProducto) {
+            <tr>
+              <td><strong>{{ item.producto.nombre }}</strong></td>
+              <td class="text-center">{{ item.cantidad }}</td>
+              <td class="text-center">Bs {{ item.producto.precioVenta | number:'1.2-2' }}</td>
+              <td class="text-center"><strong>Bs {{ item.producto.precioVenta * item.cantidad | number:'1.2-2' }}</strong></td>
+              <td class="text-center">
+                <button class="action-btn btn-delete" (click)="quitarProducto(item.producto.idProducto)" title="Quitar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
 
-    <div class="total">
-      Total: Bs {{ total | number:'1.2-2' }}
+    <div class="total-row">
+      <span>Total a Pagar:</span>
+      <span class="total-amount">Bs {{ total | number:'1.2-2' }}</span>
     </div>
   </div>
 
-  <!-- MÉTODO DE PAGO -->
   <div class="panel">
-    <h2>Método de pago</h2>
+    <div class="panel-header">
+      <h2>3. Método de Pago</h2>
+    </div>
 
-    <div class="metodos">
-
-      <label>
-        <input
-          type="radio"
-          name="metodo"
-          value="EFECTIVO"
-          [(ngModel)]="metodoPago">
+    <div class="metodos-pago">
+      <label class="radio-label">
+        <input type="radio" name="metodo" value="EFECTIVO" [(ngModel)]="metodoPago">
         Efectivo
       </label>
-
-      <label>
-        <input
-          type="radio"
-          name="metodo"
-          value="QR"
-          [(ngModel)]="metodoPago">
-        Pago mediante QR
+      <label class="radio-label">
+        <input type="radio" name="metodo" value="QR" [(ngModel)]="metodoPago">
+        Pago QR (BCP)
       </label>
-
     </div>
 
-    <!-- PAGO EN EFECTIVO -->
-    <div
-      *ngIf="metodoPago === 'EFECTIVO'"
-      class="campo">
+    @if (metodoPago === 'EFECTIVO') {
+      <div class="pago-efectivo">
+        <div class="form-group" style="max-width: 300px;">
+          <label>Monto Recibido (Bs)</label>
+          <input type="number" min="0" [(ngModel)]="montoRecibido">
+        </div>
+        <p class="cambio-text">Cambio: <strong>Bs {{ cambio | number:'1.2-2' }}</strong></p>
+      </div>
+    }
 
-      <label>Monto recibido (Bs)</label>
+    @if (metodoPago === 'QR') {
+      <div class="pago-qr">
+        <h3>Escanea el código QR</h3>
+        <p>Utiliza tu aplicación bancaria para realizar el pago.</p>
+        <img src="assets/qr-bcp.jpeg" alt="QR BCP" class="qr-image">
+        <p class="advertencia">El sistema requiere confirmación manual del pago antes de finalizar.</p>
+      </div>
+    }
 
-      <input
-        type="number"
-        min="0"
-        [(ngModel)]="montoRecibido">
-
-      <p>
-        <strong>Cambio:</strong>
-        Bs {{ cambio | number:'1.2-2' }}
-      </p>
-
-    </div>
-
-    <!-- PAGO MEDIANTE QR BCP -->
-    <div
-      *ngIf="metodoPago === 'QR'"
-      class="pago-qr">
-
-      <h3>Pago mediante QR - BCP</h3>
-
-      <p>
-        Escanea el siguiente código QR
-        desde tu aplicación bancaria.
-      </p>
-
-      <img
-        src="/qr-bcp.jpeg"
-        alt="Código QR de pago BCP"
-        class="imagen-qr">
-
-      <h3>
-        Total a pagar:
-        Bs {{ total | number:'1.2-2' }}
-      </h3>
-
-      <p>
-        Introduce el importe indicado si
-        tu aplicación bancaria lo solicita.
-      </p>
-
-      <p>
-        Verifica los datos del destinatario
-        antes de realizar el pago.
-      </p>
-
-      <p class="advertencia-qr">
-        QR válido hasta el 12/11/2028.
-        El pago requiere confirmación manual.
-      </p>
-
-    </div>
-
-    <!-- BOTONES -->
-    <div class="acciones">
-
-      <button
-        class="btn-principal"
-        (click)="registrarVenta()">
-        Validar venta
+    <div class="acciones-finales">
+      <button class="btn btn-primary" (click)="registrarVenta()" [disabled]="procesandoVenta || carrito.length === 0">
+        {{ procesandoVenta ? 'Procesando...' : 'Registrar Venta' }}
       </button>
-
-      <button
-        class="btn-secundario"
-        (click)="imprimirComprobante()">
-        Imprimir borrador
+      <button class="btn btn-secondary" (click)="imprimirComprobante()">
+        Imprimir Comprobante
       </button>
-
     </div>
 
-    <p
-      class="mensaje"
-      *ngIf="mensaje">
-      {{ mensaje }}
-    </p>
-
+    @if (mensaje) {
+      <div class="alert-error" style="margin-top: 20px;">
+        {{ mensaje }}
+      </div>
+    }
   </div>
 
-  <!-- COMPROBANTE DE PRUEBA -->
+  <!-- COMPROBANTE PARA IMPRESIÓN -->
   <div class="solo-impresion">
-
     <h2>Ferretería Copacabana</h2>
-
-    <h3>
-      Borrador de venta - No es factura fiscal
-    </h3>
-
-    <p>Cliente: {{ cliente }}</p>
-
-    <p *ngFor="let item of carrito">
-      {{ item.producto.nombre }}
-      × {{ item.cantidad }}
-      — Bs {{
-        item.producto.precio * item.cantidad
-        | number:'1.2-2'
-      }}
-    </p>
-
-    <h3>
-      Total: Bs {{ total | number:'1.2-2' }}
-    </h3>
-
-    <p>
-      Método de pago seleccionado:
-      {{ metodoPago }}
-    </p>
-
-    <p>
-      Documento de prueba.
-      No acredita pago.
-    </p>
-
+    <h3>Borrador de Venta</h3>
+    <p><strong>Cliente:</strong> {{ cliente }}</p>
+    <hr>
+    @for (item of carrito; track item.producto.idProducto) {
+      <p>
+        {{ item.producto.nombre }} × {{ item.cantidad }} 
+        — Bs {{ item.producto.precioVenta * item.cantidad | number:'1.2-2' }}
+      </p>
+    }
+    <hr>
+    <h3>Total: Bs {{ total | number:'1.2-2' }}</h3>
+    <p>Método de pago: {{ metodoPago }}</p>
+    <p>Documento de prueba. No acredita pago fiscal.</p>
   </div>
 
 </div>

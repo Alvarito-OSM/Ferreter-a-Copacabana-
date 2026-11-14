@@ -40,6 +40,11 @@ export class EmpleadoFormComponent implements OnInit {
     if (idParam) {
       this.idEmpleado = +idParam;
       this.esEdicion = true;
+      
+      // Si estamos editando, la contraseña no es obligatoria
+      this.formEmpleado.get('contrasena')?.clearValidators();
+      this.formEmpleado.get('contrasena')?.updateValueAndValidity();
+
       this.empleadoService.obtenerEmpleadoPorId(this.idEmpleado).subscribe((emp) => {
         this.formEmpleado.patchValue({
           nombres: emp.nombre,
@@ -50,7 +55,7 @@ export class EmpleadoFormComponent implements OnInit {
           cargo: emp.cargo,
           estado: emp.estado,
           usuario: emp.usuario,
-          contrasena: emp.contrasena
+          contrasena: '' // No mostramos la contraseña encriptada
         });
       });
     }
@@ -61,7 +66,6 @@ export class EmpleadoFormComponent implements OnInit {
 
     const valores = this.formEmpleado.value;
     
-    // Armamos el JSON con la estructura exacta que espera Java
     const datos: any = {
       nombre: valores.nombres,
       apellido: valores.apellidos,
@@ -71,22 +75,24 @@ export class EmpleadoFormComponent implements OnInit {
       cargo: valores.cargo,
       estado: valores.estado,
       usuario: valores.usuario,
-      contrasena: valores.contrasena,
       fechaIngreso: new Date().toISOString().split('T')[0],
-      administrador: { 
-        idAdministrador: 1 
-      }
+      administrador: { idAdministrador: 1 }
     };
+
+    // Solo enviamos la contraseña si escribió una nueva
+    if (valores.contrasena) {
+      datos.contrasena = valores.contrasena;
+    }
 
     if (this.esEdicion && this.idEmpleado) {
       this.empleadoService.actualizarEmpleado(this.idEmpleado, datos).subscribe({
-        next: () => this.router.navigate(['/empleados'], { state: { editado: true } }),
-        error: (err) => alert('Error al actualizar: ' + err.error.message)
+        next: () => this.router.navigate(['/admin/empleados'], { state: { editado: true } }),
+        error: (err) => alert('Error al actualizar: ' + (err.error?.message || 'Revisa consola'))
       });
     } else {
       this.empleadoService.crearEmpleado(datos).subscribe({
-        next: () => this.router.navigate(['/empleados'], { state: { creado: true } }),
-        error: (err) => alert('Error al crear: ' + (err.error?.message || 'Faltan datos obligatorios'))
+        next: () => this.router.navigate(['/admin/empleados'], { state: { creado: true } }),
+        error: (err) => alert('Error al crear: ' + (err.error?.message || 'Faltan datos'))
       });
     }
   }

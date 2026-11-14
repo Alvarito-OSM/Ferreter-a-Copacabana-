@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,29 +9,64 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './configuracion.html',
   styleUrls: ['./configuracion.css']
 })
-export class ConfiguracionComponent {
+export class ConfiguracionComponent implements OnInit {
 
-  // Datos de la empresa
-  datosEmpresa = {
-    nombre: 'Ferretería Copacabana',
-    nit: '123456789',
-    telefono: '+591 78779202',
-    direccion: 'Localidad de Reyes, Beni - Bolivia',
-    moneda: 'BOB'
-  };
+  editandoEmpresa: boolean = false;
+  editandoPerfil: boolean = false;
 
-  // Datos del perfil del administrador
-  perfilAdmin = {
-    nombre: 'Admin',
-    email: 'admin@ferreteria.com',
-    password: ''
-  };
+  datosEmpresa: any = {};
+  perfilAdmin: any = {};
+
+  backupEmpresa: any = {};
+  backupPerfil: any = {};
+
+  constructor(/* private http: HttpClient */) {}
+
+  ngOnInit(): void {
+    this.datosEmpresa = {
+      nombre: 'Ferretería Copacabana',
+      nit: '78585648',
+      direccion: 'Av. 14 de Septiembre, Localidad Reyes Beni',
+      ciudad: 'Reyes, Beni',
+      telefono: '+591 78779202'
+    };
+
+    this.perfilAdmin = {
+      nombre: 'admin_copacabana',
+      email: 'admin@ferreteriacopacabana.com',
+      password: ''
+    };
+  }
+
+  activarEdicionEmpresa() {
+    this.backupEmpresa = { ...this.datosEmpresa };
+    this.editandoEmpresa = true;
+  }
 
   guardarEmpresa() {
-    alert('Datos de la empresa guardados (Simulación). Aquí conectarías con tu API.');
+    
+    alert('Datos de la empresa actualizados en la Base de Datos.');
+    this.editandoEmpresa = false;
+  }
+
+  cancelarEmpresa() {
+    this.datosEmpresa = { ...this.backupEmpresa }; 
+    this.editandoEmpresa = false;
+  }
+
+  activarEdicionPerfil() {
+    this.backupPerfil = { ...this.perfilAdmin };
+    this.editandoPerfil = true;
   }
 
   guardarPerfil() {
-    alert('Perfil actualizado (Simulación).');
+    alert('Perfil de administrador actualizado.');
+    this.editandoPerfil = false;
+    this.perfilAdmin.password = ''; 
+  }
+
+  cancelarPerfil() {
+    this.perfilAdmin = { ...this.backupPerfil };
+    this.editandoPerfil = false;
   }
 }

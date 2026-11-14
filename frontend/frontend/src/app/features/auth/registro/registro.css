@@ -1,24 +1,171 @@
-/* Reutilizamos los estilos base del login */
-@import '../login/login.css';
-
-/* Estilos exclusivos para el registro */
-.exito-mensaje {
-  text-align: center;
+.registro-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8fafc;
   padding: 40px 20px;
-  color: #16a34a;
-  animation: fadeIn 0.5s ease;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  box-sizing: border-box;
 }
 
-.exito-mensaje h3 {
-  margin: 15px 0 10px;
-  font-size: 1.5rem;
+.registro-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 700px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  padding: 40px;
+  border: 1px solid #e2e8f0;
 }
 
-.exito-mensaje p {
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.header p {
+  margin: 8px 0 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.registro-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group.full-width {
+  grid-column: span 2;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  background-color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #94a3b8;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.btn-submit {
+  margin-top: 30px;
+  width: 100%;
+  padding: 14px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.btn-submit:disabled {
+  background-color: #f87171;
+  cursor: not-allowed;
+}
+
+.footer-links {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 0.9rem;
   color: #64748b;
 }
 
-/* Hacemos que el formulario de registro tenga un poco de scroll si es muy largo */
-.login-form-panel {
-  overflow-y: auto;
+.footer-links a {
+  color: #dc2626;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #b91c1c;
+  text-decoration: underline;
+}
+
+.success-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #16a34a;
+}
+
+.success-state h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+}
+
+.success-state p {
+  color: #64748b;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .input-group.full-width {
+    grid-column: span 1;
+  }
+  
+  .registro-card {
+    padding: 25px 20px;
+  }
 }

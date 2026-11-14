@@ -1,39 +1,25 @@
 <div class="dashboard-wrapper">
   
-  <!-- HEADER -->
   <header class="top-header">
     <div class="header-left">
-      <h1>¡Hola, {{ usuario }}! 👋</h1>
+      <h1>¡Hola, {{ usuario }}!</h1>
       <p>Aquí tienes un resumen de tu ferretería hoy.</p>
     </div>
     
     <div class="header-right">
-      <!-- Fecha -->
       <div class="date-picker">
-        📅 Hoy, 13 Nov. 2026
+        📅 Hoy, {{ fechaActual | date:'dd MMM. yyyy' }}
       </div>
       
-      <!-- Notificaciones -->
-      <button class="icon-btn notification-btn">
-        🔔
-        <span class="badge-count">3</span>
-      </button>
       
-      <!-- Botón Modo Oscuro (Lógica visual por ahora) -->
-      <button class="icon-btn dark-mode-btn" onclick="document.documentElement.classList.toggle('dark-mode')">
-        🌙
-      </button>
-      
-      <!-- Perfil -->
       <div class="profile-menu">
-        <div class="avatar">A</div>
-        <span class="profile-name">admin</span>
+        <div class="avatar">{{ usuario.charAt(0).toUpperCase() }}</div>
+        <span class="profile-name">{{ usuario }}</span>
         <span class="profile-role">Administrador</span>
       </div>
     </div>
   </header>
 
-  <!-- TARJETAS KPI -->
   <div class="kpi-grid">
     <div class="kpi-card card-blue">
       <div class="kpi-icon">🛒</div>
@@ -72,20 +58,16 @@
     </div>
   </div>
 
-  <!-- SECCIÓN CENTRAL -->
   <div class="middle-grid">
-    
-    <!-- Gráfico de Ventas -->
     <div class="chart-card large-card">
-      <h3>📊 Ventas de los Últimos 7 Días</h3>
+      <h3> Ventas de los Últimos 7 Días</h3>
       <div class="canvas-container">
         <canvas #ventasChart></canvas>
       </div>
     </div>
 
-    <!-- Top Productos -->
     <div class="chart-card top-products-card">
-      <h3>📦 Productos Más Vendidos</h3>
+      <h3> Productos Más Vendidos</h3>
       <ul class="top-list">
         @for (prod of topProductos; track prod.nombre; let i = $index) {
           <li class="top-item">
@@ -102,20 +84,16 @@
         }
       </ul>
     </div>
-
   </div>
 
-  <!-- SECCIÓN INFERIOR -->
   <div class="bottom-grid">
-    
-    <!-- Estado del Inventario -->
     <div class="chart-card">
-      <h3>📊 Estado de Inventario</h3>
+      <h3> Estado de Inventario</h3>
       <div class="inventory-status">
         <div class="donut-container">
           <canvas #stockChart></canvas>
           <div class="donut-center">
-            <strong>2,845</strong>
+            <strong>{{ productosStock | number }}</strong>
             <span>Productos</span>
           </div>
         </div>
@@ -127,39 +105,25 @@
       </div>
     </div>
 
-    <!-- Actividad Reciente -->
     <div class="chart-card">
-      <h3>🕒 Actividad Reciente</h3>
+      <h3> Actividad Reciente</h3>
       <ul class="activity-list">
-        <li class="activity-item">
-          <span class="activity-icon green">🛒</span>
-          <div class="activity-info">
-            <p>Venta realizada por Bs. 320</p>
-            <span class="time">Hace 5 min</span>
-          </div>
-        </li>
-        <li class="activity-item">
-          <span class="activity-icon blue">📦</span>
-          <div class="activity-info">
-            <p>Ingreso de mercadería: 50 unidades</p>
-            <span class="time">Hace 20 min</span>
-          </div>
-        </li>
-        <li class="activity-item">
-          <span class="activity-icon yellow">✏️</span>
-          <div class="activity-info">
-            <p>Stock actualizado: Taladro 750W</p>
-            <span class="time">Hace 1 h</span>
-          </div>
-        </li>
+        @for (act of actividades; track act.mensaje) {
+          <li class="activity-item">
+            <span class="activity-icon {{ act.color }}">{{ act.icono }}</span>
+            <div class="activity-info">
+              <p>{{ act.mensaje }}</p>
+              <span class="time">{{ act.tiempo }}</span>
+            </div>
+          </li>
+        }
       </ul>
     </div>
 
-    <!-- Alertas Importantes -->
     <div class="chart-card alerts-card">
       <div class="alerts-header">
-        <h3>🚨 Alertas Importantes</h3>
-        <span class="badge-red">2</span>
+        <h3>Alertas Importantes</h3>
+        <span class="badge-red">{{ alertas.length }}</span>
       </div>
       <ul class="alerts-list">
         @for (alerta of alertas; track alerta.mensaje) {
@@ -174,7 +138,5 @@
       </ul>
       <a href="#" class="link-alerts">Ver todas las alertas →</a>
     </div>
-
   </div>
-
 </div>

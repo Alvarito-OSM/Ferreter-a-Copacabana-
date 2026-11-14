@@ -7,7 +7,9 @@ import { Categoria } from '../models/categoria';
   providedIn: 'root'
 })
 export class CategoriaService {
-  private apiUrl = '/api/categorias';
+  
+  // 👇 EL CAMBIO ESTÁ AQUÍ (Agregamos http://localhost:8080) 👇
+  private apiUrl = 'http://localhost:8080/api/categorias';
 
   constructor(private http: HttpClient) { }
 

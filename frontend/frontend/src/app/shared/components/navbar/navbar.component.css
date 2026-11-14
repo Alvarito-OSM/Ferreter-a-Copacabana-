@@ -1,199 +1,418 @@
-
-/* ======================================
-   NAVBAR - FERRETERÍA COPACABANA
-   ====================================== */
-
-.navbar {
-  height: 70px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: background 0.25s ease;
+:host {
+  display: block;
 }
 
-.navbar-left {
+/* =========================================
+   BARRA SUPERIOR (NAVBAR)
+   ========================================= */
+.navbar {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  background-color: #ffffff;
+  padding: 0 30px;
+  height: 70px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .page-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
   margin: 0;
+  font-size: 1.4rem;
+  color: #1e293b;
+  font-weight: 700;
+  transition: color 0.3s ease;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 15px;
 }
 
-/* BOTÓN DE TEMA */
-
-.theme-toggle {
-  width: 42px;
-  height: 42px;
+.theme-toggle, .notification-btn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 50%;
-  background: #f8fafc;
-  color: #991b1b;
-  font-size: 19px;
   cursor: pointer;
+  position: relative;
+  color: #64748b;
+  font-size: 1.2rem;
   transition: all 0.2s ease;
 }
 
-.theme-toggle:hover {
-  background: #fee2e2;
-  border-color: #fecaca;
-  transform: rotate(12deg);
+.theme-toggle:hover, .notification-btn:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-/* INFORMACIÓN DEL USUARIO */
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
 
 .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 14px 6px 6px;
   background: #f8fafc;
-  border-radius: 30px;
+  padding: 5px 15px 5px 5px;
+  border-radius: 25px;
   border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
 .user-avatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
+  background: #dc2626;
+  color: white;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    #dc2626 0%,
-    #991b1b 100%
-  );
-  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 3px 8px rgba(153, 27, 27, 0.25);
+  font-weight: bold;
 }
 
 .user-details {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .user-details strong {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 0.9rem;
+  color: #1e293b;
 }
 
 .user-details small {
-  font-size: 11px;
+  font-size: 0.7rem;
   color: #64748b;
+  text-transform: uppercase;
 }
 
-/* CERRAR SESIÓN */
-
 .logout-btn {
-  padding: 9px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #dc2626;
   background: transparent;
-  border: 1.5px solid #fecaca;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  padding: 8px 16px;
   border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  transition: all 0.2s;
 }
 
 .logout-btn:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: #dc2626;
+  color: white;
 }
 
-/* ======================================
-   MODO OSCURO DEL NAVBAR
-   ====================================== */
-
-:host-context(.dark-mode) .navbar {
-  background: #111827;
-  border-bottom-color: #374151;
-  box-shadow: none;
+/* =========================================
+   MENÚ LATERAL (SIDEBAR ORIGINAL)
+   ========================================= */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #1e1e2d 0%, #13131f 100%); /* Degradado original */
+  height: calc(100vh - 70px);
+  position: fixed;
+  left: 0;
+  top: 70px;
+  display: flex;
+  flex-direction: column;
+  color: #94a3b8;
+  border-right: 1px solid #2a2a3c;
 }
 
-:host-context(.dark-mode) .page-title {
-  color: #f9fafb;
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 25px 20px;
 }
 
-:host-context(.dark-mode) .theme-toggle {
-  background: #1f2937;
-  border-color: #374151;
-  color: #fbbf24;
+.brand-icon {
+  background-color: #dc2626;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: white;
 }
 
-:host-context(.dark-mode) .theme-toggle:hover {
-  background: #374151;
+.brand-text strong { color: white; display: block; font-size: 1.1rem; font-weight: 700; }
+.brand-text small { color: #94a3b8; font-size: 0.8rem; }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 10px 15px;
+  overflow-y: auto;
 }
 
-:host-context(.dark-mode) .user-info {
-  background: #1f2937;
-  border-color: #374151;
+/* Ocultar barra de scroll fea y hacerla elegante */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-:host-context(.dark-mode) .user-details strong {
-  color: #f9fafb;
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-:host-context(.dark-mode) .user-details small {
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: white;
+  background-color: rgba(255,255,255,0.05);
+}
+
+/* EL BOTÓN ACTIVO EN ROJO COMO TU FOTO ORIGINAL */
+.nav-link.active {
+  background-color: #dc2626;
+  color: white;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+}
+
+.nav-icon { font-size: 1.2rem; }
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #2a2a3c;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.catalog-link {
+  width: 100%;
+  color: #94a3b8;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: #2a2a3c;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.catalog-link:hover {
+  color: white;
+  background: #3f3f5a;
+}
+
+.sidebar-footer small {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* =========================================
+   MODO OSCURO Y CLARO (NAVBAR)
+   ========================================= */
+:host-context(body.dark-mode) .navbar {
+  background-color: #1e1e2d;
+  border-bottom-color: #2a2a3c;
+}
+
+:host-context(body.dark-mode) .page-title,
+:host-context(body.dark-mode) .user-details strong {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .theme-toggle, 
+:host-context(body.dark-mode) .notification-btn,
+:host-context(body.dark-mode) .user-info {
+  border-color: #2a2a3c;
+  background: #13131f;
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-mode) .theme-toggle:hover, 
+:host-context(body.dark-mode) .notification-btn:hover {
+  background: #2a2a3c;
+  color: #ffffff;
+}
+
+:host-context(body.dark-mode) .notification-badge {
+  border-color: #1e1e2d;
+}
+/* ... Tus estilos anteriores del navbar y sidebar ... */
+
+/* =========================================
+   MINI-VENTANA DE NOTIFICACIONES
+   ========================================= */
+.notification-wrapper {
+  position: relative;
+}
+
+.notificaciones-dropdown {
+  position: absolute;
+  top: 50px;
+  right: -10px;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e2e8f0;
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.dropdown-header h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.dropdown-header .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.dropdown-header .close-btn:hover {
+  color: #dc2626;
+}
+
+.dropdown-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notificacion-item {
+  display: flex;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 12px;
+  transition: background 0.2s;
+}
+
+.notificacion-item:hover {
+  background: #f8fafc;
+}
+
+.alert-icon {
+  font-size: 1.2rem;
+}
+
+.alert-title {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.alert-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.alert-desc strong {
+  color: #dc2626;
+}
+
+.empty-notif {
+  padding: 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* Modo Oscuro para la Mini-Ventana */
+body.dark-mode .notificaciones-dropdown {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .dropdown-header {
+  background: #0f172a;
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .dropdown-header h4 {
+  color: #f8fafc;
+}
+
+body.dark-mode .notificacion-item {
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .notificacion-item:hover {
+  background: #0f172a;
+}
+
+body.dark-mode .alert-title {
+  color: #f8fafc;
+}
+
+body.dark-mode .alert-desc {
   color: #94a3b8;
 }
 
-:host-context(.dark-mode) .logout-btn {
-  color: #fca5a5;
-  border-color: #7f1d1d;
-}
-
-:host-context(.dark-mode) .logout-btn:hover {
-  background: #450a0a;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0 15px;
-  }
-
-  .navbar-right {
-    gap: 8px;
-  }
-
-  .page-title {
-    font-size: 14px;
-  }
-
-  .user-info {
-    padding: 5px;
-  }
-
-  .user-details {
-    display: none;
-  }
-
-  .logout-btn {
-    padding: 9px 10px;
-    font-size: 11px;
-  }
+body.dark-mode .empty-notif {
+  color: #64748b;
 }

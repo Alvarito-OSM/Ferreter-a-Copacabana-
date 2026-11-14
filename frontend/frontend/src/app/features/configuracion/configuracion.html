@@ -1,65 +1,81 @@
-<div class="config-container">
+<div class="config-wrapper">
   
-  <div class="header">
-    <h1>⚙️ Configuración del Sistema</h1>
+  <div class="header-title">
+    <h1>Panel de Configuración</h1>
     <p>Administra los datos de la ferretería y tu perfil de usuario.</p>
   </div>
 
-  <div class="config-grid">
+  <div class="config-layout">
     
-    <!-- TARJETA 1: Datos de la Empresa -->
     <div class="card">
       <div class="card-header">
-        <h3>🏢 Datos de la Empresa</h3>
-        <p>Esta información aparecerá en los reportes y facturas.</p>
+        <h2>Información de la Empresa</h2>
       </div>
       
       <div class="form-group">
-        <label>Nombre de la Ferretería</label>
-        <input type="text" [(ngModel)]="datosEmpresa.nombre" class="form-control">
+        <label>Nombre de la Empresa</label>
+        <input type="text" [(ngModel)]="datosEmpresa.nombre" class="theme-input" [disabled]="!editandoEmpresa">
       </div>
 
       <div class="form-group">
-        <label>NIT / Identificación</label>
-        <input type="text" [(ngModel)]="datosEmpresa.nit" class="form-control">
+        <label>RUC / NIT</label>
+        <input type="text" [(ngModel)]="datosEmpresa.nit" class="theme-input" [disabled]="!editandoEmpresa">
       </div>
 
       <div class="form-group">
-        <label>Teléfono de Contacto</label>
-        <input type="text" [(ngModel)]="datosEmpresa.telefono" class="form-control">
+        <label>Dirección de la ferretería</label>
+        <input type="text" [(ngModel)]="datosEmpresa.direccion" class="theme-input" [disabled]="!editandoEmpresa">
       </div>
 
-      <div class="form-group">
-        <label>Dirección Física</label>
-        <input type="text" [(ngModel)]="datosEmpresa.direccion" class="form-control">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="datosEmpresa.ciudad" class="theme-input" [disabled]="!editandoEmpresa">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" [(ngModel)]="datosEmpresa.telefono" class="theme-input" [disabled]="!editandoEmpresa">
+        </div>
       </div>
 
-      <button class="btn-primary" (click)="guardarEmpresa()">💾 Guardar Cambios</button>
+      <div class="card-actions">
+        <button *ngIf="!editandoEmpresa" class="btn-edit" (click)="activarEdicionEmpresa()">Editar Información</button>
+        
+        <ng-container *ngIf="editandoEmpresa">
+          <button class="btn-cancel" (click)="cancelarEmpresa()">Cancelar</button>
+          <button class="btn-save" (click)="guardarEmpresa()">Guardar Cambios</button>
+        </ng-container>
+      </div>
     </div>
 
-    <!-- TARJETA 2: Perfil del Administrador -->
     <div class="card">
       <div class="card-header">
-        <h3>👤 Mi Perfil</h3>
-        <p>Actualiza tus credenciales de acceso.</p>
+        <h2>Perfil del Administrador</h2>
       </div>
-
+      
       <div class="form-group">
         <label>Nombre de Usuario</label>
-        <input type="text" [(ngModel)]="perfilAdmin.nombre" class="form-control">
+        <input type="text" [(ngModel)]="perfilAdmin.nombre" class="theme-input" [disabled]="!editandoPerfil">
       </div>
 
       <div class="form-group">
         <label>Correo Electrónico</label>
-        <input type="email" [(ngModel)]="perfilAdmin.email" class="form-control">
+        <input type="email" [(ngModel)]="perfilAdmin.email" class="theme-input" [disabled]="!editandoPerfil">
       </div>
 
       <div class="form-group">
-        <label>Nueva Contraseña (dejar en blanco para mantener)</label>
-        <input type="password" [(ngModel)]="perfilAdmin.password" class="form-control" placeholder="••••••••">
+        <label>Nueva Contraseña</label>
+        <input type="password" [(ngModel)]="perfilAdmin.password" placeholder="Dejar en blanco para mantener la actual" class="theme-input" [disabled]="!editandoPerfil">
       </div>
 
-      <button class="btn-primary" (click)="guardarPerfil()">🔐 Actualizar Perfil</button>
+      <div class="card-actions">
+        <button *ngIf="!editandoPerfil" class="btn-edit" (click)="activarEdicionPerfil()">Editar Perfil</button>
+        
+        <ng-container *ngIf="editandoPerfil">
+          <button class="btn-cancel" (click)="cancelarPerfil()">Cancelar</button>
+          <button class="btn-save" (click)="guardarPerfil()">Guardar Cambios</button>
+        </ng-container>
+      </div>
     </div>
 
   </div>

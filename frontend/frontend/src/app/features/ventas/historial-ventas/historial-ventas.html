@@ -1,253 +1,280 @@
 <div class="page-container">
   
-  <!-- HEADER -->
   <div class="page-header">
-    <div class="header-title">
-      <h2>Gestión de Ventas</h2>
-      <p>Resumen y análisis de las ventas de la ferretería</p>
+    <div>
+      <h1>GESTIÓN DE VENTAS</h1>
+      <p class="page-subtitle">Resumen y análisis de las ventas de la ferretería</p>
     </div>
-    <button class="btn-primary" (click)="abrirModal()">
-      <span>+</span> Nueva Venta
+    <button class="btn btn-primary" (click)="abrirModal()">
+      <i class="bi bi-plus-lg"></i> Nueva Venta
     </button>
   </div>
 
-  <!-- TARJETAS DE MÉTRICAS -->
+  <!-- MÉTRICAS -->
   <div class="metrics-grid">
     <div class="metric-card">
-      <div class="icon orange">💰</div>
-      <div class="info">
-        <h3>Total de Ventas</h3>
-        <p class="value">Bs. {{ calcularTotalVentas() }}</p>
+      <div class="metric-icon orange"><i class="bi bi-currency-dollar"></i></div>
+      <div class="metric-info">
+        <h3>TOTAL DE VENTAS</h3>
+        <p>Bs. {{ calcularTotalVentas() | number:'1.2-2' }}</p>
       </div>
     </div>
+    
     <div class="metric-card">
-      <div class="icon blue">📋</div>
-      <div class="info">
-        <h3>Órdenes Realizadas</h3>
-        <p class="value">{{ ventasCompletadas() }}</p>
+      <div class="metric-icon blue"><i class="bi bi-clipboard-check"></i></div>
+      <div class="metric-info">
+        <h3>ÓRDENES REALIZADAS</h3>
+        <p>{{ ventasCompletadas() }}</p>
       </div>
     </div>
+    
     <div class="metric-card">
-      <div class="icon green">📈</div>
-      <div class="info">
-        <h3>Ticket Promedio</h3>
-        <p class="value">Bs. {{ calcularTicketPromedio() }}</p>
+      <div class="metric-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+      <div class="metric-info">
+        <h3>TICKET PROMEDIO</h3>
+        <p>Bs. {{ calcularTicketPromedio() | number:'1.2-2' }}</p>
+      </div>
+    </div>
+
+    <!-- 👇 NUEVA TARJETA: UNIDADES EN STOCK 👇 -->
+    <div class="metric-card">
+      <div class="metric-icon" style="background: #f3e8ff; color: #9333ea;"><i class="bi bi-boxes"></i></div>
+      <div class="metric-info">
+        <h3>UNIDADES EN STOCK</h3>
+        <p>{{ totalUnidadesStock }} <span style="font-size: 14px; color: #64748b; font-weight: 500;">unds.</span></p>
       </div>
     </div>
   </div>
 
-  <!-- TABLA CRUD -->
-  <div class="table-responsive">
-    <table class="tabla-ventas">
-      <thead>
-        <tr>
-          <th>ID Venta</th>
-          <th>Fecha y hora</th>
-          <th>Cliente</th>
-          <th>Total (Bs.)</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (cargando) {
+  <!-- TABLA HISTORIAL -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
           <tr>
-            <td colspan="6" class="text-center">Cargando ventas...</td>
+            <th class="text-center">N° VENTA</th>
+            <th>FECHA Y HORA</th>
+            <th>CLIENTE</th>
+            <th class="text-center">TOTAL (BS.)</th>
+            <th class="text-center">ESTADO</th>
+            <th class="text-center">ACCIONES</th>
           </tr>
-        } @else if (ventas.length === 0) {
-          <tr>
-            <td colspan="6" class="text-center">No hay ventas registradas.</td>
-          </tr>
-        } @else {
-          @for (venta of ventas; track venta.idVenta) {
-            <tr>
-              <td><strong>#{{ venta.idVenta }}</strong></td>
-              <td>{{ venta.fecha | date:'short' }}</td>
-              <td>{{ obtenerNombreCliente(venta.idCliente) }}</td>
-              <td class="monto">Bs. {{ venta.total }}</td>
-              <td>
-                <span class="badge" [class.completada]="venta.estado === 'COMPLETADA'" [class.anulada]="venta.estado === 'ANULADA'">
-                  {{ venta.estado }}
-                </span>
-              </td>
-              <td>
-                @if (venta.estado === 'COMPLETADA' && esAdmin()) {
-                  <button class="btn-anular" (click)="anularVenta(venta.idVenta)">Anular</button>
-                } @else {
-                  <span class="no-action">-</span>
-                }
-              </td>
-            </tr>
+        </thead>
+        <tbody>
+          @if (cargando) {
+            <tr><td colspan="6" class="empty-row">Cargando ventas...</td></tr>
+          } @else if (ventas.length === 0) {
+            <tr><td colspan="6" class="empty-row">No hay ventas registradas.</td></tr>
+          } @else {
+            @for (venta of ventas; track venta.idVenta; let i = $index) {
+              <tr>
+                <td class="cell-code text-center">{{ i + 1 }}</td>
+                <td>{{ venta.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td><strong>{{ obtenerNombreCliente(venta.idCliente) }}</strong></td>
+                <td class="text-center precio-venta">Bs. {{ venta.total | number:'1.2-2' }}</td>
+                <td class="text-center">
+                  <span class="status-indicator" [ngClass]="venta.estado === 'COMPLETADA' ? 'status-active' : 'status-inactive'">
+                    <span class="dot"></span> {{ venta.estado }}
+                  </span>
+                </td>
+                <td class="cell-actions">
+                  @if (venta.estado === 'COMPLETADA' && esAdmin()) {
+                    <button class="action-btn btn-delete" (click)="anularVenta(venta.idVenta)" title="Anular Venta">
+                      <i class="bi bi-x-circle"></i>
+                    </button>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+              </tr>
+            }
           }
-        }
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- MODAL POS -->
+<!-- MODAL PUNTO DE VENTA -->
 @if (modalAbierto) {
   <div class="modal-overlay">
     <div class="modal-pos-content">
       
-      <!-- HEADER DEL MODAL -->
       <div class="pos-header">
         <div class="pos-title">
-          <div>
-            <h2>Nueva Venta</h2>
-            <p>Registra una nueva venta de forma rápida y sencilla</p>
-          </div>
+          <h2>Nueva Venta</h2>
+          <p>Registra una nueva venta de forma rápida</p>
         </div>
-        <button class="btn-close" (click)="cerrarModal()">✖</button>
+        <button class="close-btn" (click)="cerrarModal()">&times;</button>
       </div>
 
       <div class="pos-body">
         
-        <!-- COLUMNA IZQUIERDA: CLIENTE Y PRODUCTOS -->
+        <!-- COLUMNA IZQUIERDA -->
         <div class="pos-left">
           
-          <!-- 👇 NUEVA SECCIÓN DE CLIENTE ARRIBA 👇 -->
-          <div class="cliente-section-top">
-            <h3>👤 Datos del Cliente</h3>
+          <div class="panel-box">
+            <h3><i class="bi bi-person-fill"></i> Datos del Cliente</h3>
             
             @if (!creandoCliente) {
-              <div class="cliente-form-grid">
-                <!-- Fila 1: Selector de Cliente y Botón -->
-                <div class="cliente-row-1">
-                  <div class="form-group" style="flex: 1;">
-                    <label>Cliente:</label>
-                    <select [(ngModel)]="idCliente" class="form-control">
-                      <option [ngValue]="null">-- Factura en Blanco --</option>
-                      @for (c of clientes; track c.idCliente) {
-                        <option [ngValue]="c.idCliente">{{ c.nombre }} {{ c.apellido }}</option>
+              <div class="form-grid" style="position: relative;">
+                <div class="form-group" style="grid-column: span 2;">
+                  <label>Buscar Cliente:</label>
+                  <div style="display: flex; gap: 10px;">
+                    <input 
+                      type="text" 
+                      [(ngModel)]="busquedaCliente" 
+                      (input)="filtrarClientes()" 
+                      (focus)="mostrarDropdownClientes = true"
+                      placeholder="Escriba el nombre o CI..." 
+                      class="form-control">
+                    <button class="btn btn-secondary" (click)="creandoCliente = true">+ Nuevo</button>
+                  </div>
+                  
+                  @if (mostrarDropdownClientes && clientesFiltrados.length > 0) {
+                    <div class="autocomplete-dropdown">
+                      @for (c of clientesFiltrados; track c.idCliente) {
+                        <div class="autocomplete-item" (click)="seleccionarCliente(c)">
+                          <strong>{{ c.nombre }} {{ c.apellido }}</strong> — CI: {{ c.cedulaNit }}
+                        </div>
                       }
-                    </select>
-                  </div>
-                  <button class="btn-outline-orange" (click)="creandoCliente = true">+ Nuevo Cliente</button>
+                    </div>
+                  }
                 </div>
-                
-                <!-- Fila 2: Inputs de CI y Teléfono (Solo lectura visual) -->
-                <div class="cliente-row-2">
-                  <div class="form-group" style="flex: 1;">
-                    <label>CI / NIT:</label>
-                    <input type="text" class="form-control" placeholder="1234567" readonly>
-                  </div>
-                  <div class="form-group" style="flex: 1;">
-                    <label>Teléfono:</label>
-                    <input type="text" class="form-control" placeholder="76543210" readonly>
-                  </div>
+
+                <div class="form-group">
+                  <label>CI / NIT:</label>
+                  <input type="text" class="form-control" [value]="clienteSeleccionado?.cedulaNit || ''" readonly placeholder="—">
+                </div>
+                <div class="form-group">
+                  <label>Teléfono:</label>
+                  <input type="text" class="form-control" [value]="clienteSeleccionado?.telefono || ''" readonly placeholder="—">
                 </div>
               </div>
             } @else {
-              <!-- Formulario para crear nuevo cliente -->
-              <div class="nuevo-cliente-form">
-                <input type="text" [(ngModel)]="nuevoCliente.nombre" placeholder="Nombre">
-                <input type="text" [(ngModel)]="nuevoCliente.apellido" placeholder="Apellido">
-                <input type="text" [(ngModel)]="nuevoCliente.cedulaNit" placeholder="CI/NIT">
-                <div style="display: flex; gap: 5px; width: 100%;">
-                  <button class="btn-success" (click)="guardarNuevoCliente()">Guardar</button>
-                  <button class="btn-danger" (click)="creandoCliente = false">Cancelar</button>
+              <div class="nuevo-cliente-form form-grid">
+                <div class="form-group"><input type="text" [(ngModel)]="nuevoCliente.nombre" placeholder="Nombre" class="form-control"></div>
+                <div class="form-group"><input type="text" [(ngModel)]="nuevoCliente.apellido" placeholder="Apellido" class="form-control"></div>
+                <div class="form-group"><input type="text" [(ngModel)]="nuevoCliente.cedulaNit" placeholder="CI/NIT" class="form-control"></div>
+                <div class="form-group"><input type="text" [(ngModel)]="nuevoCliente.telefono" placeholder="Teléfono" class="form-control"></div>
+                <div style="grid-column: span 2; display: flex; gap: 10px;">
+                  <button class="btn btn-primary" (click)="guardarNuevoCliente()">Guardar Cliente</button>
+                  <button class="btn btn-secondary" (click)="creandoCliente = false">Cancelar</button>
                 </div>
               </div>
             }
           </div>
 
-          <!-- BUSCADOR Y PRODUCTOS -->
-          <div class="search-box">
-            <h3>🔍 Buscar Producto</h3>
-            <input type="text" [(ngModel)]="busqueda" placeholder="Escribe el nombre del producto..." class="input-search">
-          </div>
+          <div class="panel-box" style="flex: 1;">
+            <h3><i class="bi bi-search"></i> Buscar Producto</h3>
+            <input type="text" [(ngModel)]="busquedaProducto" (input)="filtrarProductos()" placeholder="Nombre o código..." class="form-control mb-3">
+            
+            <div class="grid-productos">
+              @for (prod of productosFiltrados; track prod.idProducto) {
+                <div class="card-producto" (click)="agregarAlCarrito(prod)">
+                  
+                  <div class="prod-img-container">
+                    @if (prod.imagenUrl) {
+                      <img [src]="prod.imagenUrl" alt="Producto" class="prod-img" (error)="prod.imagenUrl = undefined">
+                    } @else {
+                      <i class="bi bi-box-seam prod-icon"></i>
+                    }
+                  </div>
 
-          <div class="grid-productos">
-            @for (prod of filtrarProductos(); track prod.idProducto) {
-              <div class="card-producto">
-                <div class="img-placeholder">📦</div>
-                <h5>{{ prod.nombre }}</h5>
-                <p class="precio">Bs. {{ prod.precioVenta }}</p>
-                <button class="btn-add" (click)="agregarAlCarrito(prod)">Agregar +</button>
-              </div>
-            }
+                  <h5>{{ prod.nombre }}</h5>
+                  <p class="precio">Bs. {{ prod.precioVenta | number:'1.2-2' }}</p>
+                  <button class="btn btn-primary w-100" style="padding: 6px;">Agregar</button>
+                </div>
+              } @empty {
+                <p class="text-muted" style="grid-column: span 3; text-align: center;">No se encontraron productos.</p>
+              }
+            </div>
           </div>
         </div>
 
-        <!-- COLUMNA DERECHA: CARRITO Y PAGO -->
+        <!-- COLUMNA DERECHA (CARRITO) -->
         <div class="pos-right">
           
-          <div class="carrito-section">
-            <div class="carrito-header">
-              <h3>🛒 Carrito de Compras</h3>
-              <button class="btn-clear" (click)="limpiarPOS()">Limpiar carrito</button>
+          <div class="panel-box" style="flex: 1; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0;"><i class="bi bi-cart3"></i> Carrito</h3>
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" (click)="limpiarPOS()">Limpiar</button>
             </div>
             
-            <table class="tabla-carrito-nueva">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Cantidad</th>
-                  <th>Precio</th>
-                  <th>Subtotal</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of carrito; track item.idProducto; let i = $index) {
+            <div class="table-responsive" style="flex: 1; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td class="prod-name">{{ item.nombre }}</td>
-                    <td>
-                      <div class="quantity-controls">
-                        <button (click)="item.cantidad > 1 ? item.cantidad = item.cantidad - 1 : quitarDelCarrito(i); calcularTotales()">-</button>
-                        <span>{{ item.cantidad }}</span>
-                        <button (click)="item.cantidad = item.cantidad + 1; calcularTotales()">+</button>
-                      </div>
-                    </td>
-                    <td>Bs. {{ item.precioUnitario }}</td>
-                    <td class="fw-bold">Bs. {{ item.precioUnitario * item.cantidad }}</td>
-                    <td><button class="btn-del-item" (click)="quitarDelCarrito(i)">✖</button></td>
+                    <th>PRODUCTO</th>
+                    <th class="text-center">CANT.</th>
+                    <th class="text-center">PRECIO</th>
+                    <th class="text-center">SUBT.</th>
+                    <th></th>
                   </tr>
-                } @empty {
-                  <tr><td colspan="5" class="text-center text-gray">El carrito está vacío</td></tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @for (item of carrito; track item.idProducto; let i = $index) {
+                    <tr>
+                      <td><strong>{{ item.nombre }}</strong></td>
+                      <td class="text-center">
+                        <div class="qty-controls">
+                          <button (click)="item.cantidad > 1 ? item.cantidad = item.cantidad - 1 : quitarDelCarrito(i); calcularTotales()">-</button>
+                          <span>{{ item.cantidad }}</span>
+                          <button (click)="item.cantidad = item.cantidad + 1; calcularTotales()">+</button>
+                        </div>
+                      </td>
+                      <td class="text-center">Bs. {{ item.precioUnitario | number:'1.2-2' }}</td>
+                      <td class="text-center"><strong>Bs. {{ item.precioUnitario * item.cantidad | number:'1.2-2' }}</strong></td>
+                      <td class="text-center">
+                        <button class="action-btn btn-delete" style="width: 28px; height: 28px; font-size: 12px;" (click)="quitarDelCarrito(i)">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="empty-row">El carrito está vacío.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
 
-            <div class="totales-section">
-              <div class="fila-total"><span>Subtotal:</span> <span>Bs. {{ subtotal }}</span></div>
-              <div class="fila-total total-final"><span>Total:</span> <span>Bs. {{ total }}</span></div>
+            <div class="totales-box">
+              <div class="fila-total total-final"><span>TOTAL:</span> <span>Bs. {{ total | number:'1.2-2' }}</span></div>
             </div>
           </div>
 
-          <!-- MÉTODO DE PAGO -->
-          <div class="pago-section-erp">
-            <h3>💳 Método de Pago</h3>
+          <!-- SECCIÓN DE PAGOS -->
+          <div class="panel-box">
+            <h3><i class="bi bi-credit-card"></i> Método de Pago</h3>
+            
             <div class="metodos-pago">
               <div class="metodo-card" [class.active]="metodoPago === 'EFECTIVO'" (click)="metodoPago = 'EFECTIVO'; calcularCambio()">
-                <span class="icon">💵</span> Efectivo
+                <i class="bi bi-cash-coin"></i> Efectivo
               </div>
               <div class="metodo-card" [class.active]="metodoPago === 'QR'" (click)="metodoPago = 'QR'; calcularCambio()">
-                <span class="icon">📱</span> Pago QR
+                <i class="bi bi-qr-code"></i> Pago QR
               </div>
             </div>
 
             @if (metodoPago === 'EFECTIVO') {
-              <div class="cambio-box">
+              <div class="form-group mb-3">
                 <label>Monto Recibido (Bs.):</label>
                 <input type="number" [(ngModel)]="montoRecibido" (input)="calcularCambio()" class="form-control">
-                <div class="fila-total" [class.text-red]="cambio < 0">
-                  <span>Cambio:</span> <span>Bs. {{ cambio }}</span>
-                </div>
+              </div>
+              <div class="fila-total" [ngClass]="{'text-red': cambio < 0}">
+                <span>Cambio:</span> <span>Bs. {{ cambio | number:'1.2-2' }}</span>
               </div>
             }
 
             @if (metodoPago === 'QR') {
               <div class="qr-box">
-                <p>Escanea el código QR para realizar el pago</p>
-                <img src="assets/qr-prueba.png" alt="Código QR de Pago" class="img-qr">
-                <p class="monto-qr">Monto a pagar: <strong>Bs. {{ total }}</strong></p>
+                 <p style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 10px;">Escanea para pagar</p>
+                 <img src="public/qr-prueba.png" alt="QR" class="img-qr">
               </div>
             }
 
-            <button class="btn-registrar-venta" (click)="finalizarVenta()" [disabled]="carrito.length === 0">
-              ✓ Registrar Venta
+            <button class="btn btn-primary w-100 mt-3" (click)="finalizarVenta()" [disabled]="carrito.length === 0">
+              <i class="bi bi-check2-circle"></i> Confirmar Venta
             </button>
           </div>
 

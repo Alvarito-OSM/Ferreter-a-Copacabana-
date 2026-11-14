@@ -1,17 +1,16 @@
-
 /* =========================================
-   DISEÑO GENERAL Y DEGRADADOS
+   DISEÑO GENERAL Y CLARO
    ========================================= */
 .page-container {
   padding: 40px;
-  max-width: 1300px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-  border-radius: 20px;
+  max-width: 1100px;
+  margin: 40px auto;
+  min-height: calc(100vh - 150px);
+  background: transparent;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  transition: background-color 0.3s ease;
 }
 
-/* Cabecera */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -20,11 +19,13 @@
 }
 
 .page-header h1 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
   color: #1e293b;
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
 }
 
 .page-subtitle {
@@ -32,31 +33,29 @@
   color: #64748b;
   margin: 0;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
-/* =========================================
-   CONTENEDOR DE LA TABLA
-   ========================================= */
 .table-card {
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
-              0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   overflow: hidden;
   border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 }
 
-/* Barra de herramientas (Buscador) */
 .table-toolbar {
-  padding: 24px;
+  padding: 20px 24px;
   background: #ffffff;
   border-bottom: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
 }
 
 .search-box {
   display: flex;
   gap: 12px;
-  width: 55%;
+  width: 60%;
 }
 
 .search-box input {
@@ -68,6 +67,7 @@
   outline: none;
   transition: all 0.3s ease;
   background: #f8fafc;
+  color: #1e293b;
 }
 
 .search-box input:focus {
@@ -94,7 +94,7 @@
 }
 
 /* =========================================
-   ESTILOS DE LA TABLA
+   TABLA
    ========================================= */
 .data-table {
   width: 100%;
@@ -121,7 +121,7 @@
   font-size: 14px;
   color: #334155;
   vertical-align: middle;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .data-table tbody tr:hover td {
@@ -137,6 +137,7 @@
   border-radius: 6px;
   display: inline-block;
   font-size: 13px;
+  transition: all 0.3s ease;
 }
 
 .text-muted {
@@ -145,9 +146,6 @@
   font-weight: 500;
 }
 
-/* =========================================
-   BOTONES DE ACCIÓN (Editar / Eliminar)
-   ========================================= */
 .cell-actions {
   text-align: center;
   display: flex;
@@ -170,23 +168,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn-edit {
-  background: linear-gradient(135deg, #404040, #171717);
-}
+/* BOTÓN EDITAR: NARANJA SÓLIDO */
+.btn-edit { background: #f59e0b; }
+.btn-edit:hover { background: #d97706; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(245, 158, 11, 0.4); }
 
-.btn-edit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(23, 23, 23, 0.4);
-}
-
-.btn-delete {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.btn-delete:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
-}
+/* BOTÓN ELIMINAR: ROJO SÓLIDO */
+.btn-delete { background: #ef4444; }
+.btn-delete:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4); }
 
 .empty-row {
   text-align: center;
@@ -197,14 +185,11 @@
 }
 
 /* =========================================
-   MODAL (Ventana Flotante)
+   MODAL Y BOTONES
    ========================================= */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
@@ -221,17 +206,12 @@
   padding: 32px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.3s ease-out;
+  transition: all 0.3s ease;
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-header {
@@ -241,6 +221,7 @@
   margin-bottom: 24px;
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 16px;
+  transition: all 0.3s ease;
 }
 
 .modal-header h2 {
@@ -248,6 +229,7 @@
   font-size: 22px;
   color: #1e293b;
   font-weight: 800;
+  transition: all 0.3s ease;
 }
 
 .close-btn {
@@ -265,12 +247,8 @@
   transition: all 0.2s;
 }
 
-.close-btn:hover {
-  background: #e2e8f0;
-  color: #ef4444;
-}
+.close-btn:hover { background: #e2e8f0; color: #ef4444; }
 
-/* Formulario dentro del Modal */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -278,9 +256,7 @@
   margin-bottom: 32px;
 }
 
-.full-width {
-  grid-column: span 1;
-}
+.full-width { grid-column: span 1; }
 
 .form-group label {
   display: block;
@@ -288,6 +264,7 @@
   font-weight: 700;
   color: #475569;
   margin-bottom: 8px;
+  transition: all 0.3s ease;
 }
 
 .form-group input,
@@ -318,11 +295,9 @@
   gap: 16px;
   border-top: 1px solid #f1f5f9;
   padding-top: 24px;
+  transition: all 0.3s ease;
 }
 
-/* =========================================
-   BOTONES GENERALES Y ALERTAS
-   ========================================= */
 .btn {
   padding: 12px 24px;
   border-radius: 10px;
@@ -353,11 +328,10 @@
 .btn-secondary {
   background: #f1f5f9;
   color: #475569;
+  transition: all 0.3s ease;
 }
 
-.btn-secondary:hover {
-  background: #e2e8f0;
-}
+.btn-secondary:hover { background: #e2e8f0; }
 
 .alert-success {
   background: #ecfdf5;
@@ -370,8 +344,123 @@
   display: flex;
   align-items: center;
   box-shadow: 0 4px 6px rgba(4, 120, 87, 0.05);
+  transition: all 0.3s ease;
 }
 
-.text-center {
-  text-align: center;
+.text-center { text-align: center; }
+
+/* =========================================
+   🌙 MODO OSCURO
+   ========================================= */
+:host-context(body.dark-mode) .page-container {
+  background-color: #0f172a;
+  border-radius: 20px;
+}
+
+:host-context(body.dark-mode) .page-header h1 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .page-subtitle {
+  color: #94a3b8;
+}
+
+:host-context(body.dark-mode) .table-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+:host-context(body.dark-mode) .table-toolbar {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+:host-context(body.dark-mode) .search-box input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .search-box input:focus {
+  background: #0f172a;
+  border-color: #dc2626;
+}
+
+:host-context(body.dark-mode) .data-table td {
+  border-bottom-color: #334155;
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-mode) .data-table tbody tr:hover td {
+  background: #0f172a;
+}
+
+:host-context(body.dark-mode) .cell-code {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .text-muted,
+:host-context(body.dark-mode) .empty-row {
+  color: #64748b;
+}
+
+:host-context(body.dark-mode) .modal-content {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+:host-context(body.dark-mode) .modal-header {
+  border-bottom-color: #334155;
+}
+
+:host-context(body.dark-mode) .modal-header h2 {
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .close-btn {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-mode) .close-btn:hover {
+  background: #475569;
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .form-group label {
+  color: #cbd5e1;
+}
+
+:host-context(body.dark-mode) .form-group input,
+:host-context(body.dark-mode) .form-group textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:host-context(body.dark-mode) .form-group input:focus,
+:host-context(body.dark-mode) .form-group textarea:focus {
+  background: #0f172a;
+  border-color: #dc2626;
+}
+
+:host-context(body.dark-mode) .modal-actions {
+  border-top-color: #334155;
+}
+
+:host-context(body.dark-mode) .btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+:host-context(body.dark-mode) .btn-secondary:hover {
+  background: #475569;
+}
+
+:host-context(body.dark-mode) .alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
 }

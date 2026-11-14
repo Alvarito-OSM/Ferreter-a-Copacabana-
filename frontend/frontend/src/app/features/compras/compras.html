@@ -1,97 +1,112 @@
-
-<div class="compras-container">
-  <header class="header">
-    <h1>Gestión de compras</h1>
-    <p>Registra las compras de productos a proveedores.</p>
-  </header>
+<div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <h1>GESTIÓN DE COMPRAS</h1>
+      <p class="page-subtitle">Registra el ingreso de mercadería de tus proveedores</p>
+    </div>
+  </div>
 
   <div class="panel">
-    <h2>Nueva compra</h2>
+    <div class="panel-header">
+      <h2>1. Agregar Productos</h2>
+    </div>
 
     <div class="form-grid">
-      <div class="campo">
+      <!-- Proveedor -->
+      <div class="form-group">
         <label>Proveedor</label>
-        <input
-          type="text"
-          [(ngModel)]="proveedor"
-          placeholder="Nombre del proveedor">
+        <select [(ngModel)]="idProveedor" class="form-control">
+          <option [ngValue]="null">-- Seleccione un proveedor --</option>
+          @for (prov of proveedores; track prov.idProveedor) {
+            <option [ngValue]="prov.idProveedor">{{ prov.razonSocial }}</option>
+          }
+        </select>
       </div>
 
-      <div class="campo">
+      <!-- Producto -->
+      <div class="form-group">
         <label>Producto</label>
-        <input
-          type="text"
-          [(ngModel)]="producto"
-          placeholder="Nombre del producto">
+        <select [(ngModel)]="idProducto" (change)="onProductoChange()" class="form-control">
+          <option [ngValue]="null">-- Seleccione un producto --</option>
+          @for (prod of productos; track prod.idProducto) {
+            <option [ngValue]="prod.idProducto">{{ prod.nombre }}</option>
+          }
+        </select>
       </div>
 
-      <div class="campo">
+      <!-- Cantidad -->
+      <div class="form-group">
         <label>Cantidad</label>
-        <input
-          type="number"
-          min="1"
-          [(ngModel)]="cantidad">
+        <input type="number" min="1" [(ngModel)]="cantidad" class="form-control">
       </div>
 
-      <div class="campo">
+      <!-- Costo -->
+      <div class="form-group">
         <label>Costo unitario (Bs)</label>
-        <input
-          type="number"
-          min="0"
-          [(ngModel)]="costo">
+        <input type="number" min="0" [(ngModel)]="costo" class="form-control">
       </div>
     </div>
 
-    <button class="btn-principal" (click)="agregarProducto()">
-      + Agregar producto
+    <button class="btn btn-primary" style="margin-top: 15px;" (click)="agregarProducto()">
+      <i class="bi bi-plus-lg"></i> Agregar al Detalle
     </button>
   </div>
 
   <div class="panel">
-    <h2>Detalle de compra</h2>
+    <div class="panel-header">
+      <h2>2. Detalle de Compra</h2>
+    </div>
 
-    <div class="tabla-scroll">
-      <table>
+    <div class="table-responsive">
+      <table class="data-table">
         <thead>
           <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Costo unitario</th>
-            <th>Subtotal</th>
-            <th>Acción</th>
+            <th>PRODUCTO</th>
+            <th class="text-center">CANTIDAD</th>
+            <th class="text-center">COSTO UNIT.</th>
+            <th class="text-center">SUBTOTAL</th>
+            <th class="text-center">ACCIÓN</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let item of productos; let i = index">
-            <td>{{ item.nombre }}</td>
-            <td>{{ item.cantidad }}</td>
-            <td>Bs {{ item.costo | number:'1.2-2' }}</td>
-            <td>
-              Bs {{ item.cantidad * item.costo | number:'1.2-2' }}
-            </td>
-            <td>
-              <button class="btn-eliminar" (click)="quitarProducto(i)">
-                Quitar
-              </button>
-            </td>
-          </tr>
-
-          <tr *ngIf="productos.length === 0">
-            <td colspan="5">No hay productos agregados.</td>
-          </tr>
+          @if (detalles.length === 0) {
+            <tr>
+              <td colspan="5" class="empty-row">No hay productos agregados a la compra.</td>
+            </tr>
+          }
+          @for (item of detalles; track item.idProducto; let i = $index) {
+            <tr>
+              <td><strong>{{ item.nombre }}</strong></td>
+              <td class="text-center">{{ item.cantidad }}</td>
+              <td class="text-center">Bs. {{ item.costo | number:'1.2-2' }}</td>
+              <td class="text-center"><strong>Bs. {{ item.cantidad * item.costo | number:'1.2-2' }}</strong></td>
+              <td class="text-center">
+                <button class="action-btn btn-delete" (click)="quitarProducto(i)" title="Quitar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
 
-    <div class="total">
-      Total: Bs {{ total | number:'1.2-2' }}
+    <div class="total-row">
+      <span>Total a Pagar:</span>
+      <span class="total-amount">Bs {{ total | number:'1.2-2' }}</span>
     </div>
 
-    <button class="btn-principal" (click)="registrarCompra()">
-      Validar compra
-    </button>
+    <div class="acciones-finales">
+      <button class="btn btn-primary" (click)="registrarCompra()" [disabled]="detalles.length === 0 || cargando">
+        <i class="bi bi-check2-circle"></i> {{ cargando ? 'Registrando...' : 'Validar Compra' }}
+      </button>
+    </div>
 
-    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+    @if (mensaje) {
+      <div class="alert-error" style="margin-top: 15px;">
+        {{ mensaje }}
+      </div>
+    }
   </div>
 </div>

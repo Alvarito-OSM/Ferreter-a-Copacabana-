@@ -34,7 +34,6 @@ export class RegistroComponent {
   guardarCliente() {
     this.error = '';
     
-    // Validación básica
     if (!this.nuevoCliente.nombre || !this.nuevoCliente.cedulaNit) {
       this.error = 'El nombre y la cédula/NIT son obligatorios.';
       return;
@@ -47,13 +46,11 @@ export class RegistroComponent {
 
     this.cargando = true;
 
-    // Enviamos los datos a tu backend (EndPoint de Clientes)
     this.http.post(this.apiUrl, this.nuevoCliente).subscribe({
       next: () => {
         this.cargando = false;
         this.exito = true;
         
-        // Después de 2 segundos, lo mandamos al login
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 2000);
