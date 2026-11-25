@@ -42,14 +42,20 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
-                        .requestMatchers("/api/empleados/**", "/api/compras/**", "/api/proveedores/**", "/api/dashboard/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/ventas/*/anular").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMINISTRADOR")
+                        
+                        // 👇 Permitimos GET de catálogo, inventario, clientes y proveedores para la presentación 👇
+                        .requestMatchers(HttpMethod.GET, 
+                            "/api/productos/**", 
+                            "/api/categorias/**", 
+                            "/api/inventario/**",
+                            "/api/clientes/**",
+                            "/api/proveedores/**"
+                        ).permitAll()
+                        
                         .requestMatchers(HttpMethod.POST, "/api/productos/**", "/api/categorias/**", "/api/inventario/**", "/api/lotes/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**", "/api/categorias/**", "/api/inventario/**", "/api/lotes/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/api/ventas/**", "/api/pagos/**", "/api/caja/**", "/api/clientes/**", "/api/inventario/**", "/api/kardex/**", "/api/lotes/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO")
-                        .anyRequest().hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMINISTRADOR")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -80,7 +86,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Usar addAllowedOrigin es más seguro que List.of en algunas versiones
         config.addAllowedOrigin("http://localhost:4200"); 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

@@ -1,8 +1,8 @@
-
 package com.ferreteria.copacabana.service;
 
 import com.ferreteria.copacabana.dto.CompraRequest;
 import com.ferreteria.copacabana.dto.DetalleCompraRequest;
+import com.ferreteria.copacabana.dto.DetalleCompraResponseDTO; // 👈 NUEVO IMPORT
 import com.ferreteria.copacabana.model.*;
 import com.ferreteria.copacabana.repository.*;
 
@@ -14,6 +14,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CompraService {
@@ -26,8 +28,6 @@ public class CompraService {
     private final ProveedorRepository proveedorRepository;
     private final LoteProductoRepository loteProductoRepository;
     private final MovimientoInventarioRepository movimientoRepository;
-
-    private static final BigDecimal IVA_RATE = new BigDecimal("0.13");
 
     public CompraService(
             CompraRepository compraRepository,
@@ -52,20 +52,16 @@ public class CompraService {
     @Transactional
     public Compra registrarCompra(CompraRequest request) {
 
-        if (request.getDetalles() == null ||
-                request.getDetalles().isEmpty()) {
-            throw new RuntimeException(
-                    "La compra debe tener al menos un producto");
+        if (request.getDetalles() == null || request.getDetalles().isEmpty()) {
+            throw new RuntimeException("La compra debe tener al menos un producto");
         }
 
         if (!proveedorRepository.existsById(request.getIdProveedor())) {
             throw new RuntimeException("Proveedor no encontrado");
         }
 
-        Administrador administrador =
-                administradorRepository.findById(request.getIdAdministrador())
-                .orElseThrow(() ->
-                        new RuntimeException("Administrador no encontrado"));
+        Administrador administrador = administradorRepository.findById(request.getIdAdministrador())
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
 
         Compra compra = new Compra();
         compra.setIdProveedor(request.getIdProveedor());
@@ -83,25 +79,20 @@ public class CompraService {
                 throw new RuntimeException("Cantidad inválida");
             }
 
-            if (item.getPrecioUnitario() == null ||
-                    item.getPrecioUnitario().signum() < 0) {
+            if (item.getPrecioUnitario() == null || item.getPrecioUnitario().signum() < 0) {
                 throw new RuntimeException("Precio inválido");
             }
 
-            Producto producto = productoRepository.findById(
-                    item.getIdProducto())
-                    .orElseThrow(() ->
-                            new RuntimeException("Producto no encontrado"));
+            Producto producto = productoRepository.findById(item.getIdProducto())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-            BigDecimal precio = item.getPrecioUnitario()
-                    .setScale(2, RoundingMode.HALF_UP);
+            BigDecimal precio = item.getPrecioUnitario().setScale(2, RoundingMode.HALF_UP);
 
             BigDecimal descuento = item.getDescuento() == null
                     ? BigDecimal.ZERO
                     : item.getDescuento().setScale(2, RoundingMode.HALF_UP);
 
-            BigDecimal bruto = precio.multiply(
-                    BigDecimal.valueOf(item.getCantidad()));
+            BigDecimal bruto = precio.multiply(BigDecimal.valueOf(item.getCantidad()));
 
             if (descuento.signum() < 0 || descuento.compareTo(bruto) > 0) {
                 throw new RuntimeException("Descuento inválido");
@@ -109,7 +100,6 @@ public class CompraService {
 
             BigDecimal subtotal = bruto.subtract(descuento);
 
-            // Registrar detalle de compra
             DetalleCompra detalle = new DetalleCompra();
             detalle.setIdCompra(compraGuardada.getIdCompra());
             detalle.setIdProducto(producto.getIdProducto());
@@ -120,12 +110,9 @@ public class CompraService {
             detalle.setLote(item.getLote());
             detalle.setFechaVencimiento(item.getFechaVencimiento());
 
-            DetalleCompra detalleGuardado =
-                    detalleCompraRepository.saveAndFlush(detalle);
+            DetalleCompra detalleGuardado = detalleCompraRepository.saveAndFlush(detalle);
 
-            // Buscar o crear inventario
-            Inventario inventario = inventarioRepository
-                    .buscarPorProductoBloqueado(producto.getIdProducto())
+            Inventario inventario = inventarioRepository.buscarPorProductoBloqueado(producto.getIdProducto())
                     .orElseGet(() -> {
                         Inventario nuevo = new Inventario();
                         nuevo.setProducto(producto);
@@ -144,43 +131,32 @@ public class CompraService {
 
             inventarioRepository.save(inventario);
 
-            // Registrar lote cuando existe lote o vencimiento
             LoteProducto loteProducto = null;
-
-            boolean tieneLote = item.getLote() != null
-                    && !item.getLote().isBlank();
+            boolean tieneLote = item.getLote() != null && !item.getLote().isBlank();
 
             if (tieneLote || item.getFechaVencimiento() != null) {
-
-                String codigo = tieneLote
-                        ? item.getLote()
-                        : "SIN-LOTE-" + detalleGuardado.getIdDetalleCompra();
+                String codigo = tieneLote ? item.getLote() : "SIN-LOTE-" + detalleGuardado.getIdDetalleCompra();
 
                 loteProducto = new LoteProducto();
                 loteProducto.setProducto(producto);
                 loteProducto.setDetalleCompra(detalleGuardado);
                 loteProducto.setCodigoLote(codigo);
                 loteProducto.setFechaIngreso(LocalDate.now());
-                loteProducto.setFechaVencimiento(
-                        item.getFechaVencimiento());
+                loteProducto.setFechaVencimiento(item.getFechaVencimiento());
                 loteProducto.setCantidadInicial(item.getCantidad());
                 loteProducto.setCantidadDisponible(item.getCantidad());
 
                 loteProductoRepository.save(loteProducto);
             }
 
-            // Registrar movimiento Kardex
-            MovimientoInventario movimiento =
-                    new MovimientoInventario();
-
+            MovimientoInventario movimiento = new MovimientoInventario();
             movimiento.setProducto(producto);
             movimiento.setLote(loteProducto);
             movimiento.setTipo("ENTRADA");
             movimiento.setCantidad(item.getCantidad());
             movimiento.setStockAnterior(stockAnterior);
             movimiento.setStockNuevo(stockNuevo);
-            movimiento.setMotivo(
-                    "Entrada por compra #" + compraGuardada.getIdCompra());
+            movimiento.setMotivo("Entrada por compra #" + compraGuardada.getIdCompra());
             movimiento.setReferenciaTipo("COMPRA");
             movimiento.setReferenciaId(compraGuardada.getIdCompra());
             movimiento.setUsuario(administrador.getUsuario());
@@ -190,15 +166,37 @@ public class CompraService {
             subtotalTotal = subtotalTotal.add(subtotal);
         }
 
-        // Calcular totales
-        BigDecimal iva = subtotalTotal.multiply(IVA_RATE)
-                .setScale(2, RoundingMode.HALF_UP);
-
+        BigDecimal iva = BigDecimal.ZERO; 
+        
         compraGuardada.setSubtotal(subtotalTotal);
         compraGuardada.setIva(iva);
-        compraGuardada.setTotal(subtotalTotal.add(iva));
+        compraGuardada.setTotal(subtotalTotal);
 
         return compraRepository.save(compraGuardada);
+    }
+
+    // 👇 NUEVO MÉTODO PARA EL MODAL DE DETALLES 👇
+    public List<DetalleCompraResponseDTO> listarDetallesCompra(Integer idCompra) {
+        List<DetalleCompra> detalles = detalleCompraRepository.findByIdCompra(idCompra);
+        
+        return detalles.stream().map(detalle -> {
+            String nombreProducto = "Producto Desconocido";
+            
+            Optional<Producto> prodOpt = productoRepository.findById(detalle.getIdProducto());
+            if (prodOpt.isPresent()) {
+                nombreProducto = prodOpt.get().getNombre();
+            }
+
+            return new DetalleCompraResponseDTO(
+                detalle.getIdDetalleCompra(),
+                detalle.getIdCompra(),
+                detalle.getIdProducto(),
+                nombreProducto,
+                detalle.getCantidad(),
+                detalle.getPrecioUnitario(),
+                detalle.getSubtotal()
+            );
+        }).collect(Collectors.toList());
     }
 
     // Métodos anteriores conservados

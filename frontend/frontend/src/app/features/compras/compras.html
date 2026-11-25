@@ -3,87 +3,121 @@
   <div class="page-header">
     <div>
       <h1>GESTIÓN DE COMPRAS</h1>
-      <p class="page-subtitle">Registra el ingreso de mercadería de tus proveedores</p>
+      <p class="page-subtitle">Registro y control de mercadería de proveedores</p>
     </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-header">
-      <h2>1. Agregar Productos</h2>
-    </div>
-
-    <div class="form-grid">
-      <!-- Proveedor -->
-      <div class="form-group">
-        <label>Proveedor</label>
-        <select [(ngModel)]="idProveedor" class="form-control">
-          <option [ngValue]="null">-- Seleccione un proveedor --</option>
-          @for (prov of proveedores; track prov.idProveedor) {
-            <option [ngValue]="prov.idProveedor">{{ prov.razonSocial }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Producto -->
-      <div class="form-group">
-        <label>Producto</label>
-        <select [(ngModel)]="idProducto" (change)="onProductoChange()" class="form-control">
-          <option [ngValue]="null">-- Seleccione un producto --</option>
-          @for (prod of productos; track prod.idProducto) {
-            <option [ngValue]="prod.idProducto">{{ prod.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Cantidad -->
-      <div class="form-group">
-        <label>Cantidad</label>
-        <input type="number" min="1" [(ngModel)]="cantidad" class="form-control">
-      </div>
-
-      <!-- Costo -->
-      <div class="form-group">
-        <label>Costo unitario (Bs)</label>
-        <input type="number" min="0" [(ngModel)]="costo" class="form-control">
-      </div>
-    </div>
-
-    <button class="btn btn-primary" style="margin-top: 15px;" (click)="agregarProducto()">
-      <i class="bi bi-plus-lg"></i> Agregar al Detalle
+    <button class="btn btn-primary" (click)="abrirModalCompra()">
+      <i class="bi bi-plus-lg"></i> Nueva Compra
     </button>
   </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <h2>2. Detalle de Compra</h2>
+  <!-- TARJETAS DE MÉTRICAS -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon orange"><i class="bi bi-currency-dollar"></i></div>
+      <div class="metric-info">
+        <h3>COMPRAS DEL MES</h3>
+        <p>Bs. {{ totalInvertido | number:'1.2-2' }}</p>
+        <small style="color: #64748b; font-weight: 600;"><i class="bi bi-check-circle-fill" style="color: #16a34a;"></i> Noviembre 2026 (Validado)</small>
+      </div>
     </div>
+    
+    <div class="metric-card">
+      <div class="metric-icon blue"><i class="bi bi-box-seam"></i></div>
+      <div class="metric-info">
+        <h3>ÓRDENES REGISTRADAS</h3>
+        <p>{{ comprasRealizadas }}</p>
+        <small style="color: #64748b; font-weight: 600;"><i class="bi bi-arrow-right-circle" style="color: #0284c7;"></i> En el historial</small>
+      </div>
+    </div>
+    
+    <div class="metric-card">
+      <div class="metric-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+      <div class="metric-info">
+        <h3>PROVEEDORES ACTIVOS</h3>
+        <p>{{ proveedores.length }}</p>
+        <small style="color: #64748b; font-weight: 600;"><i class="bi bi-building" style="color: #16a34a;"></i> Nacionales y regionales</small>
+      </div>
+    </div>
+  </div>
 
+  <!-- BARRA DE HERRAMIENTAS (Buscador + Filtros) -->
+  <div class="toolbar-actions">
+    <div class="search-input-wrapper">
+      <i class="bi bi-search"></i>
+      <input type="text" class="form-control" [(ngModel)]="textoBusqueda" placeholder="Buscar por N° Orden, artículo, proveedor...">
+    </div>
+    
+    <div class="filter-group">
+      <select class="form-control filter-select" [(ngModel)]="filtroEstado">
+        <option value="TODAS">Todas</option>
+        <option value="COMPLETADA">Completadas</option>
+        <option value="ANULADA">Anuladas</option>
+      </select>
+
+      <select class="form-control filter-select" [(ngModel)]="filtroProveedor">
+        <option value="TODOS">Todos los proveedores</option>
+        @for (p of proveedores; track p.idProveedor) {
+          <option [value]="p.idProveedor.toString()">{{ p.razonSocial }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- TABLA DE HISTORIAL (DISEÑO OSCURO) -->
+  <div class="table-card">
+    <div class="table-header-title">
+      <h2>REGISTRO DE ÓRDENES DE COMPRA</h2>
+      <span>Mostrando {{ comprasFiltradas.length }} de {{ compras.length }} órdenes</span>
+    </div>
+    
     <div class="table-responsive">
-      <table class="data-table">
+      <table class="data-table dark-header">
         <thead>
           <tr>
-            <th>PRODUCTO</th>
-            <th class="text-center">CANTIDAD</th>
-            <th class="text-center">COSTO UNIT.</th>
-            <th class="text-center">SUBTOTAL</th>
-            <th class="text-center">ACCIÓN</th>
+            <th>N° ORDEN</th>
+            <th>FECHA</th>
+            <th>PROVEEDOR</th>
+            <th>ARTÍCULOS PRINCIPALES</th>
+            <th class="text-right">TOTAL (BS.)</th>
+            <th class="text-center">ESTADO</th>
+            <th class="text-center">ACCIONES</th>
           </tr>
         </thead>
         <tbody>
-          @if (detalles.length === 0) {
-            <tr>
-              <td colspan="5" class="empty-row">No hay productos agregados a la compra.</td>
-            </tr>
+          @if (comprasFiltradas.length === 0) {
+            <tr><td colspan="7" class="empty-row">No se encontraron compras.</td></tr>
           }
-          @for (item of detalles; track item.idProducto; let i = $index) {
+          @for (c of comprasFiltradas; track c.idCompra) {
             <tr>
-              <td><strong>{{ item.nombre }}</strong></td>
-              <td class="text-center">{{ item.cantidad }}</td>
-              <td class="text-center">Bs. {{ item.costo | number:'1.2-2' }}</td>
-              <td class="text-center"><strong>Bs. {{ item.cantidad * item.costo | number:'1.2-2' }}</strong></td>
+              <td class="cell-code">OC-{{ c.idCompra.toString().padStart(4, '0') }}</td>
+              <td>
+                <div style="font-weight: 700;">{{ c.fecha | date:'dd/MM/yyyy' }}</div>
+                <div style="font-size: 11px; color: #64748b;">Est: {{ c.fecha | date:'HH:mm' }}</div>
+              </td>
+              <td>
+                <div style="font-weight: 700;">{{ nombreProveedor(c.idProveedor) }}</div>
+                <div style="font-size: 11px; color: #64748b;">La Paz / El Alto</div>
+              </td>
+              <td>
+                <div style="font-size: 13px; color: #475569; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  Artículos varios de la compra #{{ c.idCompra }}
+                </div>
+              </td>
+              <td class="text-right precio-venta">Bs. {{ c.total | number:'1.2-2' }}</td>
               <td class="text-center">
-                <button class="action-btn btn-delete" (click)="quitarProducto(i)" title="Quitar">
-                  <i class="bi bi-trash3"></i>
+                <span class="status-badge" [ngClass]="c.estado === 'COMPLETADA' ? 'status-completada' : 'status-pendiente'">
+                  <span class="dot"></span> {{ c.estado === 'COMPLETADA' ? 'Recibida' : 'Pendiente' }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                <button class="icon-btn btn-view" (click)="verDetalle(c)" title="Ver Detalle">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="icon-btn btn-edit" (click)="editarCompra(c)" title="Editar">
+                  <i class="bi bi-check2-square"></i>
+                </button>
+                <button class="icon-btn btn-pdf" (click)="descargarPDF(c)" title="Descargar PDF">
+                  <i class="bi bi-file-earmark-text"></i>
                 </button>
               </td>
             </tr>
@@ -91,68 +125,174 @@
         </tbody>
       </table>
     </div>
-
-    <div class="total-row">
-      <span>Total a Pagar:</span>
-      <span class="total-amount">Bs {{ total | number:'1.2-2' }}</span>
-    </div>
-
-    <div class="acciones-finales">
-      <button class="btn btn-primary" (click)="registrarCompra()" [disabled]="detalles.length === 0 || cargando">
-        <i class="bi bi-check2-circle"></i> {{ cargando ? 'Registrando...' : 'Validar Compra' }}
-      </button>
-    </div>
-
-    @if (mensaje) {
-      <div class="alert-error" style="margin-top: 15px;">
-        {{ mensaje }}
-      </div>
-    }
-
-    @if (exito) {
-      <div class="alert-success" style="margin-top: 15px;">
-        {{ exito }}
-      </div>
-    }
-  </div>
-
-  <div class="panel">
-    <div class="panel-header">
-      <h2>3. Historial de Compras ({{ compras.length }})</h2>
-    </div>
-
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th class="text-center">N°</th>
-            <th>FECHA</th>
-            <th>PROVEEDOR</th>
-            <th class="text-center">SUBTOTAL</th>
-            <th class="text-center">IVA</th>
-            <th class="text-center">TOTAL</th>
-            <th class="text-center">ESTADO</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (compras.length === 0) {
-            <tr>
-              <td colspan="7" class="empty-row">Todavía no hay compras registradas.</td>
-            </tr>
-          }
-          @for (c of compras; track c.idCompra) {
-            <tr>
-              <td class="text-center"><strong>#{{ c.idCompra }}</strong></td>
-              <td>{{ c.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ nombreProveedor(c.idProveedor) }}</td>
-              <td class="text-center">Bs. {{ c.subtotal | number:'1.2-2' }}</td>
-              <td class="text-center">Bs. {{ c.iva | number:'1.2-2' }}</td>
-              <td class="text-center"><strong>Bs. {{ c.total | number:'1.2-2' }}</strong></td>
-              <td class="text-center">{{ c.estado }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
   </div>
 </div>
+
+<!-- ============================================== -->
+<!-- MODAL 1: REGISTRAR NUEVA COMPRA -->
+<!-- ============================================== -->
+@if (modalCompraAbierto) {
+  <div class="modal-overlay">
+    <div class="modal-pos-content" style="max-width: 900px;">
+      
+      <div class="pos-header">
+        <div class="pos-title">
+          <h2>Registrar Compra</h2>
+          <p>Ingresa la mercadería recibida de tus proveedores</p>
+        </div>
+        <button class="close-btn" (click)="cerrarModalCompra()">&times;</button>
+      </div>
+
+      <div class="pos-body" style="flex-direction: column; padding: 20px; overflow-y: auto;">
+        
+        <div class="panel-box" style="margin-bottom: 20px;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Proveedor</label>
+              <select [(ngModel)]="idProveedor" class="form-control">
+                <option [ngValue]="null">-- Seleccione --</option>
+                @for (prov of proveedores; track prov.idProveedor) {
+                  <option [ngValue]="prov.idProveedor">{{ prov.razonSocial }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Producto</label>
+              <select [(ngModel)]="idProducto" (change)="onProductoChange()" class="form-control">
+                <option [ngValue]="null">-- Seleccione --</option>
+                @for (prod of productos; track prod.idProducto) {
+                  <option [ngValue]="prod.idProducto">{{ prod.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cantidad</label>
+              <input type="number" min="1" [(ngModel)]="cantidad" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Costo Unit. (Bs)</label>
+              <input type="number" min="0" [(ngModel)]="costo" class="form-control">
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 15px;" (click)="agregarProducto()">
+            <i class="bi bi-plus-lg"></i> Agregar al Detalle
+          </button>
+        </div>
+
+        <div class="panel-box" style="flex: 1;">
+          <h3 style="margin-top: 0;">Detalle de la Compra</h3>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>PRODUCTO</th>
+                  <th class="text-center">CANT.</th>
+                  <th class="text-center">COSTO UNIT.</th>
+                  <th class="text-center">SUBTOTAL</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (detalles.length === 0) {
+                  <tr><td colspan="5" class="empty-row">No hay productos agregados.</td></tr>
+                }
+                @for (item of detalles; track item.idProducto; let i = $index) {
+                  <tr>
+                    <td><strong>{{ item.nombre }}</strong></td>
+                    <td class="text-center">{{ item.cantidad }}</td>
+                    <td class="text-center">Bs. {{ item.costo | number:'1.2-2' }}</td>
+                    <td class="text-center"><strong>Bs. {{ item.cantidad * item.costo | number:'1.2-2' }}</strong></td>
+                    <td class="text-center">
+                      <button class="action-btn btn-delete" style="width: 28px; height: 28px;" (click)="quitarProducto(i)">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total-row" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #e2e8f0;">
+            <span>Total a Pagar:</span>
+            <span class="total-amount">Bs {{ total | number:'1.2-2' }}</span>
+          </div>
+
+          @if (mensaje) { <div class="alert-error" style="margin-top: 15px;">{{ mensaje }}</div> }
+          @if (exito) { <div class="alert-success" style="margin-top: 15px;">{{ exito }}</div> }
+
+          <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <button class="btn btn-secondary w-100" (click)="cerrarModalCompra()">Cancelar</button>
+            <button class="btn btn-primary w-100" (click)="registrarCompra()" [disabled]="detalles.length === 0 || cargando">
+              <i class="bi bi-check2-circle"></i> {{ cargando ? 'Registrando...' : 'Validar Compra' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ============================================== -->
+<!-- MODAL 2: VER DETALLE DE COMPRA (Factura) -->
+<!-- ============================================== -->
+@if (modalDetalleAbierto && compraSeleccionada) {
+  <div class="modal-overlay" (click)="cerrarModalDetalle()">
+    <div class="modal-detalle-content" (click)="$event.stopPropagation()">
+      
+      <div class="pos-header" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+        <div>
+          <h2 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+            <i class="bi bi-box-seam"></i> Detalle de Compra
+          </h2>
+          <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">OC-{{ compraSeleccionada.idCompra.toString().padStart(4, '0') }}</p>
+        </div>
+        <button class="close-btn" (click)="cerrarModalDetalle()">&times;</button>
+      </div>
+
+      <div class="sale-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <p style="margin: 0;"><i class="bi bi-calendar3"></i> Fecha: {{ compraSeleccionada.fecha | date:'dd/MM/yyyy' }}</p>
+        <p style="margin: 0;"><i class="bi bi-clock"></i> Hora: {{ compraSeleccionada.fecha | date:'HH:mm' }}</p>
+        <p style="margin: 0; grid-column: span 2;"><i class="bi bi-truck"></i> Proveedor: {{ nombreProveedor(compraSeleccionada.idProveedor) }}</p>
+      </div>
+
+      <div class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 8px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-center">Cant.</th>
+              <th class="text-center">Costo Unit.</th>
+              <th class="text-right" style="padding-right: 20px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of detallesCompraSeleccionada; track d.idDetalleCompra) {
+              <tr>
+                <td>{{ d.nombreProducto || d.producto?.nombre || ('Prod #' + d.idProducto) }}</td>
+                <td class="text-center">{{ d.cantidad }}</td>
+                <td class="text-center">Bs. {{ d.precioUnitario | number:'1.2-2' }}</td>
+                <td class="text-right" style="padding-right: 20px;"><strong>Bs. {{ (d.cantidad * d.precioUnitario) | number:'1.2-2' }}</strong></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="empty-row">Sin detalles</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totales-box" style="margin-top: 25px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
+        <div class="fila-total total-final" style="font-size: 20px;">
+          <span><i class="bi bi-cash-coin text-red"></i> Total Compra:</span>
+          <span class="text-red">Bs. {{ compraSeleccionada.total | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <button class="btn btn-secondary w-100" (click)="cerrarModalDetalle()">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+}

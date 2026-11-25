@@ -20,7 +20,7 @@ public class Inventario {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false, unique = true)
-    @JsonIgnoreProperties({"inventario", "hibernateLazyInitializer", "handler"}) // 👈 Evita el bucle
+    @JsonIgnoreProperties({"inventario", "hibernateLazyInitializer", "handler"}) 
     private Producto producto;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,11 +32,18 @@ public class Inventario {
     private Integer stockActual = 0;
 
     @Column(name = "stock_minimo", nullable = false)
-    private Integer stockMinimo = 5; // 👈 Lo cambié a 15 como pediste antes
+    private Integer stockMinimo = 5; 
 
     @Column(length = 50)
     private String ubicacion;
 
     @Column(name = "fecha_actualizacion", nullable = false)
-    private LocalDateTime fechaActualizacion = LocalDateTime.now();
+    private LocalDateTime fechaActualizacion;
+
+    // 👇 ESTO HACE QUE LA FECHA SE PONGA SOLA EN JAVA 👇
+    @PrePersist
+    @PreUpdate
+    protected void onUpdate() {
+        this.fechaActualizacion = LocalDateTime.now();
+    }
 }

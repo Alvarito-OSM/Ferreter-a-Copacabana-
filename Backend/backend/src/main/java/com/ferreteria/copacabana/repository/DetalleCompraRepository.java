@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface DetalleCompraRepository extends JpaRepository<DetalleCompra, Integer> {
 
+    // 👇 NUEVO MÉTODO: Busca los detalles de una compra para mostrarlos en el modal de Angular
+    List<DetalleCompra> findByIdCompra(Integer idCompra);
+
+    // Tu consulta original para el reporte de suministros
     @Query("""
             select p.idProducto, p.nombre, p.codigoBarras, d.cantidad, d.precioUnitario, c.fecha
             from DetalleCompra d, Compra c, Producto p

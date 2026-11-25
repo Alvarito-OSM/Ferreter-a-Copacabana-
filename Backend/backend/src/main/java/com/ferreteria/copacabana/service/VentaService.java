@@ -1,6 +1,7 @@
 package com.ferreteria.copacabana.service;
 
 import com.ferreteria.copacabana.dto.DetalleVentaRequest;
+import com.ferreteria.copacabana.dto.DetalleVentaResponseDTO; // 👈 NUEVO IMPORT
 import com.ferreteria.copacabana.dto.VentaRequest;
 import com.ferreteria.copacabana.model.DetalleVenta;
 import com.ferreteria.copacabana.model.Inventario;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +36,6 @@ public class VentaService {
     @Autowired
     private InventarioRepository inventarioRepository;
 
-    private static final BigDecimal IVA_RATE = new BigDecimal("0.13");
-
     public List<Venta> listarTodas() {
         return ventaRepository.findAll();
     }
@@ -46,8 +44,9 @@ public class VentaService {
         return ventaRepository.findById(id);
     }
 
-    public List<DetalleVenta> listarDetalles(Integer idVenta) {
-        return detalleVentaRepository.findByIdVenta(idVenta);
+    // 👇 MÉTODO MODIFICADO PARA DEVOLVER EL DTO CON EL NOMBRE DEL PRODUCTO 👇
+    public List<DetalleVentaResponseDTO> listarDetalles(Integer idVenta) {
+        return detalleVentaRepository.findDetallesConNombreProducto(idVenta);
     }
 
     public List<DetalleVenta> listarTodosLosDetalles() {
@@ -122,9 +121,9 @@ public class VentaService {
         // 7. Guardar los detalles
         detalleVentaRepository.saveAll(detalles);
 
-        // 8. Calcular IVA y total
-        BigDecimal iva = subtotalTotal.multiply(IVA_RATE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal total = subtotalTotal.add(iva);
+        // 8. Calcular totales SIN IVA (El total es igual al subtotal)
+        BigDecimal iva = BigDecimal.ZERO; 
+        BigDecimal total = subtotalTotal;
 
         // 9. Actualizar la venta con los totales
         ventaGuardada.setSubtotal(subtotalTotal);

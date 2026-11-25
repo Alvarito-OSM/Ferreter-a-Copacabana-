@@ -222,7 +222,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private calcularActividades(ventasValidas: any[], comprasValidas: any[]): void {
     const deVentas: Actividad[] = ventasValidas.map(v => ({
-      icono: '🛒',
+      icono: ' ',
       color: 'green',
       mensaje: 'Venta #' + v.idVenta + ' por Bs. ' + Number(v.total).toFixed(2),
       tiempo: this.haceTiempo(new Date(v.fecha)),
@@ -230,7 +230,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }));
 
     const deCompras: Actividad[] = comprasValidas.map(c => ({
-      icono: '📦',
+      icono: ' ',
       color: 'blue',
       mensaje: 'Compra #' + c.idCompra + ' por Bs. ' + Number(c.total).toFixed(2),
       tiempo: this.haceTiempo(new Date(c.fecha)),

@@ -158,3 +158,56 @@
   .form-grid { grid-template-columns: 1fr; }
   .full-width { grid-column: span 1; }
 }
+/* ... Tus estilos anteriores ... */
+
+/* ... Tus estilos anteriores ... */
+
+/* PAGINACIÓN */
+.pagination-container { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: #ffffff; border-top: 1px solid #f1f5f9; }
+.btn-page { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #475569; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-page:hover:not(:disabled) { background: #ffffff; border-color: #dc2626; color: #dc2626; }
+.btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+.page-info { font-size: 13px; font-weight: 700; color: #64748b; }
+
+/* ZOOM DE IMAGEN */
+.zoomable {
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.zoomable:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.zoom-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+  animation: fadeIn 0.3s ease;
+}
+
+.zoom-image {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modo Oscuro Paginación */
+:host-context(body.dark-mode) .pagination-container { background: #1e293b; border-top-color: #334155; }
+:host-context(body.dark-mode) .btn-page { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+:host-context(body.dark-mode) .btn-page:hover:not(:disabled) { background: #1e293b; border-color: #dc2626; color: #f87171; }
+:host-context(body.dark-mode) .page-info { color: #94a3b8; }

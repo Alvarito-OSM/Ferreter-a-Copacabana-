@@ -10,7 +10,6 @@
     </button>
   </div>
 
-  <!-- MÉTRICAS -->
   <div class="metrics-grid">
     <div class="metric-card">
       <div class="metric-icon orange"><i class="bi bi-currency-dollar"></i></div>
@@ -28,15 +27,7 @@
       </div>
     </div>
     
-    <div class="metric-card">
-      <div class="metric-icon green"><i class="bi bi-graph-up-arrow"></i></div>
-      <div class="metric-info">
-        <h3>TICKET PROMEDIO</h3>
-        <p>Bs. {{ calcularTicketPromedio() | number:'1.2-2' }}</p>
-      </div>
-    </div>
 
-    <!-- 👇 NUEVA TARJETA: UNIDADES EN STOCK 👇 -->
     <div class="metric-card">
       <div class="metric-icon" style="background: #f3e8ff; color: #9333ea;"><i class="bi bi-boxes"></i></div>
       <div class="metric-info">
@@ -46,7 +37,18 @@
     </div>
   </div>
 
-  <!-- TABLA HISTORIAL -->
+  <div class="toolbar-actions">
+    <div class="search-input-wrapper">
+      <i class="bi bi-search"></i>
+      <input type="text" class="form-control" [(ngModel)]="textoBusqueda" placeholder="Buscar por N° de venta, cliente...">
+    </div>
+    <select class="form-control filter-select" [(ngModel)]="filtroEstado">
+      <option value="TODAS">Todas las ventas</option>
+      <option value="COMPLETADA">Completadas</option>
+      <option value="ANULADA">Anuladas</option>
+    </select>
+  </div>
+
   <div class="table-card">
     <div class="table-responsive">
       <table class="data-table">
@@ -57,20 +59,18 @@
             <th>CLIENTE</th>
             <th class="text-center">TOTAL (BS.)</th>
             <th class="text-center">ESTADO</th>
-            @if (esAdmin()) {
-              <th class="text-center">ACCIONES</th>
-            }
+            <th class="text-center">ACCIONES</th>
           </tr>
         </thead>
         <tbody>
           @if (cargando) {
             <tr><td colspan="6" class="empty-row">Cargando ventas...</td></tr>
-          } @else if (ventas.length === 0) {
-            <tr><td colspan="6" class="empty-row">No hay ventas registradas.</td></tr>
+          } @else if (ventasFiltradas.length === 0) {
+            <tr><td colspan="6" class="empty-row">No se encontraron ventas.</td></tr>
           } @else {
-            @for (venta of ventas; track venta.idVenta; let i = $index) {
+            @for (venta of ventasFiltradas; track venta.idVenta; let i = $index) {
               <tr>
-                <td class="cell-code text-center">{{ i + 1 }}</td>
+                <td class="cell-code text-center">V-{{ venta.idVenta.toString().padStart(4, '0') }}</td>
                 <td>{{ venta.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td><strong>{{ obtenerNombreCliente(venta.idCliente) }}</strong></td>
                 <td class="text-center precio-venta">Bs. {{ venta.total | number:'1.2-2' }}</td>
@@ -79,17 +79,18 @@
                     <span class="dot"></span> {{ venta.estado }}
                   </span>
                 </td>
-                @if (esAdmin()) {
-                  <td class="cell-actions">
+                <td class="cell-actions">
+                  <button class="action-btn btn-view" (click)="verDetalle(venta)" title="Ver Comprobante">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  @if (esAdmin()) {
                     @if (venta.estado === 'COMPLETADA') {
                       <button class="action-btn btn-delete" (click)="anularVenta(venta.idVenta)" title="Anular Venta">
                         <i class="bi bi-x-circle"></i>
                       </button>
-                    } @else {
-                      <span class="text-muted">—</span>
                     }
-                  </td>
-                }
+                  }
+                </td>
               </tr>
             }
           }
@@ -99,7 +100,67 @@
   </div>
 </div>
 
-<!-- MODAL PUNTO DE VENTA -->
+@if (modalDetalleAbierto && ventaSeleccionada) {
+  <div class="modal-overlay" (click)="cerrarModalDetalle()">
+    <div class="modal-detalle-content" (click)="$event.stopPropagation()">
+      
+      <div class="pos-header" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+        <div>
+          <h2 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+            <i class="bi bi-receipt"></i> Comprobante de Venta
+          </h2>
+          <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">V-{{ ventaSeleccionada.idVenta.toString().padStart(4, '0') }}</p>
+        </div>
+        <button class="close-btn" (click)="cerrarModalDetalle()">&times;</button>
+      </div>
+
+      <div class="sale-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <p style="margin: 0;"><i class="bi bi-calendar3"></i> Fecha: {{ ventaSeleccionada.fecha | date:'dd/MM/yyyy' }}</p>
+        <p style="margin: 0;"><i class="bi bi-clock"></i> Hora: {{ ventaSeleccionada.fecha | date:'HH:mm' }}</p>
+        <p style="margin: 0; grid-column: span 2;"><i class="bi bi-person"></i> Cliente: {{ obtenerNombreCliente(ventaSeleccionada.idCliente) }}</p>
+      </div>
+
+      <div class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 8px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-center">Cant.</th>
+              <th class="text-center">P. Unit.</th>
+              <th class="text-right" style="padding-right: 20px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of detallesVentaSeleccionada; track d.idDetalleVenta) {
+              <tr>
+                <td>{{ d.nombreProducto || d.nombre_producto || ('Prod #' + d.idProducto) }}</td>
+                <td class="text-center">{{ d.cantidad }}</td>
+                <td class="text-center">Bs. {{ d.precioUnitario | number:'1.2-2' }}</td>
+                <td class="text-right" style="padding-right: 20px;"><strong>Bs. {{ (d.cantidad * d.precioUnitario) | number:'1.2-2' }}</strong></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="empty-row">Sin detalles</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totales-box" style="margin-top: 25px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
+        <div class="fila-total total-final" style="font-size: 20px;">
+          <span><i class="bi bi-cash-coin text-red"></i> Total a Pagar:</span>
+          <span class="text-red">Bs. {{ ventaSeleccionada.total | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 15px; margin-top: 25px;">
+        <button class="btn btn-secondary w-100" (click)="cerrarModalDetalle()">Cerrar</button>
+        <button class="btn btn-primary w-100"><i class="bi bi-printer"></i> Imprimir</button>
+      </div>
+
+    </div>
+  </div>
+}
+
 @if (modalAbierto) {
   <div class="modal-overlay">
     <div class="modal-pos-content">
@@ -114,7 +175,6 @@
 
       <div class="pos-body">
         
-        <!-- COLUMNA IZQUIERDA -->
         <div class="pos-left">
           
           <div class="panel-box">
@@ -176,7 +236,6 @@
             <div class="grid-productos">
               @for (prod of productosFiltrados; track prod.idProducto) {
                 <div class="card-producto" (click)="agregarAlCarrito(prod)">
-                  
                   <div class="prod-img-container">
                     @if (prod.imagenUrl) {
                       <img [src]="prod.imagenUrl" alt="Producto" class="prod-img" (error)="prod.imagenUrl = undefined">
@@ -184,7 +243,6 @@
                       <i class="bi bi-box-seam prod-icon"></i>
                     }
                   </div>
-
                   <h5>{{ prod.nombre }}</h5>
                   <p class="precio">Bs. {{ prod.precioVenta | number:'1.2-2' }}</p>
                   <button class="btn btn-primary w-100" style="padding: 6px;">Agregar</button>
@@ -196,9 +254,7 @@
           </div>
         </div>
 
-        <!-- COLUMNA DERECHA (CARRITO) -->
         <div class="pos-right">
-          
           <div class="panel-box" style="flex: 1; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
               <h3 style="margin: 0;"><i class="bi bi-cart3"></i> Carrito</h3>
@@ -247,7 +303,6 @@
             </div>
           </div>
 
-          <!-- SECCIÓN DE PAGOS -->
           <div class="panel-box">
             <h3><i class="bi bi-credit-card"></i> Método de Pago</h3>
             
@@ -273,7 +328,7 @@
             @if (metodoPago === 'QR') {
               <div class="qr-box">
                  <p style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 10px;">Escanea para pagar</p>
-                 <img src="public/qr-prueba.png" alt="QR" class="img-qr">
+                 <img src="/QR.jpeg" alt="QR" class="img-qr" (click)="modalQrAbierto = true" style="cursor: pointer;">
               </div>
             }
 
@@ -284,6 +339,16 @@
 
         </div>
       </div>
+    </div>
+  </div>
+}
+
+@if (modalQrAbierto) {
+  <div class="modal-overlay" style="z-index: 9999; background: rgba(0,0,0,0.8);" (click)="modalQrAbierto = false">
+    <div style="position: relative; text-align: center;" (click)="$event.stopPropagation()">
+      <button class="close-btn" style="position: absolute; top: -40px; right: -40px; color: white; background: none; border: none; font-size: 2rem;" (click)="modalQrAbierto = false">&times;</button>
+      <img src="/QR.jpeg" alt="QR Ampliado" style="max-width: 80vw; max-height: 80vh; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+      <p style="color: white; margin-top: 15px; font-size: 1.1rem;">Escanea este código para realizar tu pago</p>
     </div>
   </div>
 }

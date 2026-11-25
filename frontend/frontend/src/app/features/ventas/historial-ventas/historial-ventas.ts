@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
-import { forkJoin } from 'rxjs'; // 👈 IMPORTANTE: Importamos forkJoin
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-historial-ventas',
@@ -20,7 +20,13 @@ export class HistorialVentasComponent implements OnInit {
 
   totalUnidadesStock: number = 0;
 
-  // --- VARIABLES DEL MODAL POS ---
+  ventaSeleccionada: any = null;
+  detallesVentaSeleccionada: any[] = [];
+  textoBusqueda: string = '';
+  filtroEstado: string = 'TODAS';
+  modalDetalleAbierto: boolean = false; 
+  modalQrAbierto: boolean = false;
+
   modalAbierto: boolean = false;
   productos: any[] = [];
   productosFiltrados: any[] = [];
@@ -72,13 +78,42 @@ export class HistorialVentasComponent implements OnInit {
     });
   }
 
+  verDetalle(venta: any) {
+    this.ventaSeleccionada = venta;
+    this.modalDetalleAbierto = true;
+    this.http.get<any[]>(`${this.apiUrl}/ventas/${venta.idVenta}/detalles`).subscribe({
+      next: (detalles) => {
+        this.detallesVentaSeleccionada = detalles;
+        this.cdRef.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar detalles', err)
+    });
+  }
+
+  cerrarModalDetalle() {
+    this.modalDetalleAbierto = false;
+    this.ventaSeleccionada = null;
+    this.detallesVentaSeleccionada = [];
+  }
+
+  get ventasFiltradas() {
+    return this.ventas.filter(v => {
+      const clienteNombre = this.obtenerNombreCliente(v.idCliente).toLowerCase();
+      const matchBusqueda = this.textoBusqueda === '' || 
+                            v.idVenta.toString().includes(this.textoBusqueda) || 
+                            clienteNombre.includes(this.textoBusqueda.toLowerCase());
+      const matchEstado = this.filtroEstado === 'TODAS' || v.estado === this.filtroEstado;
+      return matchBusqueda && matchEstado;
+    });
+  }
+
   anularVenta(idVenta: number) {
     if (!confirm('¿Anular esta venta? El stock será devuelto.')) return;
     this.http.put(`${this.apiUrl}/ventas/${idVenta}/anular`, {}).subscribe({
       next: () => {
         alert('Venta anulada');
         this.cargarVentas();
-        this.cargarProductos(); // Recargamos el stock
+        this.cargarProductos();
       },
       error: (err) => alert('Error al anular: ' + err.message)
     });
@@ -97,23 +132,19 @@ export class HistorialVentasComponent implements OnInit {
     this.modalAbierto = false;
   }
 
-  // 👇 AQUÍ ESTÁ LA MAGIA PARA QUE EL STOCK SE VEA EN EL FRONTEND 👇
   cargarProductos() {
-    // Pedimos productos e inventario al mismo tiempo
     forkJoin({
       productos: this.http.get<any[]>(`${this.apiUrl}/productos`),
       inventarios: this.http.get<any[]>(`${this.apiUrl}/inventario`)
     }).subscribe({
       next: (data) => {
-        // Cruzamos los datos: Si Java no manda el inventario, lo buscamos en la tabla inventarios
         this.productos = data.productos.map(prod => {
           const inv = data.inventarios.find(i => i.producto?.idProducto === prod.idProducto);
           return { ...prod, inventario: inv || null };
-        }).filter(p => p.estado); // Solo mostramos los activos
+        }).filter(p => p.estado);
 
         this.filtrarProductos(); 
         
-        // Ahora sí, sumamos todo el stock real de la base de datos
         this.totalUnidadesStock = this.productos.reduce((acc, prod) => {
           return acc + (prod.inventario?.stockActual || 0);
         }, 0);
@@ -165,7 +196,6 @@ export class HistorialVentasComponent implements OnInit {
   }
 
   agregarAlCarrito(producto: any) {
-    // Validación extra: No dejar agregar si no hay stock
     const stockDisponible = producto.inventario?.stockActual || 0;
     if (stockDisponible <= 0) return alert('Producto sin stock');
 
@@ -223,16 +253,23 @@ export class HistorialVentasComponent implements OnInit {
   finalizarVenta() {
     if (this.carrito.length === 0) return alert('El carrito está vacío');
     if (!this.idCliente) return alert('Debe seleccionar o registrar un cliente');
+    
+    const idEmpleadoLogueado = this.authService.getId();
+    if (!idEmpleadoLogueado) {
+      return alert('Error: No se pudo identificar al empleado. Vuelva a iniciar sesión.');
+    }
+
     if (this.metodoPago === 'EFECTIVO' && this.montoRecibido < this.total) {
       return alert('El monto recibido es insuficiente.');
     }
 
     const ventaData = {
       idCliente: Number(this.idCliente),
-      idEmpleado: 2, // 👈 ¡OJO AQUÍ! Si te sigue dando Error 400, es porque Java exige este campo.
-      metodoPago: this.metodoPago,
-      montoRecibido: this.metodoPago === 'EFECTIVO' ? this.montoRecibido : this.total,
-      detalles: this.carrito.map(c => ({ idProducto: c.idProducto, cantidad: c.cantidad }))
+      idEmpleado: Number(idEmpleadoLogueado), 
+      detalles: this.carrito.map(c => ({ 
+        idProducto: c.idProducto, 
+        cantidad: c.cantidad 
+      }))
     };
 
     this.http.post(`${this.apiUrl}/ventas`, ventaData).subscribe({
@@ -240,9 +277,9 @@ export class HistorialVentasComponent implements OnInit {
         alert(`¡Venta exitosa! Total: Bs. ${res.total}`);
         this.cerrarModal();
         this.cargarVentas(); 
-        this.cargarProductos(); // Recargamos stock para la tarjeta
+        this.cargarProductos();
       },
-      error: (err) => alert('Error: ' + (err.error?.message || 'Verifique el stock y que el idEmpleado exista.'))
+      error: (err) => alert('Error: ' + (err.error?.message || err.error || 'Verifique el stock disponible.'))
     });
   }
 
@@ -259,7 +296,6 @@ export class HistorialVentasComponent implements OnInit {
     this.cambio = 0;
   }
 
-  // --- MÉTRICAS ---
   calcularTotalVentas(): number {
     if (!this.ventas) return 0; 
     return this.ventas

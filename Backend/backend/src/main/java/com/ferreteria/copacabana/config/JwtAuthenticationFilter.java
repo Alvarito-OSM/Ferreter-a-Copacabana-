@@ -40,7 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if ("GET".equalsIgnoreCase(method) && 
-           (path.startsWith("/api/productos") || path.startsWith("/api/categorias"))) {
+           (path.startsWith("/api/productos") || 
+            path.startsWith("/api/categorias") || 
+            path.startsWith("/api/inventario"))) {
             return true;
         }
 
@@ -67,9 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             usuario = jwtService.extraerUsuario(jwt);
-            
-            System.out.println("--> PETICIÓN: " + request.getMethod() + " " + request.getServletPath());
-            System.out.println("--> USUARIO EXTRAÍDO DEL TOKEN: " + usuario);
 
             if (usuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -86,14 +85,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    
-                    System.out.println("--> ÉXITO: Token válido. Roles: " + userDetails.getAuthorities());
-                } else {
-                    System.out.println("--> ERROR: Token inválido o expirado.");
                 }
             }
         } catch (Exception e) {
-            System.out.println("--> EXCEPCIÓN AL LEER TOKEN: " + e.getMessage());
+            System.out.println("--> ERROR AL VALIDAR TOKEN: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

@@ -1,5 +1,6 @@
 package com.ferreteria.copacabana.controller;
 
+import com.ferreteria.copacabana.dto.DetalleVentaResponseDTO; // 👈 IMPORTANTE: Nuevo import
 import com.ferreteria.copacabana.dto.VentaRequest;
 import com.ferreteria.copacabana.model.DetalleVenta;
 import com.ferreteria.copacabana.model.Venta;
@@ -31,8 +32,9 @@ public class VentaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // 👇 AQUÍ ESTÁ LA CORRECCIÓN: Cambiamos DetalleVenta por DetalleVentaResponseDTO 👇
     @GetMapping("/{id}/detalles")
-    public List<DetalleVenta> listarDetalles(@PathVariable Integer id) {
+    public List<DetalleVentaResponseDTO> listarDetalles(@PathVariable Integer id) {
         return ventaService.listarDetalles(id);
     }
 

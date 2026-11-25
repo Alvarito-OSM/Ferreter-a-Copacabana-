@@ -136,7 +136,7 @@
       <ul class="alerts-list">
         @for (alerta of alertas; track alerta.mensaje) {
           <li class="alert-item">
-            <div class="alert-box {{ alerta.clase }}">📦</div>
+            <div class="alert-box {{ alerta.clase }}"> </div>
             <div class="alert-text">
               <p>{{ alerta.mensaje }}</p>
               <span class="alert-badge {{ alerta.clase }}">{{ alerta.tipo }}</span>

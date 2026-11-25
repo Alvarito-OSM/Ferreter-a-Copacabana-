@@ -1,12 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { ProductoService } from '../../core/services/producto.service';
 import { CategoriaService } from '../../core/services/categoria.service';
 import { InventarioService } from '../../core/services/inventario.service';
-import { Producto } from '../../core/models/producto';
-import { AuthService } from '../../core/services/auth.service';
 import { Categoria } from '../../core/models/categoria';
 
 @Component({
@@ -17,11 +15,11 @@ import { Categoria } from '../../core/models/categoria';
   styleUrls: ['./productos.component.css']
 })
 export class ProductosComponent implements OnInit {
-  readonly esAdmin = inject(AuthService).isAdministrador();
-  productos: Producto[] = [];
+  productos: any[] = [];
+  inventarios: any[] = [];
   categorias: Categoria[] = [];
-  inventarios: any[] = []; 
   formProducto: FormGroup;
+  
   esEdicion = false;
   idEdicion?: number;
   mostrarFormulario = false;
@@ -29,34 +27,17 @@ export class ProductosComponent implements OnInit {
   busqueda = '';
   filtroCategoria = '';
   filtroEstado = '';
-
   mensajeExito = '';
-  apiUrl = 'http://localhost:8080/api';
 
-  mostrarModalStock: boolean = false;
-  productoSeleccionado: number | null = null;
-  cantidadIngreso: number = 0;
-  procesando: boolean = false;
-
-  mostrarModalImagen: boolean = false;
-  productoImagenSeleccionado: any = null;
-
-  pestanaActiva: string = 'eoq'; 
-  eoqDatos = { demandaAnual: 12000, costoPedido: 50, costoMantenimiento: 2.5, tiempoEntregaDias: 10, desviacionEstandar: 15, nivelServicio: 1.65 };
-  eoqResultados: any = null;
-  demandaHistorica: number[] = [150, 160, 155, 170, 180, 175, 190];
-  pronosticoResultados: any = null;
-  linealDatos = { h1: 10, h2: 15, h3: 20, horasDisponibles: 100, maderaDisponible: 200, maderaH1: 2, maderaH2: 3, maderaH3: 4 };
-  linealResultados: any = null;
-  colasDatos = { tasaLLegada: 5, tasaServicio: 6 };
-  colasResultados: any = null;
+  paginaActual: number = 1;
+  itemsPorPagina: number = 30;
+  imagenZoom: string | null = null;
 
   constructor(
     private productoService: ProductoService,
     private categoriaService: CategoriaService,
     private inventarioService: InventarioService,
     private fb: FormBuilder,
-    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {
     this.formProducto = this.fb.group({
@@ -74,45 +55,36 @@ export class ProductosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarProductos();
+    this.cargarDatos();
     this.cargarCategorias();
-    this.cargarInventarios(); 
   }
 
-  cargarProductos(): void {
-    this.productoService.obtenerProductos().subscribe({
-      next: (data: Producto[]) => {
-        this.productos = data;
-        this.cdr.detectChanges(); 
+  cargarDatos(): void {
+    forkJoin({
+      productos: this.productoService.obtenerProductos(),
+      inventarios: this.inventarioService.listarInventario()
+    }).subscribe({
+      next: (data) => {
+        this.inventarios = data.inventarios;
+        this.productos = data.productos.map(prod => {
+          const inv = data.inventarios.find(i => i.producto?.idProducto === prod.idProducto);
+          return { ...prod, inventario: inv || null };
+        });
+        this.cdr.detectChanges();
       },
-      error: (err: any) => console.error('Error al cargar productos', err)
+      error: (err: any) => console.error('Error al cargar datos', err)
     });
   }
 
   cargarCategorias(): void {
     this.categoriaService.obtenerCategorias().subscribe({
-      next: (data: Categoria[]) => {
-        this.categorias = data;
-        this.cdr.detectChanges();
-      },
+      next: (data: Categoria[]) => this.categorias = data,
       error: (err: any) => console.error('Error al cargar categorías', err)
     });
   }
 
-  cargarInventarios(): void {
-    this.inventarioService.listarInventario().subscribe({
-      next: (data: any[]) => {
-        this.inventarios = data;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => console.error('Error al cargar inventario', err)
-    });
-  }
-
-  obtenerStock(idProducto: number | undefined): number {
-    if (!idProducto) return 0;
-    const inv = this.inventarios.find(i => i.producto?.idProducto === idProducto);
-    return inv ? inv.stockActual : 0;
+  obtenerStock(prod: any): number {
+    return prod.inventario?.stockActual || 0;
   }
 
   get productosOrdenados() {
@@ -121,59 +93,62 @@ export class ProductosComponent implements OnInit {
       const matchBusqueda = p.nombre.toLowerCase().includes(term) || (p.codigoBarras && p.codigoBarras.includes(term));
       const matchCategoria = this.filtroCategoria ? p.categoria?.nombre === this.filtroCategoria : true;
       const matchEstado = this.filtroEstado ? (this.filtroEstado === 'activo' ? p.estado === true : p.estado === false) : true;
-
       return matchBusqueda && matchCategoria && matchEstado;
     });
 
     return filtrados.sort((a, b) => {
-      const stockA = this.obtenerStock(a.idProducto);
-      const stockB = this.obtenerStock(b.idProducto);
-
+      const stockA = this.obtenerStock(a);
+      const stockB = this.obtenerStock(b);
       const prioridadA = stockA === 0 ? 0 : (stockA <= 5 ? 1 : 2);
       const prioridadB = stockB === 0 ? 0 : (stockB <= 5 ? 1 : 2);
-
       if (prioridadA !== prioridadB) return prioridadA - prioridadB;
       return stockA - stockB; 
     });
   }
 
-  get totalItems(): number { return this.productos.length; }
-  get valorInventario(): number {
-    return this.productos.reduce((acc, p) => acc + (this.obtenerStock(p.idProducto) * (p.precioCompra || 0)), 0);
-  }
-  get lowStockItems(): number {
-    return this.productos.filter(p => { const s = this.obtenerStock(p.idProducto); return s > 0 && s <= 5; }).length;
-  }
-  get outOfStockItems(): number {
-    return this.productos.filter(p => this.obtenerStock(p.idProducto) === 0).length;
+  get productosPaginados() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.productosOrdenados.slice(inicio, inicio + this.itemsPorPagina);
   }
 
-  // 👇 ESTA ES LA FUNCIÓN QUE FALTABA 👇
+  get totalPaginas(): number {
+    return Math.ceil(this.productosOrdenados.length / this.itemsPorPagina);
+  }
+
+  cambiarPagina(pagina: number) {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+    }
+  }
+
   buscar(): void {
-    this.busqueda = this.busqueda.trim();
+    this.paginaActual = 1;
   }
 
-  abrirModalImagen(prod: any): void {
-    if (!prod.imagenUrl) return;
-    this.productoImagenSeleccionado = prod;
-    this.mostrarModalImagen = true;
-  }
-  cerrarModalImagen(): void {
-    this.mostrarModalImagen = false;
-    this.productoImagenSeleccionado = null;
+  abrirZoom(url: string): void {
+    if (url) this.imagenZoom = url;
   }
 
-  abrirFormulario(producto?: Producto): void {
+  cerrarZoom(): void {
+    this.imagenZoom = null;
+  }
+
+  abrirFormulario(producto?: any): void {
     this.mostrarFormulario = true;
     if (producto) {
       this.esEdicion = true;
       this.idEdicion = producto.idProducto;
-      const stock = this.obtenerStock(producto.idProducto);
       this.formProducto.patchValue({
-        nombre: producto.nombre, codigoBarras: producto.codigoBarras, descripcion: producto.descripcion,
-        imagenUrl: producto.imagenUrl, precioCompra: producto.precioCompra, precioVenta: producto.precioVenta,
-        unidadMedida: producto.unidadMedida, idCategoria: producto.categoria?.idCategoria,
-        stockActual: stock, estado: producto.estado
+        nombre: producto.nombre, 
+        codigoBarras: producto.codigoBarras, 
+        descripcion: producto.descripcion,
+        imagenUrl: producto.imagenUrl, 
+        precioCompra: producto.precioCompra, 
+        precioVenta: producto.precioVenta,
+        unidadMedida: producto.unidadMedida, 
+        idCategoria: producto.categoria?.idCategoria,
+        stockActual: this.obtenerStock(producto), 
+        estado: producto.estado
       });
     } else {
       this.esEdicion = false;
@@ -212,36 +187,86 @@ export class ProductosComponent implements OnInit {
   guardar(): void {
     if (this.formProducto.invalid) return;
     const v = this.formProducto.value;
+    const stockIngresado = parseInt(v.stockActual, 10) || 0;
+
+    // Obtenemos el ID del administrador logueado (si usas AuthService)
+    // Si no lo tienes, puedes dejarlo en 1
+    const idAdminLogueado = 1; 
+
     const datos: any = {
       nombre: v.nombre, codigoBarras: v.codigoBarras, descripcion: v.descripcion,
-      imagenUrl: v.imagenUrl, precioCompra: v.precioCompra, precioVenta: v.precioVenta,
+      imagenUrl: v.imagenUrl, precioCompra: Number(v.precioCompra), precioVenta: Number(v.precioVenta),
       unidadMedida: v.unidadMedida, estado: v.estado,
-      categoria: { idCategoria: Number(v.idCategoria) }, administrador: { idAdministrador: 1 }
+      categoria: { idCategoria: Number(v.idCategoria) }, 
+      administrador: { idAdministrador: idAdminLogueado }
     };
 
     if (this.esEdicion && this.idEdicion) {
       datos.idProducto = this.idEdicion; 
+      
       this.productoService.actualizarProducto(this.idEdicion, datos).subscribe({
         next: () => {
           const inv = this.inventarios.find(i => i.producto?.idProducto === this.idEdicion);
+          
           if (inv) {
-            this.inventarioService.actualizarInventario(inv.idInventario, { ...inv, stockActual: v.stockActual }).subscribe({
+            // 👇 CORRECCIÓN: Agregamos fechaActualizacion 👇
+            const invDataLimpia = {
+              idInventario: inv.idInventario,
+              producto: { idProducto: Number(this.idEdicion) }, 
+              administrador: { idAdministrador: idAdminLogueado },
+              stockActual: stockIngresado,
+              stockMinimo: inv.stockMinimo || 5,
+              ubicacion: inv.ubicacion || 'Bodega principal',
+              fechaActualizacion: new Date().toISOString()
+            };
+            
+            this.inventarioService.actualizarInventario(inv.idInventario, invDataLimpia).subscribe({
               next: () => this.finalizarGuardado('Producto y stock actualizados'),
-              error: () => this.finalizarGuardado('Producto actualizado, falló el stock')
+              error: (err: any) => {
+                console.error('ERROR AL ACTUALIZAR INVENTARIO:', err.error);
+                alert('Error al actualizar el stock. Revisa F12 -> Network.');
+              }
             });
-          } else { this.finalizarGuardado('Producto actualizado'); }
+          } else {
+            // 👇 CORRECCIÓN: Agregamos fechaActualizacion 👇
+            this.inventarioService.crearInventario({
+              producto: { idProducto: Number(this.idEdicion) }, 
+              administrador: { idAdministrador: idAdminLogueado },
+              stockActual: stockIngresado, 
+              stockMinimo: 5, 
+              ubicacion: 'Bodega principal',
+              fechaActualizacion: new Date().toISOString()
+            }).subscribe({
+              next: () => this.finalizarGuardado('Producto y stock actualizados'),
+              error: (err: any) => {
+                console.error('ERROR AL CREAR INVENTARIO FALTANTE:', err.error);
+                alert('Error al crear el stock. Revisa F12.');
+              }
+            });
+          }
         },
-        error: (err: any) => alert('Error: ' + (err.error?.message || 'Revisa consola'))
+        error: (err: any) => alert('Error al editar producto: ' + (err.error?.message || 'Revisa consola'))
       });
     } else {
       this.productoService.crearProducto(datos).subscribe({
         next: (prodCreado: any) => {
-          this.inventarioService.crearInventario({
-            producto: { idProducto: prodCreado.idProducto }, administrador: { idAdministrador: 1 },
-            stockActual: v.stockActual, stockMinimo: 5, ubicacion: 'Bodega'
-          }).subscribe({
-            next: () => this.finalizarGuardado('Producto creado'),
-            error: () => this.finalizarGuardado('Producto creado, falló inventario')
+          // 👇 CORRECCIÓN: Agregamos fechaActualizacion 👇
+          const inventarioPayload = {
+            producto: { idProducto: Number(prodCreado.idProducto) }, 
+            administrador: { idAdministrador: idAdminLogueado },
+            stockActual: stockIngresado, 
+            stockMinimo: 5, 
+            ubicacion: 'Bodega principal',
+            fechaActualizacion: new Date().toISOString()
+          };
+          
+          this.inventarioService.crearInventario(inventarioPayload).subscribe({
+            next: () => this.finalizarGuardado('Producto creado con stock'),
+            error: (err: any) => {
+              console.error('ERROR AL CREAR INVENTARIO:', err.error);
+              alert('Java rechazó el stock. Abre F12 -> Consola para ver el error detallado.');
+              this.finalizarGuardado('Producto creado, pero falló el stock');
+            }
           });
         },
         error: (err: any) => {
@@ -257,7 +282,7 @@ export class ProductosComponent implements OnInit {
       this.productoService.eliminarProducto(id).subscribe({
         next: () => {
           this.mensajeExito = 'Producto eliminado';
-          this.cargarProductos(); this.cargarInventarios();
+          this.cargarDatos();
           setTimeout(() => this.mensajeExito = '', 3000);
         },
         error: (err: any) => alert('Error al eliminar: ' + (err.error?.message || 'Error del servidor'))
@@ -267,69 +292,8 @@ export class ProductosComponent implements OnInit {
 
   finalizarGuardado(mensaje: string): void {
     this.mensajeExito = mensaje;
-    this.cerrarFormulario(); this.cargarProductos(); this.cargarInventarios(); 
+    this.cerrarFormulario(); 
+    this.cargarDatos(); 
     setTimeout(() => this.mensajeExito = '', 3000);
-  }
-
-  abrirModalStock() { this.mostrarModalStock = true; this.productoSeleccionado = null; this.cantidadIngreso = 0; }
-  cerrarModalStock() { this.mostrarModalStock = false; }
-
-  guardarStock() {
-    if (!this.productoSeleccionado || this.cantidadIngreso <= 0) return;
-    this.procesando = true;
-    this.http.post(`${this.apiUrl}/inventario/ajustes`, {
-      idProducto: this.productoSeleccionado, cantidad: this.cantidadIngreso,
-      tipoMovimiento: 'ENTRADA', motivo: 'Ingreso de mercadería'
-    }).subscribe({
-      next: () => {
-        alert('Stock ingresado correctamente'); this.procesando = false;
-        this.cerrarModalStock(); this.cargarInventarios();
-      },
-      error: (err) => { alert('Error al guardar. Revisa la consola.'); this.procesando = false; }
-    });
-  }
-
-  calcularEOQ() {
-    const { demandaAnual, costoPedido, costoMantenimiento, tiempoEntregaDias, desviacionEstandar, nivelServicio } = this.eoqDatos;
-    const q = Math.sqrt((2 * demandaAnual * costoPedido) / costoMantenimiento);
-    const ss = nivelServicio * desviacionEstandar * Math.sqrt(tiempoEntregaDias);
-    const pr = (demandaAnual / 365 * tiempoEntregaDias) + ss;
-    this.eoqResultados = { qOptimo: q.toFixed(2), puntoReorden: pr.toFixed(2), stockSeguridad: ss.toFixed(2), costoTotal: ((demandaAnual / q) * costoPedido + (q / 2) * costoMantenimiento).toFixed(2) };
-  }
-
-  calcularPronostico() {
-    const n = 3; const ultimos = this.demandaHistorica.slice(-n);
-    this.pronosticoResultados = { pronosticoProximoMes: (ultimos.reduce((a, b) => a + b, 0) / n).toFixed(0) };
-  }
-
-  calcularLineal() {
-    const { h1, h2, h3, maderaDisponible, maderaH1, maderaH2, maderaH3 } = this.linealDatos;
-    const prods = [
-      { nombre: 'P1', rent: h1 / maderaH1, madera: maderaH1, ganancia: h1 },
-      { nombre: 'P2', rent: h2 / maderaH2, madera: maderaH2, ganancia: h2 },
-      { nombre: 'P3', rent: h3 / maderaH3, madera: maderaH3, ganancia: h3 }
-    ].sort((a, b) => b.rent - a.rent);
-    
-    let restante = maderaDisponible; let total = 0; const prod: any = {};
-    for (let p of prods) {
-      const cant = Math.floor(restante / p.madera);
-      prod[p.nombre] = cant; total += cant * p.ganancia; restante -= cant * p.madera;
-    }
-    this.linealResultados = { produccion: prod, gananciaTotal: total.toFixed(2), maderaSobrante: restante };
-  }
-
-  calcularColas() {
-    const { tasaLLegada, tasaServicio } = this.colasDatos;
-    if (tasaLLegada >= tasaServicio) { alert('La tasa de llegada debe ser menor a la de servicio.'); return; }
-    const rho = tasaLLegada / tasaServicio;
-    const lq = (tasaLLegada ** 2) / (tasaServicio * (tasaServicio - tasaLLegada));
-    const wq = tasaLLegada / (tasaServicio * (tasaServicio - tasaLLegada));
-    const ws = 1 / (tasaServicio - tasaLLegada);
-    this.colasResultados = {
-      utilizacion: (rho * 100).toFixed(2) + '%',
-      longitudCola: lq.toFixed(2),
-      tiempoCola: (wq * 60).toFixed(2) + ' min',
-      tiempoSistema: (ws * 60).toFixed(2) + ' min'
-    };
   }
 }

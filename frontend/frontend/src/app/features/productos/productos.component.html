@@ -6,50 +6,30 @@
       <p class="page-subtitle">Administra el catálogo y el inventario de la ferretería</p>
     </div>
     <div class="header-actions">
-      @if (esAdmin) {
-        <button class="btn btn-primary" (click)="abrirFormulario()">+ Nuevo Producto</button>
-      }
-    </div>
-  </div>
-
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-info"><h3>TOTAL PRODUCTOS</h3><p>{{ totalItems }}</p></div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-info"><h3>VALOR INVENTARIO</h3><p>Bs. {{ valorInventario | number:'1.0-0' }}</p></div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-info"><h3>BAJO STOCK</h3><p>{{ lowStockItems }}</p></div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-info"><h3>AGOTADOS</h3><p>{{ outOfStockItems }}</p></div>
+      <button class="btn btn-secondary" (click)="cargarDatos()">Actualizar Datos</button>
+      <button class="btn btn-primary" (click)="abrirFormulario()">+ Nuevo Producto</button>
     </div>
   </div>
 
   <div *ngIf="mensajeExito" class="alert-success">{{ mensajeExito }}</div>
 
   <div class="table-card">
-    
     <div class="table-toolbar">
       <div class="search-box">
-        <input type="text" placeholder="Buscar producto por nombre..." [(ngModel)]="busqueda" (keyup.enter)="buscar()">
+        <input type="text" placeholder="Buscar producto por nombre..." [(ngModel)]="busqueda" (input)="buscar()">
         
-        <select [(ngModel)]="filtroCategoria" class="filter-select">
+        <select [(ngModel)]="filtroCategoria" (change)="buscar()" class="filter-select">
           <option value="">Todas las Categorías</option>
           @for (cat of categorias; track cat.idCategoria) {
             <option [value]="cat.nombre">{{ cat.nombre }}</option>
           }
         </select>
 
-        <select [(ngModel)]="filtroEstado" class="filter-select">
+        <select [(ngModel)]="filtroEstado" (change)="buscar()" class="filter-select">
           <option value="">Todos los Estados</option>
           <option value="activo">Activos</option>
           <option value="inactivo">Inactivos</option>
         </select>
-
-        <!-- 👇 BOTÓN BUSCAR RESTAURADO 👇 -->
-        <button (click)="buscar()" class="btn btn-search">Buscar</button>
       </div>
     </div>
 
@@ -63,60 +43,56 @@
             <th class="text-center" style="width: 10%;">STOCK</th>
             <th class="text-center" style="width: 10%;">ESTADO</th>
             <th class="text-center" style="width: 15%;">PRECIOS</th>
-            @if (esAdmin) {
-              <th class="text-center" style="width: 10%;">ACCIONES</th>
-            }
+            <th class="text-center" style="width: 10%;">ACCIONES</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="productosOrdenados.length === 0">
-            <td colspan="7" class="empty-row">No se encontraron productos.</td>
-          </tr>
-          <tr *ngFor="let prod of productosOrdenados">
-            <td class="text-center">
-              <span class="cell-code">{{ prod.codigoBarras }}</span>
-            </td>
-            
-            <td>
-              <div class="prod-cell">
-                @if (prod.imagenUrl) {
-                  <img [src]="prod.imagenUrl" alt="Producto" class="prod-img-thumb clickable-img" (click)="abrirModalImagen(prod)" (error)="prod.imagenUrl = undefined">
-                } @else {
-                  <div class="prod-img-placeholder">
-                    <i class="bi bi-box-seam"></i>
+          @if (productosPaginados.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-row">No se encontraron productos.</td>
+            </tr>
+          }
+          
+          @for (prod of productosPaginados; track prod.idProducto) {
+            <tr>
+              <td class="text-center"><span class="cell-code">{{ prod.codigoBarras }}</span></td>
+              
+              <td>
+                <div class="prod-cell">
+                  @if (prod.imagenUrl) {
+                    <!-- 👇 AGREGAMOS EL CLICK PARA EL ZOOM 👇 -->
+                    <img [src]="prod.imagenUrl" alt="Producto" class="prod-img-thumb zoomable" (click)="abrirZoom(prod.imagenUrl)" (error)="prod.imagenUrl = undefined">
+                  } @else {
+                    <div class="prod-img-placeholder"><i class="bi bi-box-seam"></i></div>
+                  }
+                  <div class="prod-info-text">
+                    <span class="prod-title">{{ prod.nombre }}</span>
+                    <span class="prod-subtitle">{{ prod.unidadMedida }}</span>
                   </div>
-                }
-                <div class="prod-info-text">
-                  <span class="prod-title">{{ prod.nombre }}</span>
-                  <span class="prod-subtitle">{{ prod.unidadMedida }}</span>
                 </div>
-              </div>
-            </td>
+              </td>
 
-            <td class="text-center">
-              <span class="badge-categoria">{{ prod.categoria?.nombre }}</span>
-            </td>
-            
-            <td class="text-center">
-              <span class="badge-stock" [ngClass]="obtenerStock(prod.idProducto) <= 5 ? 'stock-bajo' : 'stock-ok'">
-                {{ obtenerStock(prod.idProducto) }}
-              </span>
-            </td>
-            
-            <td class="text-center">
-              <span class="status-indicator" [ngClass]="prod.estado ? 'status-active' : 'status-inactive'">
-                <span class="dot"></span> {{ prod.estado ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
+              <td class="text-center"><span class="badge-categoria">{{ prod.categoria?.nombre }}</span></td>
+              
+              <td class="text-center">
+                <span class="badge-stock" [ngClass]="obtenerStock(prod) <= 5 ? 'stock-bajo' : 'stock-ok'">
+                  {{ obtenerStock(prod) }}
+                </span>
+              </td>
+              
+              <td class="text-center">
+                <span class="status-indicator" [ngClass]="prod.estado ? 'status-active' : 'status-inactive'">
+                  <span class="dot"></span> {{ prod.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
 
-            <td class="text-center">
-              <div class="precios-cell">
-                <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
-                <span class="precio-costo">Costo: Bs. {{ prod.precioCompra }}</span>
-              </div>
-            </td>
+              <td class="text-center">
+                <div class="precios-cell">
+                  <span class="precio-venta">Bs. {{ prod.precioVenta }}</span>
+                  <span class="precio-costo">Costo: Bs. {{ prod.precioCompra }}</span>
+                </div>
+              </td>
 
-            @if (esAdmin) {
               <td class="cell-actions">
                 <button type="button" (click)="abrirFormulario(prod)" class="action-btn btn-edit" title="Editar">
                   <i class="bi bi-pencil-square"></i>
@@ -125,106 +101,28 @@
                   <i class="bi bi-trash3"></i>
                 </button>
               </td>
-            }
-          </tr>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
-  </div>
 
-  <div class="analisis-operativo">
-    <div class="analisis-header"><h2>Análisis de Investigación Operativa</h2></div>
-    <div class="tabs-nav">
-      <button [class.active]="pestanaActiva === 'eoq'" (click)="pestanaActiva = 'eoq'">EOQ y Reorden</button>
-      <button [class.active]="pestanaActiva === 'pronostico'" (click)="pestanaActiva = 'pronostico'">Pronóstico</button>
-      <button [class.active]="pestanaActiva === 'lineal'" (click)="pestanaActiva = 'lineal'">Prog. Lineal</button>
-      <button [class.active]="pestanaActiva === 'colas'" (click)="pestanaActiva = 'colas'">Teoría de Colas</button>
-    </div>
-    <div class="tabs-content">
-      @if (pestanaActiva === 'eoq') {
-        <div class="grid-2-cols">
-          <div class="card">
-            <h3>Datos de Entrada</h3>
-            <div class="form-group"><label>Demanda Anual</label><input type="number" [(ngModel)]="eoqDatos.demandaAnual" class="form-control"></div>
-            <div class="form-group"><label>Costo por Pedido (Bs.)</label><input type="number" [(ngModel)]="eoqDatos.costoPedido" class="form-control"></div>
-            <div class="form-group"><label>Costo Mantenimiento (Bs.)</label><input type="number" [(ngModel)]="eoqDatos.costoMantenimiento" class="form-control"></div>
-            <div class="form-group"><label>Tiempo de Entrega (Días)</label><input type="number" [(ngModel)]="eoqDatos.tiempoEntregaDias" class="form-control"></div>
-            <div class="form-group"><label>Desviación Estándar</label><input type="number" [(ngModel)]="eoqDatos.desviacionEstandar" class="form-control"></div>
-            <button class="btn btn-primary w-100" (click)="calcularEOQ()">Calcular EOQ</button>
-          </div>
-          <div class="card results-card" *ngIf="eoqResultados">
-            <h3>Resultados Óptimos</h3>
-            <div class="result-item"><span>Q Óptimo:</span> <strong>{{ eoqResultados.qOptimo }} unds</strong></div>
-            <div class="result-item"><span>Punto de Reorden:</span> <strong>{{ eoqResultados.puntoReorden }} unds</strong></div>
-            <div class="result-item"><span>Stock Seguridad:</span> <strong>{{ eoqResultados.stockSeguridad }} unds</strong></div>
-            <div class="result-item"><span>Costo Total:</span> <strong>Bs. {{ eoqResultados.costoTotal }}</strong></div>
-          </div>
-        </div>
-      }
-      @if (pestanaActiva === 'pronostico') {
-        <div class="grid-2-cols">
-          <div class="card">
-            <h3>Demanda Histórica</h3>
-            <div class="form-group" *ngFor="let d of demandaHistorica; let i = index">
-              <label>Mes {{ i + 1 }}</label><input type="number" [(ngModel)]="demandaHistorica[i]" class="form-control">
-            </div>
-            <button class="btn btn-primary w-100" (click)="calcularPronostico()">Calcular Pronóstico</button>
-          </div>
-          <div class="card results-card" *ngIf="pronosticoResultados">
-            <h3>Resultado</h3>
-            <div class="result-item"><span>Próximo Mes:</span> <strong>{{ pronosticoResultados.pronosticoProximoMes }} unds</strong></div>
-          </div>
-        </div>
-      }
-      @if (pestanaActiva === 'lineal') {
-        <div class="grid-2-cols">
-          <div class="card">
-            <h3>Datos de Producción</h3>
-            <div class="form-group"><label>Madera Disponible</label><input type="number" [(ngModel)]="linealDatos.maderaDisponible" class="form-control"></div>
-            <button class="btn btn-primary w-100" (click)="calcularLineal()">Calcular Mezcla</button>
-          </div>
-          <div class="card results-card" *ngIf="linealResultados">
-            <h3>Producción Óptima</h3>
-            <div class="result-item" *ngFor="let p of linealResultados.produccion | keyvalue"><span>{{ p.key }}:</span> <strong>{{ p.value }}</strong></div>
-            <div class="result-item" style="margin-top: 10px;"><span>Ganancia:</span> <strong>Bs. {{ linealResultados.gananciaTotal }}</strong></div>
-          </div>
-        </div>
-      }
-      @if (pestanaActiva === 'colas') {
-        <div class="grid-2-cols">
-          <div class="card">
-            <h3>Datos de Atención (M/M/1)</h3>
-            <div class="form-group"><label>Tasa de Llegada (λ)</label><input type="number" [(ngModel)]="colasDatos.tasaLLegada" class="form-control"></div>
-            <div class="form-group"><label>Tasa de Servicio (μ)</label><input type="number" [(ngModel)]="colasDatos.tasaServicio" class="form-control"></div>
-            <button class="btn btn-primary w-100" (click)="calcularColas()">Calcular Métricas</button>
-          </div>
-          <div class="card results-card" *ngIf="colasResultados">
-            <h3>Resultados</h3>
-            <div class="result-item"><span>Utilización:</span> <strong>{{ colasResultados.utilizacion }}</strong></div>
-            <div class="result-item"><span>Longitud de Cola (Lq):</span> <strong>{{ colasResultados.longitudCola }} clientes</strong></div>
-            <div class="result-item"><span>Tiempo en Cola (Wq):</span> <strong>{{ colasResultados.tiempoCola }}</strong></div>
-            <div class="result-item"><span>Tiempo en Sistema (Ws):</span> <strong>{{ colasResultados.tiempoSistema }}</strong></div>
-          </div>
-        </div>
-      }
-    </div>
+    <!-- CONTROLES DE PAGINACIÓN -->
+    @if (totalPaginas > 1) {
+      <div class="pagination-container">
+        <button class="btn-page" [disabled]="paginaActual === 1" (click)="cambiarPagina(paginaActual - 1)">
+          <i class="bi bi-chevron-left"></i> Anterior
+        </button>
+        <span class="page-info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+        <button class="btn-page" [disabled]="paginaActual === totalPaginas" (click)="cambiarPagina(paginaActual + 1)">
+          Siguiente <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    }
   </div>
 </div>
 
-@if (mostrarModalImagen && productoImagenSeleccionado) {
-  <div class="modal-overlay modal-image-overlay" (click)="cerrarModalImagen()">
-    <div class="modal-content image-preview-content" (click)="$event.stopPropagation()">
-      <button class="close-image-btn" (click)="cerrarModalImagen()">&times;</button>
-      <img [src]="productoImagenSeleccionado.imagenUrl" class="full-image" alt="Vista previa">
-      <div class="image-info">
-        <h2>{{ productoImagenSeleccionado.nombre }}</h2>
-        <p>{{ productoImagenSeleccionado.descripcion || 'Sin descripción disponible.' }}</p>
-        <span class="image-price">Bs. {{ productoImagenSeleccionado.precioVenta }}</span>
-      </div>
-    </div>
-  </div>
-}
-
+<!-- MODAL CREAR/EDITAR (Igual que antes) -->
 <div class="modal-overlay" *ngIf="mostrarFormulario">
   <div class="modal-content">
     <div class="modal-header">
@@ -296,34 +194,9 @@
   </div>
 </div>
 
-@if (mostrarModalStock) {
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Ingresar Stock</h2>
-        <button (click)="cerrarModalStock()" class="close-btn">&times;</button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group full-width">
-          <label>Seleccione el Producto *</label>
-          <select [(ngModel)]="productoSeleccionado" class="form-control">
-            <option [ngValue]="null">-- Seleccione un producto --</option>
-            @for (prod of productos; track prod.idProducto) {
-              <option [ngValue]="prod.idProducto">{{ prod.nombre }} (Stock: {{ obtenerStock(prod.idProducto) }})</option>
-            }
-          </select>
-        </div>
-        <div class="form-group full-width">
-          <label>Cantidad a Ingresar *</label>
-          <input type="number" [(ngModel)]="cantidadIngreso" min="1" class="form-control" placeholder="Ej: 50">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button (click)="cerrarModalStock()" class="btn btn-secondary">Cancelar</button>
-        <button (click)="guardarStock()" class="btn btn-primary" [disabled]="!productoSeleccionado || cantidadIngreso <= 0 || procesando">
-          {{ procesando ? 'Guardando...' : 'Confirmar Ingreso' }}
-        </button>
-      </div>
-    </div>
+<!-- 👇 NUEVO MODAL PARA EL ZOOM DE IMAGEN 👇 -->
+@if (imagenZoom) {
+  <div class="zoom-overlay" (click)="cerrarZoom()">
+    <img [src]="imagenZoom" alt="Vista ampliada" class="zoom-image">
   </div>
 }

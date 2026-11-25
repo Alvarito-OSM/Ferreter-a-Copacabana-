@@ -1,7 +1,7 @@
-
 package com.ferreteria.copacabana.controller;
 
 import com.ferreteria.copacabana.dto.CompraRequest;
+import com.ferreteria.copacabana.dto.DetalleCompraResponseDTO; // 👈 NUEVO IMPORT
 import com.ferreteria.copacabana.model.Compra;
 import com.ferreteria.copacabana.model.DetalleCompra;
 import com.ferreteria.copacabana.service.CompraService;
@@ -23,8 +23,7 @@ public class CompraController {
 
     // Registrar compra completa con inventario, lotes y Kardex
     @PostMapping("/completa")
-    public Compra registrarCompraCompleta(
-            @RequestBody CompraRequest request) {
+    public Compra registrarCompraCompleta(@RequestBody CompraRequest request) {
         return compraService.registrarCompra(request);
     }
 
@@ -43,6 +42,12 @@ public class CompraController {
         return compraService.buscarCompra(id);
     }
 
+    // 👇 NUEVO ENDPOINT PARA EL MODAL DE DETALLES 👇
+    @GetMapping("/{id}/detalles")
+    public List<DetalleCompraResponseDTO> listarDetallesCompra(@PathVariable Integer id) {
+        return compraService.listarDetallesCompra(id);
+    }
+
     @DeleteMapping("/{id}")
     public String eliminarCompra(@PathVariable Integer id) {
         compraService.eliminarCompra(id);
@@ -50,8 +55,7 @@ public class CompraController {
     }
 
     @PostMapping("/detalle")
-    public DetalleCompra guardarDetalle(
-            @RequestBody DetalleCompra detalle) {
+    public DetalleCompra guardarDetalle(@RequestBody DetalleCompra detalle) {
         return compraService.guardarDetalle(detalle);
     }
 
